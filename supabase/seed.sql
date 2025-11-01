@@ -1,24 +1,24 @@
--- Seed event types
+-- Seed event categories
 with upsert_community as (
-  insert into public.event_types (key, label, display_order)
+  insert into public.event_categories (key, label, display_order)
   values ('community', 'Community', 1)
   on conflict (key) do update set label = excluded.label, display_order = excluded.display_order
   returning id
 ),
 upsert_corporate as (
-  insert into public.event_types (key, label, display_order)
+  insert into public.event_categories (key, label, display_order)
   values ('corporate', 'Corporate', 2)
   on conflict (key) do update set label = excluded.label, display_order = excluded.display_order
   returning id
 )
 select 1;
 
--- Helper CTE to read type ids
+-- Helper CTE to read category ids
 with community as (
-  select id from public.event_types where key = 'community'
+  select id from public.event_categories where key = 'community'
 ),
 corporate as (
-  select id from public.event_types where key = 'corporate'
+  select id from public.event_categories where key = 'corporate'
 )
 -- Upcoming events
 insert into public.events (
@@ -26,13 +26,14 @@ insert into public.events (
   title,
   summary,
   description,
-  type_id,
+  category_id,
   format,
   venue_city,
   venue_country,
   registration_url,
   expected_attendees,
   status,
+  is_published,
   start_at,
   end_at,
   timezone,
@@ -51,6 +52,7 @@ select
   'https://www.commudle.com/communities/ambixous/events/disrupting-the-funnel-the-future-of-adtech-brand-marketing',
   100,
   'closed',
+  true,
   timestamptz '2025-09-13 13:00:00+05:30',
   timestamptz '2025-09-13 17:00:00+05:30',
   'Asia/Kolkata',
@@ -60,20 +62,21 @@ from corporate
 where not exists (select 1 from public.events where slug = 'disrupting-the-funnel');
 
 with community as (
-  select id from public.event_types where key = 'community'
+  select id from public.event_categories where key = 'community'
 )
 insert into public.events (
   slug,
   title,
   summary,
   description,
-  type_id,
+  category_id,
   format,
   venue_city,
   venue_country,
   registration_url,
   expected_attendees,
   status,
+  is_published,
   start_at,
   end_at,
   timezone,
@@ -92,6 +95,7 @@ select
   'https://www.commudle.com/communities/ambixous/events/skillup-bootcamp',
   200,
   'closed',
+  true,
   timestamptz '2025-08-02 10:30:00+05:30',
   timestamptz '2025-08-02 16:00:00+05:30',
   'Asia/Kolkata',
@@ -102,20 +106,21 @@ where not exists (select 1 from public.events where slug = 'skillup-bootcamp');
 
 -- Past events
 with corporate as (
-  select id from public.event_types where key = 'corporate'
+  select id from public.event_categories where key = 'corporate'
 )
 insert into public.events (
   slug,
   title,
   summary,
   description,
-  type_id,
+  category_id,
   format,
   venue_city,
   venue_country,
   recap_url,
   expected_attendees,
   status,
+  is_published,
   start_at,
   end_at,
   timezone,
@@ -133,6 +138,7 @@ select
   'https://reskilll.com/event/devconnect',
   80,
   'closed',
+  true,
   timestamptz '2025-07-19 10:00:00+05:30',
   timestamptz '2025-07-19 16:00:00+05:30',
   'Asia/Kolkata',
@@ -141,20 +147,21 @@ from corporate
 where not exists (select 1 from public.events where slug = 'fusion-forum-2025');
 
 with community as (
-  select id from public.event_types where key = 'community'
+  select id from public.event_categories where key = 'community'
 )
 insert into public.events (
   slug,
   title,
   summary,
   description,
-  type_id,
+  category_id,
   format,
   venue_city,
   venue_country,
   recap_url,
   expected_attendees,
   status,
+  is_published,
   start_at,
   end_at,
   timezone,
@@ -172,6 +179,7 @@ select
   'https://www.commudle.com/communities/ambixous/events/ai-for-social-good-wtm-google-x-ambixous',
   200,
   'closed',
+  true,
   timestamptz '2025-04-05 10:00:00+05:30',
   timestamptz '2025-04-05 17:00:00+05:30',
   'Asia/Kolkata',
@@ -180,20 +188,21 @@ from community
 where not exists (select 1 from public.events where slug = 'ai-for-social-good-2025');
 
 with community as (
-  select id from public.event_types where key = 'community'
+  select id from public.event_categories where key = 'community'
 )
 insert into public.events (
   slug,
   title,
   summary,
   description,
-  type_id,
+  category_id,
   format,
   venue_city,
   venue_country,
   recap_url,
   expected_attendees,
   status,
+  is_published,
   start_at,
   end_at,
   timezone,
@@ -211,6 +220,7 @@ select
   'https://www.commudle.com/communities/ambixous/events/the-ambitious-women-real-stories-real-empowerment',
   300,
   'closed',
+  true,
   timestamptz '2025-03-08 10:00:00+05:30',
   timestamptz '2025-03-08 18:00:00+05:30',
   'Asia/Kolkata',
@@ -219,20 +229,21 @@ from community
 where not exists (select 1 from public.events where slug = 'ambitious-women-live-2025');
 
 with corporate as (
-  select id from public.event_types where key = 'corporate'
+  select id from public.event_categories where key = 'corporate'
 )
 insert into public.events (
   slug,
   title,
   summary,
   description,
-  type_id,
+  category_id,
   format,
   venue_city,
   venue_country,
   recap_url,
   expected_attendees,
   status,
+  is_published,
   start_at,
   end_at,
   timezone,
@@ -250,6 +261,7 @@ select
   'https://www.commudle.com/communities/ambixous/events/brb-boring-replaced-by-bots',
   40,
   'closed',
+  true,
   timestamptz '2024-03-01 11:00:00+05:30',
   timestamptz '2024-03-01 15:00:00+05:30',
   'Asia/Kolkata',
@@ -258,20 +270,21 @@ from corporate
 where not exists (select 1 from public.events where slug = 'brb-boring-replaced-by-bots-2024');
 
 with community as (
-  select id from public.event_types where key = 'community'
+  select id from public.event_categories where key = 'community'
 )
 insert into public.events (
   slug,
   title,
   summary,
   description,
-  type_id,
+  category_id,
   format,
   venue_city,
   venue_country,
   recap_url,
   expected_attendees,
   status,
+  is_published,
   start_at,
   end_at,
   timezone,
@@ -289,6 +302,7 @@ select
   'https://www.commudle.com/communities/ambixous/events/innovator-s-meetup',
   150,
   'closed',
+  true,
   timestamptz '2025-02-09 10:00:00+05:30',
   timestamptz '2025-02-09 16:00:00+05:30',
   'Asia/Kolkata',
@@ -297,20 +311,21 @@ from community
 where not exists (select 1 from public.events where slug = 'innovators-meetup-2025');
 
 with corporate as (
-  select id from public.event_types where key = 'corporate'
+  select id from public.event_categories where key = 'corporate'
 )
 insert into public.events (
   slug,
   title,
   summary,
   description,
-  type_id,
+  category_id,
   format,
   venue_city,
   venue_country,
   recap_url,
   expected_attendees,
   status,
+  is_published,
   start_at,
   end_at,
   timezone,
@@ -328,6 +343,7 @@ select
   'https://www.commudle.com/communities/ambixous/events/founder-s-day-meetup',
   500,
   'closed',
+  true,
   timestamptz '2025-01-18 10:00:00+05:30',
   timestamptz '2025-01-18 18:00:00+05:30',
   'Asia/Kolkata',
