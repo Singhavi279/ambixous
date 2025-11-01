@@ -66,22 +66,132 @@ const displayOrderField = z
     return Math.round(parsed)
   })
 
+const DATETIME_LOCAL_PATTERN =
+  /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})(?::(\d{2}))?$/
+
 const dateField = (field: string) =>
   z
     .string({ required_error: `${field} is required` })
     .trim()
-    .transform((value, ctx) => {
-      if (!value) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `${field} is required` })
-        return z.NEVER
-      }
-      const date = new Date(value)
-      if (Number.isNaN(date.getTime())) {
-        ctx.addIssue({ code: z.ZodIssueCode.custom, message: `Provide a valid ${field.toLowerCase()}` })
-        return z.NEVER
-      }
-      return date.toISOString()
-    })
+    .refine((value) => value.length > 0, `${field} is required`)
+    .refine((value) => DATETIME_LOCAL_PATTERN.test(value), `Provide a valid ${field.toLowerCase()}`)
+
+const zonedFormatterCache = new Map<string, Intl.DateTimeFormat>()
+
+const getZonedFormatter = (timeZone: string) => {
+  const cacheKey = timeZone
+  if (!zonedFormatterCache.has(cacheKey)) {
+    zonedFormatterCache.set(
+      cacheKey,
+      new Intl.DateTimeFormat("en-CA", {
+        timeZone,
+        hourCycle: "h23",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+      })
+    )
+  }
+
+  return zonedFormatterCache.get(cacheKey)!
+}
+
+type DateTimeParseResult =
+  | { success: true; iso: string }
+  | { success: false; errorField: "datetime" | "timezone"; message: string }
+
+const toNumber = (value: string) => Number.parseInt(value, 10)
+
+const getZonedInfo = (formatter: Intl.DateTimeFormat, utcMs: number) => {
+  const parts = formatter.formatToParts(new Date(utcMs))
+  const map = new Map<string, string>()
+
+  for (const part of parts) {
+    if (part.type !== "literal") {
+      map.set(part.type, part.value)
+    }
+  }
+
+  const year = map.get("year")
+  const month = map.get("month")
+  const day = map.get("day")
+  const hour = map.get("hour")
+  const minute = map.get("minute")
+  const second = map.get("second") ?? "00"
+
+  if (!year || !month || !day || !hour || !minute) {
+    return null
+  }
+
+  const formatted = `${year}-${month}-${day}T${hour}:${minute}:${second}`
+  const asUtc = Date.UTC(
+    toNumber(year),
+    toNumber(month) - 1,
+    toNumber(day),
+    toNumber(hour),
+    toNumber(minute),
+    toNumber(second)
+  )
+
+  return { formatted, asUtc }
+}
+
+const parseDateTimeInTimezone = (value: string, timeZone: string, fieldLabel: string): DateTimeParseResult => {
+  const match = DATETIME_LOCAL_PATTERN.exec(value)
+  if (!match) {
+    return { success: false, errorField: "datetime", message: `Provide a valid ${fieldLabel}` }
+  }
+
+  const [, yearStr, monthStr, dayStr, hourStr, minuteStr, secondStr] = match
+  const secondNormalized = secondStr ?? "00"
+
+  const desiredUtc = Date.UTC(
+    toNumber(yearStr),
+    toNumber(monthStr) - 1,
+    toNumber(dayStr),
+    toNumber(hourStr),
+    toNumber(minuteStr),
+    toNumber(secondNormalized)
+  )
+
+  let formatter: Intl.DateTimeFormat
+  try {
+    formatter = getZonedFormatter(timeZone)
+  } catch {
+    return { success: false, errorField: "timezone", message: "Provide a valid timezone" }
+  }
+
+  let utcMs = desiredUtc
+
+  for (let i = 0; i < 5; i += 1) {
+    const zonedInfo = getZonedInfo(formatter, utcMs)
+    if (!zonedInfo) {
+      break
+    }
+
+    if (zonedInfo.formatted === `${yearStr}-${monthStr}-${dayStr}T${hourStr}:${minuteStr}:${secondNormalized}`) {
+      return { success: true, iso: new Date(utcMs).toISOString() }
+    }
+
+    const diff = desiredUtc - zonedInfo.asUtc
+    if (diff === 0) {
+      break
+    }
+
+    utcMs += diff
+  }
+
+  const finalInfo = getZonedInfo(formatter, utcMs)
+
+  if (finalInfo && finalInfo.formatted === `${yearStr}-${monthStr}-${dayStr}T${hourStr}:${minuteStr}:${secondNormalized}`) {
+    return { success: true, iso: new Date(utcMs).toISOString() }
+  }
+
+  return { success: false, errorField: "datetime", message: `Provide a valid ${fieldLabel}` }
+}
 
 const formatField = z.enum(["in_person", "virtual", "hybrid"], {
   required_error: "Select a format",
@@ -124,14 +234,52 @@ const eventSchema = z
     display_order: displayOrderField,
   })
   .superRefine((values, ctx) => {
-    const start = new Date(values.start_at)
-    const end = new Date(values.end_at)
-    if (end.getTime() < start.getTime()) {
-      ctx.addIssue({
-        path: ["end_at"],
-        code: z.ZodIssueCode.custom,
-        message: "End date must be after the start date",
-      })
+    let timezoneIssueReported = false
+
+    const normalize = (field: "start_at" | "end_at", label: string) => {
+      const result = parseDateTimeInTimezone(values[field], values.timezone, label.toLowerCase())
+
+      if (!result.success) {
+        const path = result.errorField === "timezone" ? ["timezone"] : [field]
+
+        if (result.errorField === "timezone") {
+          if (!timezoneIssueReported) {
+            ctx.addIssue({
+              path,
+              code: z.ZodIssueCode.custom,
+              message: result.message,
+            })
+            timezoneIssueReported = true
+          }
+        } else {
+          ctx.addIssue({
+            path,
+            code: z.ZodIssueCode.custom,
+            message: result.message,
+          })
+        }
+
+        return null
+      }
+
+      values[field] = result.iso
+      return result.iso
+    }
+
+    const startIso = normalize("start_at", "Start date")
+    const endIso = normalize("end_at", "End date")
+
+    if (startIso && endIso) {
+      const start = new Date(startIso)
+      const end = new Date(endIso)
+
+      if (end.getTime() < start.getTime()) {
+        ctx.addIssue({
+          path: ["end_at"],
+          code: z.ZodIssueCode.custom,
+          message: "End date must be after the start date",
+        })
+      }
     }
   })
 
@@ -244,6 +392,23 @@ export async function updateEvent(
   }
 
   const payload = parsed.data
+
+  const {
+    data: { user },
+    error: authError,
+  } = await supabase.auth.getUser()
+
+  if (authError) {
+    return {
+      errors: { _form: [authError.message] },
+    }
+  }
+
+  if (!user) {
+    return {
+      errors: { _form: ["You must be signed in to update events."] },
+    }
+  }
 
   const { error } = await supabase
     .from("events")
