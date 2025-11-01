@@ -2,6 +2,64 @@
 create extension if not exists "pgcrypto";
 create extension if not exists "uuid-ossp";
 
+-- Drop dependent views so we can rename tables/columns safely
+drop view if exists public.view_upcoming_events;
+drop view if exists public.view_past_events;
+drop view if exists public.view_event_speakers;
+
+-- Migrate legacy event_types/type_id schema to the new event_categories/category_id structure
+do $$
+begin
+  if exists (
+    select 1 from information_schema.tables
+    where table_schema = 'public' and table_name = 'event_types'
+  ) and not exists (
+    select 1 from information_schema.tables
+    where table_schema = 'public' and table_name = 'event_categories'
+  ) then
+    execute 'alter table public.event_types rename to event_categories';
+  end if;
+end;
+$$;
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'events' and column_name = 'type_id'
+  ) then
+    execute 'alter table public.events rename column type_id to category_id';
+  end if;
+end;
+$$;
+
+alter table if exists public.events
+  drop constraint if exists events_type_id_fkey;
+
+alter table if exists public.events
+  drop constraint if exists events_category_id_fkey;
+
+alter table if exists public.events
+  add constraint events_category_id_fkey foreign key (category_id) references public.event_categories(id) on delete restrict;
+
+alter table if exists public.events
+  add column if not exists is_published boolean not null default false;
+
+do $$
+begin
+  if exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'events' and column_name = 'is_published'
+  ) then
+    execute $$
+      update public.events
+      set is_published = (status in ('published', 'limited', 'closed', 'archived'))
+      where is_published is distinct from (status in ('published', 'limited', 'closed', 'archived'));
+    $$;
+  end if;
+end;
+$$;
+
 -- Event categories
 create table if not exists public.event_categories (
   id uuid primary key default gen_random_uuid(),
