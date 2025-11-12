@@ -5,6 +5,24 @@ import Link from "next/link"
 export function PastHighlights() {
   const pastEvents = [
     {
+      title: "Disrupting the Funnel",
+      date: "September 13, 2025",
+      type: "Corporate",
+      attendees: 100,
+      impact: "Elevated marketing from 0 → 1",
+      description: "An afternoon of candid insights, proven playbooks, and pitfalls to avoid from AdTech innovators and growth leaders.",
+      learnUrl: "https://www.commudle.com/communities/ambixous/events/disrupting-the-funnel-the-future-of-adtech-brand-marketing",
+    },
+    {
+      title: "SkillUp Bootcamp",
+      date: "August 2, 2025",
+      type: "Community",
+      attendees: 200,
+      impact: "Created awareness about upskilling",
+      description: "A high-impact learning experience for developers, designers, and tech professionals to upskill through live sessions.",
+      learnUrl: "https://www.commudle.com/communities/ambixous/events/skillup-bootcamp",
+    },
+    {
       title: "Fusion Forum",
       date: "July 19, 2025",
       type: "Corporate",

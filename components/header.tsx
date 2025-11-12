@@ -78,7 +78,7 @@ export function Header() {
                   asChild
                   className="w-full bg-ambixous-neon text-electric-ink hover:bg-ambixous-neon/90 font-bold shadow-lg"
                 >
-                  <Link href="/community">Join Community</Link>
+                  <Link href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t" target="_blank">Join Community</Link>
                 </Button>
               </div>
             </div>

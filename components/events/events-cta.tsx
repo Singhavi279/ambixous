@@ -54,8 +54,11 @@ export function EventsCTA() {
                     Stay updated with the latest events, workshops, and community insights.
                   </p>
                 </div>
-                <Button className="w-full bg-transparent text-signal-blue hover:bg-signal-blue hover:text-electric-ink font-bold py-3 rounded-xl border-2 border-signal-blue transition-all duration-200">
-                 <Link href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t" target="_blank">Subscribe Now</Link>
+                <Button
+                  asChild
+                  className="w-full bg-transparent text-signal-blue hover:bg-signal-blue hover:text-electric-ink font-bold py-3 rounded-xl border-2 border-signal-blue transition-all duration-200"
+                >
+                  <Link href="https://www.linkedin.com/pulse/founders-dilemma-growth-vs-profitability-2025-ambixous-5meaf/" target="_blank" rel="noopener noreferrer">Subscribe Now</Link>
                 </Button>
               </div>
             </div>

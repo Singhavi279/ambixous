@@ -18,11 +18,13 @@ export function Logo({ size = "md", href = "/", className = "" }: LogoProps) {
 
   const logoImage = (
     <Image
-      src="/logo.jpg"
+      src="/logo.png"
       alt="Ambixous"
       width={width}
       height={height}
-      priority
+      priority={size === "sm"}
+      loading={size === "sm" ? undefined : "lazy"}
+      quality={85}
       className={`object-contain hover:scale-105 transition-transform duration-200 ${className}`}
     />
   )

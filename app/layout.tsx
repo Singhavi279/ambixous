@@ -23,7 +23,30 @@ export const metadata: Metadata = {
   title: "Ambixous - Build. Connect. Grow. Together.",
   description:
     "Where ideas find momentum and impact finds a home. A bridge between community-driven change and business-driven innovation.",
-    generator: 'v0.dev'
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32", type: "image/x-icon" },
+      { url: "/logo.png", sizes: "192x192", type: "image/png" },
+    ],
+    apple: [
+      { url: "/logo.png", sizes: "180x180", type: "image/png" },
+    ],
+    shortcut: "/favicon.ico",
+  },
+  metadataBase: new URL('https://ambixous.com'),
+  openGraph: {
+    title: "Ambixous - Build. Connect. Grow. Together.",
+    description: "Where ideas find momentum and impact finds a home. A bridge between community-driven change and business-driven innovation.",
+    images: ["/logo.png"],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Ambixous - Build. Connect. Grow. Together.",
+    description: "Where ideas find momentum and impact finds a home. A bridge between community-driven change and business-driven innovation.",
+    images: ["/logo.png"],
+  },
+  generator: 'v0.dev'
 }
 
 export default function RootLayout({
@@ -34,6 +57,10 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sora.variable} ${inter.variable}`}>
       <head>
+        {/* Preload critical assets */}
+        <link rel="preload" href="/favicon.ico" as="image" type="image/x-icon" />
+        <link rel="preload" href="/logo.png" as="image" type="image/png" />
+        
         {/* Google Analytics */}
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-X78W0PCES1" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">
