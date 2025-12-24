@@ -15,6 +15,12 @@ export function Header() {
     { name: "Community", href: "/community" },
     { name: "Startups", href: "/startups" },
     { name: "Events", href: "/events" },
+    {
+      name: "ACE",
+      href: "https://ace.ambixous.in",
+      external: true,
+      badge: true,
+    },
   ]
 
   return (
@@ -27,13 +33,19 @@ export function Header() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
             {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-warm-white hover:text-ambixous-neon transition-colors duration-200 font-medium"
-              >
-                {item.name}
-              </Link>
+              <div key={item.name} className="relative">
+                <Link
+                  href={item.href}
+                  target={item.external ? "_blank" : undefined}
+                  rel={item.external ? "noopener noreferrer" : undefined}
+                  className="text-warm-white hover:text-ambixous-neon transition-colors duration-200 font-medium"
+                >
+                  {item.name}
+                </Link>
+                {item.badge && (
+                  <div className="absolute -top-2 -right-4 w-3 h-3 bg-red-500 rounded-full animate-blink shadow-red-500/50 shadow-lg" />
+                )}
+              </div>
             ))}
           </div>
 
@@ -64,14 +76,20 @@ export function Header() {
           <div className="md:hidden mt-4 pb-4 animate-fade-in">
             <div className="flex flex-col space-y-4">
               {navigation.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  className="text-warm-white hover:text-ambixous-neon transition-colors duration-200 font-medium py-2"
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {item.name}
-                </Link>
+                <div key={item.name} className="relative">
+                  <Link
+                    href={item.href}
+                    target={item.external ? "_blank" : undefined}
+                    rel={item.external ? "noopener noreferrer" : undefined}
+                    className="text-warm-white hover:text-ambixous-neon transition-colors duration-200 font-medium py-2 block"
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {item.name}
+                  </Link>
+                  {item.badge && (
+                    <div className="absolute -top-1 -right-3 w-3 h-3 bg-red-500 rounded-full animate-blink shadow-red-500/50 shadow-lg" />
+                  )}
+                </div>
               ))}
               <div className="pt-4 border-t border-slate-gray/20">
                 <Button
