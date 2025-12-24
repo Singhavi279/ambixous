@@ -23,7 +23,11 @@ export const metadata: Metadata = {
   title: "Ambixous - Build. Connect. Grow. Together.",
   description:
     "Where ideas find momentum and impact finds a home. A bridge between community-driven change and business-driven innovation.",
-    generator: 'v0.dev'
+  generator: "v0.dev",
+  icons: {
+    icon: "/favicon.jpg",
+    apple: "/apple-icon.png",
+  },
 }
 
 export default function RootLayout({
