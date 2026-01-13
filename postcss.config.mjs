@@ -1,7 +1,15 @@
 /** @type {import('postcss-load-config').Config} */
 const config = {
   plugins: {
-    tailwindcss: {},
+    tailwindcss: {
+      config: {
+        important: false,
+      },
+      future: {
+        hoverOnlyWhenSupported: true,
+      },
+    },
+    autoprefixer: {},
   },
 };
 
