@@ -15,6 +15,7 @@ export function Header() {
     { name: "Community", href: "/community" },
     { name: "Startups", href: "/startups" },
     { name: "Events", href: "/events" },
+    { name: "Mentors", href: "/mentors" },
     {
       name: "ACE",
       href: "https://ace.ambixous.in",
