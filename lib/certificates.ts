@@ -1,82 +1,113 @@
-import fs from "fs"
-import path from "path"
+import { supabase } from "./supabase"
 
 export interface Certificate {
     id: string
-    candidateName: string
+    candidate_name: string
     designation: string
     domain: string
-    tenureStart: string
-    tenureEnd: string
-    issuedAt: string
-    createdBy: string
+    tenure_start: string
+    tenure_end: string
+    issued_at: string
+    created_by: string
+    created_at?: string
 }
 
-const DATA_FILE = path.join(process.cwd(), "data", "certificates.json")
+export async function getAllCertificates(): Promise<Certificate[]> {
+    const { data, error } = await supabase
+        .from("certificates")
+        .select("*")
+        .order("created_at", { ascending: false })
 
-// Ensure data directory and file exist
-function ensureDataFile() {
-    const dir = path.dirname(DATA_FILE)
-    if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true })
-    }
-    if (!fs.existsSync(DATA_FILE)) {
-        fs.writeFileSync(DATA_FILE, JSON.stringify([]), "utf-8")
-    }
-}
-
-export function getAllCertificates(): Certificate[] {
-    ensureDataFile()
-    const data = fs.readFileSync(DATA_FILE, "utf-8")
-    return JSON.parse(data)
-}
-
-export function getCertificateById(id: string): Certificate | null {
-    const certificates = getAllCertificates()
-    return certificates.find((cert) => cert.id === id) || null
-}
-
-export function saveCertificate(certificate: Certificate): { success: boolean; error?: string } {
-    const certificates = getAllCertificates()
-
-    // Check for duplicate ID
-    if (certificates.some((cert) => cert.id === certificate.id)) {
-        return { success: false, error: "Certificate ID already exists" }
+    if (error) {
+        console.error("Error fetching certificates:", error)
+        return []
     }
 
-    certificates.push(certificate)
-    fs.writeFileSync(DATA_FILE, JSON.stringify(certificates, null, 2), "utf-8")
+    return data || []
+}
+
+export async function getCertificateById(id: string): Promise<Certificate | null> {
+    const { data, error } = await supabase
+        .from("certificates")
+        .select("*")
+        .eq("id", id)
+        .single()
+
+    if (error) {
+        console.error("Error fetching certificate:", error)
+        return null
+    }
+
+    return data
+}
+
+export async function saveCertificate(certificate: Certificate): Promise<{ success: boolean; error?: string }> {
+    const { error } = await supabase
+        .from("certificates")
+        .insert([certificate])
+
+    if (error) {
+        console.error("Error saving certificate:", error)
+        if (error.code === "23505") {
+            return { success: false, error: "Certificate ID already exists" }
+        }
+        return { success: false, error: error.message }
+    }
+
     return { success: true }
 }
 
-export function generateCertificateId(): string {
-    const certificates = getAllCertificates()
-    const now = new Date()
+export async function isDuplicateId(id: string): Promise<boolean> {
+    const { data, error } = await supabase
+        .from("certificates")
+        .select("id")
+        .eq("id", id)
+        .maybeSingle()
 
+    if (error) {
+        console.error("Error checking duplicate:", error)
+        return false
+    }
+    return !!data
+}
+
+export async function generateCertificateId(): Promise<string> {
+    const now = new Date()
     const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
     const month = months[now.getMonth()]
     const year = String(now.getFullYear()).slice(-2)
     const prefix = `AMBX${month}${year}`
 
-    // Find highest number for this month/year
-    const matching = certificates.filter((c) => c.id.startsWith(prefix))
-    const maxNum = matching.length > 0
-        ? Math.max(...matching.map((c) => parseInt(c.id.slice(-4)) || 0))
-        : 0
+    // Retry logic to handle race conditions
+    const maxRetries = 5
+    for (let attempt = 0; attempt < maxRetries; attempt++) {
+        // Get the latest certificate with this prefix
+        const { data } = await supabase
+            .from("certificates")
+            .select("id")
+            .like("id", `${prefix}%`)
+            .order("id", { ascending: false })
+            .limit(1)
 
-    const nextNum = String(maxNum + 1).padStart(4, "0")
-    return `${prefix}${nextNum}`
-}
+        let nextNum = 1
+        if (data && data.length > 0) {
+            const lastId = data[0].id
+            const lastNum = parseInt(lastId.slice(-4)) || 0
+            nextNum = lastNum + 1 + attempt // Add attempt offset for retries
+        }
 
-export function isValidCertificateId(id: string): boolean {
-    // Format: AMBXJAN260001
-    const regex = /^AMBX(JAN|FEB|MAR|APR|MAY|JUN|JUL|AUG|SEP|OCT|NOV|DEC)\d{2}\d{4}$/
-    return regex.test(id)
-}
+        const candidateId = `${prefix}${String(nextNum).padStart(4, "0")}`
 
-export function isDuplicateId(id: string): boolean {
-    const certificates = getAllCertificates()
-    return certificates.some((cert) => cert.id === id)
+        // Check if this ID already exists (race condition check)
+        const isDuplicate = await isDuplicateId(candidateId)
+        if (!isDuplicate) {
+            return candidateId
+        }
+    }
+
+    // Fallback: generate with timestamp suffix if all retries fail
+    const timestamp = Date.now().toString().slice(-6)
+    return `${prefix}${timestamp}`
 }
 
 export function formatDate(date: Date | string): string {

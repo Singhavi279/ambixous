@@ -11,8 +11,21 @@ export async function GET() {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const certificates = getAllCertificates()
-    return NextResponse.json({ certificates })
+    const certificates = await getAllCertificates()
+
+    // Transform snake_case to camelCase for frontend
+    const transformed = certificates.map(cert => ({
+        id: cert.id,
+        candidateName: cert.candidate_name,
+        designation: cert.designation,
+        domain: cert.domain,
+        tenureStart: cert.tenure_start,
+        tenureEnd: cert.tenure_end,
+        issuedAt: cert.issued_at,
+        createdBy: cert.created_by,
+    }))
+
+    return NextResponse.json({ certificates: transformed })
 }
 
 // POST /api/certificates - Create new certificate (admin only)
@@ -33,22 +46,23 @@ export async function POST(request: NextRequest) {
         }
 
         // Check for duplicate
-        if (isDuplicateId(id)) {
+        const isDuplicate = await isDuplicateId(id)
+        if (isDuplicate) {
             return NextResponse.json({ error: "Certificate ID already exists" }, { status: 409 })
         }
 
         const certificate: Certificate = {
             id,
-            candidateName,
+            candidate_name: candidateName,
             designation,
             domain,
-            tenureStart: tenureStart || "",
-            tenureEnd: tenureEnd || "",
-            issuedAt: issuedAt || new Date().toISOString(),
-            createdBy: session.user?.email || "admin",
+            tenure_start: tenureStart || "",
+            tenure_end: tenureEnd || "",
+            issued_at: issuedAt || new Date().toISOString().split("T")[0],
+            created_by: session.user?.email || "admin",
         }
 
-        const result = saveCertificate(certificate)
+        const result = await saveCertificate(certificate)
 
         if (!result.success) {
             return NextResponse.json({ error: result.error }, { status: 400 })
@@ -56,6 +70,7 @@ export async function POST(request: NextRequest) {
 
         return NextResponse.json({ success: true, certificate })
     } catch (error) {
+        console.error("Error creating certificate:", error)
         return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
     }
 }
