@@ -2,7 +2,7 @@
 
 import { Download } from "lucide-react"
 import { generateCertificatePDF } from "@/lib/pdf-generator"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 
 interface CertificatePreviewProps {
     id: string
@@ -27,15 +27,20 @@ function formatDisplayDate(dateStr: string | undefined): string {
 
 // Inline styles for consistent PDF rendering
 const styles = {
-    container: {
+    // Responsive wrapper that scales the certificate
+    wrapper: {
         width: "100%",
-        maxWidth: "595px",
-        aspectRatio: "210/297",
+        overflow: "hidden",
+    },
+    container: {
+        width: "595px",
+        height: "842px", // A4 aspect ratio
         backgroundColor: "#0F172A",
         position: "relative" as const,
         overflow: "hidden",
         margin: "0 auto",
         boxShadow: "0 10px 40px rgba(0,0,0,0.3)",
+        transformOrigin: "top center",
     },
     whiteArea: {
         position: "absolute" as const,
@@ -241,7 +246,21 @@ export function CertificatePreview({
     showDownload = true,
 }: CertificatePreviewProps) {
     const [isGenerating, setIsGenerating] = useState(false)
+    const [scale, setScale] = useState(1)
     const verificationUrl = `https://ambixous.in/certify/${id || "XXXX"}`
+
+    // Calculate scale based on container width
+    useEffect(() => {
+        const calculateScale = () => {
+            const containerWidth = Math.min(window.innerWidth - 48, 595) // 48px for padding
+            const newScale = Math.min(containerWidth / 595, 1)
+            setScale(newScale)
+        }
+
+        calculateScale()
+        window.addEventListener("resize", calculateScale)
+        return () => window.removeEventListener("resize", calculateScale)
+    }, [])
 
     const handleDownload = async () => {
         setIsGenerating(true)
@@ -254,108 +273,120 @@ export function CertificatePreview({
 
     return (
         <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
-            {/* Certificate Preview - A4 Portrait */}
-            <div id="certificate-preview" style={styles.container}>
-                {/* White inner area */}
-                <div style={styles.whiteArea}>
-                    {/* Gold inner border */}
-                    <div style={styles.goldBorder} />
+            {/* Responsive wrapper */}
+            <div style={{
+                ...styles.wrapper,
+                height: `${842 * scale}px`,
+            }}>
+                {/* Certificate Preview - A4 Portrait */}
+                <div
+                    id="certificate-preview"
+                    style={{
+                        ...styles.container,
+                        transform: `scale(${scale})`,
+                    }}
+                >
+                    {/* White inner area */}
+                    <div style={styles.whiteArea}>
+                        {/* Gold inner border */}
+                        <div style={styles.goldBorder} />
 
-                    {/* Corner ornaments */}
-                    <div style={{ ...styles.cornerOrnament, top: "4px", left: "4px" }} />
-                    <div style={{ ...styles.cornerOrnament, top: "4px", right: "4px" }} />
-                    <div style={{ ...styles.cornerOrnament, bottom: "4px", left: "4px" }} />
-                    <div style={{ ...styles.cornerOrnament, bottom: "4px", right: "4px" }} />
+                        {/* Corner ornaments */}
+                        <div style={{ ...styles.cornerOrnament, top: "4px", left: "4px" }} />
+                        <div style={{ ...styles.cornerOrnament, top: "4px", right: "4px" }} />
+                        <div style={{ ...styles.cornerOrnament, bottom: "4px", left: "4px" }} />
+                        <div style={{ ...styles.cornerOrnament, bottom: "4px", right: "4px" }} />
 
-                    {/* Content */}
-                    <div style={styles.content}>
-                        {/* Logo */}
-                        <img
-                            src="/certificate-logo.png"
-                            alt="Ambixous Logo"
-                            style={styles.logo}
-                        />
+                        {/* Content */}
+                        <div style={styles.content}>
+                            {/* Logo */}
+                            <img
+                                src="/certificate-logo.png"
+                                alt="Ambixous Logo"
+                                style={styles.logo}
+                            />
 
-                        {/* CERTIFICATE Title */}
-                        <div style={styles.title}>CERTIFICATE</div>
-                        <div style={styles.subtitle}>Of Completion</div>
+                            {/* CERTIFICATE Title */}
+                            <div style={styles.title}>CERTIFICATE</div>
+                            <div style={styles.subtitle}>Of Completion</div>
 
-                        {/* Divider */}
-                        <div style={styles.divider} />
+                            {/* Divider */}
+                            <div style={styles.divider} />
 
-                        {/* Presented to */}
-                        <div style={styles.presentedTo}>This is proudly presented to</div>
+                            {/* Presented to */}
+                            <div style={styles.presentedTo}>This is proudly presented to</div>
 
-                        {/* Name */}
-                        <div style={styles.name}>
-                            {candidateName || "Candidate Name"}
-                        </div>
-
-                        {/* Body Text */}
-                        <div style={styles.bodyText}>
-                            For successfully completing the tenure as a{" "}
-                            <span style={styles.bold}>{designation || "Designation"}</span> with the Ambixous
-                            Community. Demonstrated exceptional professionalism and dedication in{" "}
-                            <span style={styles.bold}>{domain || "Domain"}</span>.
-                        </div>
-
-                        {/* Active Tenure Section */}
-                        <div style={styles.tenureLabel}>Active Tenure</div>
-                        <div style={styles.tenureBox}>
-                            <div style={styles.tenureText}>
-                                {formatDisplayDate(tenureStart)} — {formatDisplayDate(tenureEnd)}
-                            </div>
-                        </div>
-
-                        {/* Signatures Grid */}
-                        <div style={styles.signaturesGrid}>
-                            {/* Signature 1 - Avnish */}
-                            <div style={styles.signatureContainer}>
-                                <img
-                                    src="/signature-avnish.png"
-                                    alt="Avnish Singh"
-                                    style={styles.signatureImg}
-                                />
-                                <div style={styles.signatureLine} />
-                                <div style={styles.signatureName}>AVNISH SINGH</div>
-                                <div style={styles.signatureTitle}>Co-Founder</div>
+                            {/* Name */}
+                            <div style={styles.name}>
+                                {candidateName || "Candidate Name"}
                             </div>
 
-                            {/* Signature 2 - Riti */}
-                            <div style={styles.signatureContainer}>
-                                <img
-                                    src="/signature-riti.png"
-                                    alt="Riti Gupta"
-                                    style={styles.signatureImg}
-                                />
-                                <div style={styles.signatureLine} />
-                                <div style={styles.signatureName}>RITI GUPTA</div>
-                                <div style={styles.signatureTitle}>Co-Founder</div>
+                            {/* Body Text */}
+                            <div style={styles.bodyText}>
+                                For successfully completing the tenure as a{" "}
+                                <span style={styles.bold}>{designation || "Designation"}</span> with the Ambixous
+                                Community. Demonstrated exceptional professionalism and dedication in{" "}
+                                <span style={styles.bold}>{domain || "Domain"}</span>.
                             </div>
-                        </div>
 
-                        {/* Footer */}
-                        <div style={styles.footer}>
-                            <span>ID: <span style={styles.footerBold}>{id || "AMBXJAN260001"}</span></span>
-                            <span style={styles.footerSeparator}>|</span>
-                            <span>ISSUED: <span style={styles.footerBold}>{formatDisplayDate(issueDate)}</span></span>
-                        </div>
+                            {/* Active Tenure Section */}
+                            <div style={styles.tenureLabel}>Active Tenure</div>
+                            <div style={styles.tenureBox}>
+                                <div style={styles.tenureText}>
+                                    {formatDisplayDate(tenureStart)} — {formatDisplayDate(tenureEnd)}
+                                </div>
+                            </div>
 
-                        {/* Verification URL */}
-                        <a
-                            href={verificationUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={styles.verifyUrl}
-                        >
-                            Verify: {verificationUrl}
-                        </a>
+                            {/* Signatures Grid */}
+                            <div style={styles.signaturesGrid}>
+                                {/* Signature 1 - Avnish */}
+                                <div style={styles.signatureContainer}>
+                                    <img
+                                        src="/signature-avnish.png"
+                                        alt="Avnish Singh"
+                                        style={styles.signatureImg}
+                                    />
+                                    <div style={styles.signatureLine} />
+                                    <div style={styles.signatureName}>AVNISH SINGH</div>
+                                    <div style={styles.signatureTitle}>Co-Founder</div>
+                                </div>
 
-                        {/* Bottom decorative element */}
-                        <div style={styles.bottomDecor}>
-                            <div style={styles.decorLine} />
-                            <div style={styles.decorDot} />
-                            <div style={styles.decorLine} />
+                                {/* Signature 2 - Riti */}
+                                <div style={styles.signatureContainer}>
+                                    <img
+                                        src="/signature-riti.png"
+                                        alt="Riti Gupta"
+                                        style={styles.signatureImg}
+                                    />
+                                    <div style={styles.signatureLine} />
+                                    <div style={styles.signatureName}>RITI GUPTA</div>
+                                    <div style={styles.signatureTitle}>Co-Founder</div>
+                                </div>
+                            </div>
+
+                            {/* Footer */}
+                            <div style={styles.footer}>
+                                <span>ID: <span style={styles.footerBold}>{id || "AMBXJAN260001"}</span></span>
+                                <span style={styles.footerSeparator}>|</span>
+                                <span>ISSUED: <span style={styles.footerBold}>{formatDisplayDate(issueDate)}</span></span>
+                            </div>
+
+                            {/* Verification URL */}
+                            <a
+                                href={verificationUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={styles.verifyUrl}
+                            >
+                                Verify: {verificationUrl}
+                            </a>
+
+                            {/* Bottom decorative element */}
+                            <div style={styles.bottomDecor}>
+                                <div style={styles.decorLine} />
+                                <div style={styles.decorDot} />
+                                <div style={styles.decorLine} />
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -380,3 +411,4 @@ export function CertificatePreview({
         </div>
     )
 }
+
