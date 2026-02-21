@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getCertificateById } from "@/lib/certificates"
 
+export const dynamic = "force-dynamic"
+
 // GET /api/certificates/[id] - Fetch single certificate (public)
 export async function GET(
     request: NextRequest,

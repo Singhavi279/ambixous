@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth"
 import { authOptions, isAdmin } from "@/lib/auth"
 import { generateCertificateId } from "@/lib/certificates"
 
+export const dynamic = "force-dynamic"
+
 // GET /api/certificates/generate-id - Generate next certificate ID (admin only)
 export async function GET() {
     const session = await getServerSession(authOptions)

@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth"
 import { authOptions, isAdmin } from "@/lib/auth"
 import { getAllCertificates, saveCertificate, isDuplicateId, Certificate } from "@/lib/certificates"
 
+export const dynamic = "force-dynamic"
+
 // GET /api/certificates - List all certificates (admin only)
 export async function GET() {
     const session = await getServerSession(authOptions)
