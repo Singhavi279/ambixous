@@ -58,7 +58,7 @@ export function HeroSection() {
                     <div className="image-3d-lift">
                         <div className="image-3d-target rounded-2xl overflow-hidden border border-white/[0.08]">
                             <Image
-                                src="/hero.JPG"
+                                src="/hero.jpg"
                                 alt="Riti Gupta and Avnish Singh — Cofounders of Ambixous"
                                 width={1248}
                                 height={832}
