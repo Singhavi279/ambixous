@@ -17,7 +17,7 @@ export const metadata: Metadata = {
         siteName: "Ambixous",
         images: [
             {
-                url: "/hero.JPG",
+                url: "/hero.jpg",
                 width: 1248,
                 height: 832,
                 alt: "Riti Gupta and Avnish Singh — Cofounders of Ambixous",
@@ -30,7 +30,7 @@ export const metadata: Metadata = {
         title: "Ambixous Links — Connect With Us",
         description:
             "All our links in one place. Follow Ambixous across LinkedIn, Instagram, YouTube, Twitter, and explore ACE.",
-        images: ["/hero.JPG"],
+        images: ["/hero.jpg"],
     },
 }
 
