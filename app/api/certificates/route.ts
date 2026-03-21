@@ -13,7 +13,7 @@ export async function GET() {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const certificates = await getAllCertificates()
+    const certificates = getAllCertificates()
 
     // Transform snake_case to camelCase for frontend
     const transformed = certificates.map(cert => ({
@@ -48,8 +48,7 @@ export async function POST(request: NextRequest) {
         }
 
         // Check for duplicate
-        const isDuplicate = await isDuplicateId(id)
-        if (isDuplicate) {
+        if (isDuplicateId(id)) {
             return NextResponse.json({ error: "Certificate ID already exists" }, { status: 409 })
         }
 
@@ -64,7 +63,7 @@ export async function POST(request: NextRequest) {
             created_by: session.user?.email || "admin",
         }
 
-        const result = await saveCertificate(certificate)
+        const result = saveCertificate(certificate)
 
         if (!result.success) {
             return NextResponse.json({ error: result.error }, { status: 400 })

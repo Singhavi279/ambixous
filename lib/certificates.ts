@@ -1,4 +1,5 @@
-import { supabase } from "./supabase"
+import * as fs from "fs"
+import * as path from "path"
 
 export interface Certificate {
     id: string
@@ -12,102 +13,76 @@ export interface Certificate {
     created_at?: string
 }
 
-export async function getAllCertificates(): Promise<Certificate[]> {
-    const { data, error } = await supabase
-        .from("certificates")
-        .select("*")
-        .order("created_at", { ascending: false })
-
-    if (error) {
-        console.error("Error fetching certificates:", error)
-        return []
-    }
-
-    return data || []
+interface CertificatesData {
+    certificates: Certificate[]
 }
 
-export async function getCertificateById(id: string): Promise<Certificate | null> {
-    const { data, error } = await supabase
-        .from("certificates")
-        .select("*")
-        .eq("id", id)
-        .single()
+const DATA_PATH = path.join(process.cwd(), "data", "certificates.json")
 
-    if (error) {
-        console.error("Error fetching certificate:", error)
-        return null
-    }
-
-    return data
+function readData(): CertificatesData {
+    const raw = fs.readFileSync(DATA_PATH, "utf-8")
+    return JSON.parse(raw) as CertificatesData
 }
 
-export async function saveCertificate(certificate: Certificate): Promise<{ success: boolean; error?: string }> {
-    const { error } = await supabase
-        .from("certificates")
-        .insert([certificate])
+function writeData(data: CertificatesData): void {
+    fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), "utf-8")
+}
 
-    if (error) {
-        console.error("Error saving certificate:", error)
-        if (error.code === "23505") {
-            return { success: false, error: "Certificate ID already exists" }
-        }
-        return { success: false, error: error.message }
+export function getAllCertificates(): Certificate[] {
+    const { certificates } = readData()
+    // Sort by created_at desc (newest first)
+    return certificates.sort((a, b) => {
+        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0
+        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0
+        return dateB - dateA
+    })
+}
+
+export function getCertificateById(id: string): Certificate | null {
+    const { certificates } = readData()
+    return certificates.find((c) => c.id === id) || null
+}
+
+export function saveCertificate(certificate: Certificate): { success: boolean; error?: string } {
+    const data = readData()
+
+    // Check for duplicate
+    if (data.certificates.some((c) => c.id === certificate.id)) {
+        return { success: false, error: "Certificate ID already exists" }
     }
 
+    data.certificates.push({
+        ...certificate,
+        created_at: certificate.created_at || new Date().toISOString(),
+    })
+
+    writeData(data)
     return { success: true }
 }
 
-export async function isDuplicateId(id: string): Promise<boolean> {
-    const { data, error } = await supabase
-        .from("certificates")
-        .select("id")
-        .eq("id", id)
-        .maybeSingle()
-
-    if (error) {
-        console.error("Error checking duplicate:", error)
-        return false
-    }
-    return !!data
+export function isDuplicateId(id: string): boolean {
+    const { certificates } = readData()
+    return certificates.some((c) => c.id === id)
 }
 
-export async function generateCertificateId(): Promise<string> {
+export function generateCertificateId(): string {
     const now = new Date()
     const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
     const month = months[now.getMonth()]
     const year = String(now.getFullYear()).slice(-2)
     const prefix = `AMBX${month}${year}`
 
-    // Retry logic to handle race conditions
-    const maxRetries = 5
-    for (let attempt = 0; attempt < maxRetries; attempt++) {
-        // Get the latest certificate with this prefix
-        const { data } = await supabase
-            .from("certificates")
-            .select("id")
-            .like("id", `${prefix}%`)
-            .order("id", { ascending: false })
-            .limit(1)
+    const { certificates } = readData()
 
-        let nextNum = 1
-        if (data && data.length > 0) {
-            const lastId = data[0].id
-            const lastNum = parseInt(lastId.slice(-4)) || 0
-            nextNum = lastNum + 1 + attempt // Add attempt offset for retries
-        }
+    // Find existing certificates with this prefix
+    const matching = certificates
+        .filter((c) => c.id.startsWith(prefix))
+        .map((c) => parseInt(c.id.slice(-4)) || 0)
 
-        const candidateId = `${prefix}${String(nextNum).padStart(4, "0")}`
+    const maxNum = matching.length > 0 ? Math.max(...matching) : 0
+    const nextNum = maxNum + 1
 
-        // Check if this ID already exists (race condition check)
-        const isDuplicate = await isDuplicateId(candidateId)
-        if (!isDuplicate) {
-            return candidateId
-        }
-    }
-
-    // Fallback: generate with timestamp suffix if all retries fail
-    const timestamp = Date.now().toString().slice(-6)
-    return `${prefix}${timestamp}`
+    return `${prefix}${String(nextNum).padStart(4, "0")}`
 }
 
 export function formatDate(date: Date | string): string {

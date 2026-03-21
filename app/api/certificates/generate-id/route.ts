@@ -13,6 +13,6 @@ export async function GET() {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
-    const id = await generateCertificateId()
+    const id = generateCertificateId()
     return NextResponse.json({ id })
 }
