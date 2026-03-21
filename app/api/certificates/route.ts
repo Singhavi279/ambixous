@@ -8,8 +8,7 @@ export const dynamic = "force-dynamic"
 // GET /api/certificates - List all certificates (admin only)
 export async function GET() {
     const session = await getServerSession(authOptions)
-
-    if (!session || !isAdmin(session.user?.email)) {
+    if (process.env.NODE_ENV !== "development" && (!session || !isAdmin(session.user?.email))) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
@@ -33,15 +32,14 @@ export async function GET() {
 // POST /api/certificates - Create new certificate (admin only)
 export async function POST(request: NextRequest) {
     const session = await getServerSession(authOptions)
-
-    if (!session || !isAdmin(session.user?.email)) {
+    if (process.env.NODE_ENV !== "development" && (!session || !isAdmin(session.user?.email))) {
         return NextResponse.json({ error: "Unauthorized" }, { status: 401 })
     }
 
     try {
         const body = await request.json()
-        const { id, candidateName, designation, domain, tenureStart, tenureEnd, issuedAt } = body
-
+        const { id, candidateName, designation, domain, tenureStart, tenureEnd, issuedAt, createdBy, createdAt } = body
+        
         // Validate required fields
         if (!id || !candidateName || !designation || !domain) {
             return NextResponse.json({ error: "Missing required fields" }, { status: 400 })
@@ -60,7 +58,8 @@ export async function POST(request: NextRequest) {
             tenure_start: tenureStart || "",
             tenure_end: tenureEnd || "",
             issued_at: issuedAt || new Date().toISOString().split("T")[0],
-            created_by: session.user?.email || "admin",
+            created_by: createdBy || session?.user?.email || "admin",
+            created_at: createdAt || new Date().toISOString(),
         }
 
         const result = saveCertificate(certificate)
@@ -70,8 +69,12 @@ export async function POST(request: NextRequest) {
         }
 
         return NextResponse.json({ success: true, certificate })
-    } catch (error) {
+    } catch (error: any) {
         console.error("Error creating certificate:", error)
-        return NextResponse.json({ error: "Invalid request body" }, { status: 400 })
+        return NextResponse.json({ 
+            error: "Failed to process request", 
+            message: error.message,
+            code: error.code
+        }, { status: 400 })
     }
 }

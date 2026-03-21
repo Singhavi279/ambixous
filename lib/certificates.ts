@@ -20,12 +20,22 @@ interface CertificatesData {
 const DATA_PATH = path.join(process.cwd(), "data", "certificates.json")
 
 function readData(): CertificatesData {
-    const raw = fs.readFileSync(DATA_PATH, "utf-8")
-    return JSON.parse(raw) as CertificatesData
+    try {
+        const raw = fs.readFileSync(DATA_PATH, "utf-8")
+        return JSON.parse(raw) as CertificatesData
+    } catch (error: any) {
+        console.error("Error reading certificate data:", error.message)
+        throw error
+    }
 }
 
 function writeData(data: CertificatesData): void {
-    fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), "utf-8")
+    try {
+        fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), "utf-8")
+    } catch (error: any) {
+        console.error("Error writing certificate data:", error.message)
+        throw error
+    }
 }
 
 export function getAllCertificates(): Certificate[] {
