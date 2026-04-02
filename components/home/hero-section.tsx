@@ -42,7 +42,7 @@ export function HeroSection() {
                 size="lg"
                 className="bg-transparent text-signal-blue hover:bg-signal-blue hover:text-electric-ink font-bold px-8 py-4 rounded-xl border-2 border-signal-blue transition-all duration-200 hover:scale-105 group"
               >
-                <Link href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t" target="_blank" className="flex items-center gap-2">
+                <Link href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2">
                   Join the Community
                   <Sparkles size={20} className="group-hover:rotate-12 transition-transform duration-200" />
                 </Link>

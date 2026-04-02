@@ -56,7 +56,7 @@ export function Header() {
               asChild
               className="bg-ambixous-neon text-electric-ink hover:bg-ambixous-neon/90 font-bold px-6 py-2 shadow-lg hover:shadow-ambixous-neon/25 transition-all duration-200"
             >
-              <Link href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t" target="_blank">
+              <Link href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t" target="_blank" rel="noopener noreferrer">
                 Join Community
               </Link>
             </Button>

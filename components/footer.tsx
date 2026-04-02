@@ -64,7 +64,7 @@ export function Footer() {
                       target="_blank"
                       className="text-slate-gray hover:text-ambixous-neon transition-colors duration-200"
                       aria-label={social.name}
-                      rel="noreferrer"
+                      rel="noopener noreferrer"
                     >
                       <Icon size={20} />
                     </a>
