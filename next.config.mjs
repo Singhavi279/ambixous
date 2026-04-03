@@ -9,6 +9,15 @@ const nextConfig = {
   images: {
     unoptimized: true,
   },
+  async redirects() {
+    return [
+      {
+        source: "/creator-fellowship-cohort-1",
+        destination: "/creator-fellowship/cohort-1",
+        permanent: true,
+      },
+    ]
+  },
 }
 
 export default nextConfig
