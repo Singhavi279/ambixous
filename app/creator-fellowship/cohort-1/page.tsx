@@ -22,6 +22,11 @@ import {
   Briefcase,
   Trophy,
   ExternalLink,
+  FileText,
+  BarChart,
+  TrendingUp,
+  Layers,
+  Network,
 } from "lucide-react"
 import FAQSection from "./FAQSection"
 import { ScrollReveal } from "./ScrollReveal"
@@ -33,7 +38,7 @@ export const metadata: Metadata = {
   description:
     "A 13-week, cohort-based fellowship turning India's creators into creator-entrepreneurs. 9 fellows, 6 live projects, real brand briefs, and jury evaluations. March 29 – June 27, 2026.",
   openGraph: {
-    title: "Ambixous Creator Fellowship — Cohort 01",
+    title: "Ambixous Creator Fellowship, Cohort 01",
     description:
       "Building India's Next Generation of Creator-Entrepreneurs. 13 weeks · 9 fellows · 6 live projects · Real brand briefs.",
     url: "https://www.ambixous.in/creator-fellowship/cohort-1",
@@ -42,7 +47,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ambixous Creator Fellowship — Cohort 01",
+    title: "Ambixous Creator Fellowship, Cohort 01",
     description:
       "Building India's Next Generation of Creator-Entrepreneurs.",
   },
@@ -162,7 +167,7 @@ const mentors = [
   },
   {
     name: "Varedh Nigam",
-    designation: "Associate Director — UX Design, Nagarro",
+    designation: "Associate Director, UX Design, Nagarro",
     domain: "Graphics",
     image: "/creatorcohort/mentors/varedh.png",
     linkedin: "https://www.linkedin.com/in/varedhnigam/",
@@ -176,7 +181,7 @@ const mentors = [
   },
   {
     name: "Anand Gangadharan",
-    designation: "Manager — Data Products, American Express",
+    designation: "Manager, Data Products, American Express",
     domain: "Fintech Product",
     image: "/creatorcohort/mentors/anand.png",
     linkedin: "https://www.linkedin.com/in/anand-gangadharan/",
@@ -210,24 +215,24 @@ const projects = [
   },
   {
     number: 4,
-    title: "Product Launch — FinTech",
-    focus: "Real brand brief — content strategy for a FinTech product launch",
+    title: "Product Launch: FinTech",
+    focus: "Real brand brief, content strategy for a FinTech product launch",
     icon: Rocket,
     accent: "from-sky-400 to-blue-500",
     border: "border-sky-500/20 hover:border-sky-500/40",
   },
   {
     number: 5,
-    title: "Product Launch — F&B",
-    focus: "Real brand brief — content strategy for a Food & Beverage brand",
+    title: "Product Launch: F&B",
+    focus: "Real brand brief, content strategy for a Food & Beverage brand",
     icon: Globe,
     accent: "from-emerald-400 to-green-500",
     border: "border-emerald-500/20 hover:border-emerald-500/40",
   },
   {
     number: 6,
-    title: "Product Launch — Health",
-    focus: "Real brand brief — content strategy for a Health brand",
+    title: "Product Launch: Health",
+    focus: "Real brand brief, content strategy for a Health brand",
     icon: Heart,
     accent: "from-red-400 to-rose-500",
     border: "border-red-500/20 hover:border-red-500/40",
@@ -356,138 +361,193 @@ export default function CreatorFellowshipCohort1() {
       </section>
 
       {/* ═══════════ THE PROBLEM ═══════════ */}
-      <section className="relative px-4 py-24 sm:py-32" id="problem">
+      <section className="relative px-4 py-12 sm:py-16" id="problem">
         <div className="mx-auto max-w-6xl">
-          <ScrollReveal>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-[#B4FF00]">
-              The Problem
-            </p>
-            <h2 className="mb-6 max-w-3xl text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-              India has creators.{" "}
-              <span className="text-white/30">It lacks creator-entrepreneurs.</span>
-            </h2>
-            <p className="mb-16 max-w-2xl text-base leading-relaxed text-white/40 sm:text-lg">
-              India&apos;s digital creator economy is growing rapidly, yet the vast majority of
-              content creators plateau early — posting consistently without translating their
-              audience into a career.
-            </p>
-          </ScrollReveal>
-
-          <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
-            {[
-              {
-                icon: BookOpen,
-                title: "No Structured Skill Infrastructure",
-                description:
-                  "There is no credentialed, project-based pathway to help early-stage creators build across writing, graphics, video, and digital product creation simultaneously.",
-              },
-              {
-                icon: Target,
-                title: "No Access to Real Briefs",
-                description:
-                  "Creators develop skills in isolation, never tested against the expectations of real brands or evaluated by industry professionals.",
-              },
-              {
-                icon: Users,
-                title: "No Peer Accountability",
-                description:
-                  "Creator growth is a solo pursuit. The absence of structured cohort environments means most creators burn out before they build a sustainable brand.",
-              },
-            ].map((item, i) => (
-              <ScrollReveal key={item.title} delay={i * 120}>
-                <div className="group h-full rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.04] sm:p-8">
-                  <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] transition-colors group-hover:border-[#B4FF00]/30 group-hover:bg-[#B4FF00]/[0.08]">
-                    <item.icon className="h-5 w-5 text-white/40 transition-colors group-hover:text-[#B4FF00]" />
-                  </div>
-                  <h3 className="mb-3 text-lg font-semibold text-white">{item.title}</h3>
-                  <p className="text-sm leading-relaxed text-white/40">{item.description}</p>
+          <div className="grid lg:grid-cols-[1.5fr_1fr] lg:gap-16 lg:items-center">
+            <div>
+              <ScrollReveal>
+                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-[#B4FF00]">
+                  The Problem
+                </p>
+                <h2 className="mb-6 max-w-3xl text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+                  India has creators.{" "}
+                  <span className="text-white/30">It lacks creator-entrepreneurs.</span>
+                </h2>
+                <div className="mb-12 max-w-3xl space-y-4 text-base leading-relaxed text-white/40 sm:text-lg">
+                  <p>
+                    India&apos;s digital creator economy is growing rapidly, yet the vast majority of
+                    content creators <span className="font-medium text-white/80">plateau early</span>, posting consistently without translating their
+                    audience into a sustainable career.
+                  </p>
                 </div>
               </ScrollReveal>
-            ))}
+
+              <div className="grid gap-4 sm:grid-cols-2 sm:gap-6">
+                {[
+                  {
+                    icon: BookOpen,
+                    title: "No Structured Skill Infrastructure",
+                    description:
+                      "There is no credentialed, project-based pathway to help early-stage creators build across writing, graphics, video, and digital product creation simultaneously.",
+                  },
+                  {
+                    icon: Target,
+                    title: "No Access to Real Briefs",
+                    description:
+                      "Creators develop skills in isolation, never tested against the expectations of real brands or evaluated by industry professionals.",
+                  },
+                  {
+                    icon: Users,
+                    title: "No Peer Accountability",
+                    description:
+                      "Creator growth is a solo pursuit. The absence of structured cohort environments means most creators burn out before they build a sustainable brand.",
+                  },
+                ].map((item, i) => (
+                  <ScrollReveal key={item.title} delay={i * 120} className={i === 2 ? "sm:col-span-2" : ""}>
+                    <div className="group h-full rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.04] sm:p-8">
+                      <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] transition-colors group-hover:border-[#B4FF00]/30 group-hover:bg-[#B4FF00]/[0.08]">
+                        <item.icon className="h-5 w-5 text-white/40 transition-colors group-hover:text-[#B4FF00]" />
+                      </div>
+                      <h3 className="mb-3 text-lg font-semibold text-white">{item.title}</h3>
+                      <p className="text-sm leading-relaxed text-white/40">{item.description}</p>
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </div>
+
+            <ScrollReveal delay={300}>
+              <div className="group relative mt-12 hidden aspect-square w-full overflow-hidden rounded-3xl border border-white/10 shadow-2xl lg:mt-0 lg:block lg:h-full lg:max-h-[600px]">
+                <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#010409] via-transparent to-transparent opacity-80" />
+                <Image
+                  src="/creatorcohort/problem_plateau.png"
+                  alt="Creator Plateau"
+                  fill
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  sizes="(max-width: 1024px) 100vw, 500px"
+                />
+              </div>
+            </ScrollReveal>
           </div>
         </div>
       </section>
 
       {/* ═══════════ THE SOLUTION ═══════════ */}
-      <section className="relative px-4 py-24 sm:py-32" id="solution">
+      <section className="relative px-4 py-12 sm:py-16" id="solution">
         {/* Divider gradient */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
         <div className="mx-auto max-w-6xl">
-          <ScrollReveal>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-[#1FB6FF]">
-              The Solution
-            </p>
-            <h2 className="mb-6 max-w-3xl text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
-              A fellowship that turns{" "}
-              <span className="text-gradient">creators into brands.</span>
-            </h2>
-            <p className="mb-16 max-w-2xl text-base leading-relaxed text-white/40 sm:text-lg">
-              A 13-week, cohort-based program that puts selected creators through six live
-              projects, mentorship sessions, and jury evaluations — mirroring the rigour of a
-              top-tier business school, applied entirely to the creator economy.
-            </p>
-          </ScrollReveal>
+          <div className="grid lg:grid-cols-[1fr_1.5fr] lg:gap-16 lg:items-center">
+            <ScrollReveal delay={300} className="order-2 lg:order-1">
+              <div className="group relative mt-12 hidden aspect-square w-full overflow-hidden rounded-3xl border border-[#1FB6FF]/20 shadow-[0_0_50px_rgba(31,182,255,0.1)] lg:mt-0 lg:block lg:h-full lg:max-h-[600px]">
+                <div className="absolute inset-0 z-10 bg-gradient-to-t from-[#010409] via-transparent to-transparent opacity-60" />
+                <Image
+                  src="/creatorcohort/solution_growth.png"
+                  alt="Creator Solution Pathway"
+                  fill
+                  className="object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  sizes="(max-width: 1024px) 100vw, 500px"
+                />
+              </div>
+            </ScrollReveal>
 
-          {/* Methodology Steps */}
-          <div className="grid gap-4 sm:grid-cols-3 sm:gap-6">
-            {[
-              {
-                step: "01",
-                title: "Mentorship Session",
-                description:
-                  "A domain expert introduces the brief and teaches the methodology. Fellows receive structured frameworks before execution.",
-                color: "text-[#B4FF00]",
-                border: "hover:border-[#B4FF00]/30",
-              },
-              {
-                step: "02",
-                title: "Live Project",
-                description:
-                  "Fellows execute work against the brief independently. Cross-domain teams create friction — the best ideas emerge from diverse perspectives.",
-                color: "text-[#1FB6FF]",
-                border: "hover:border-[#1FB6FF]/30",
-              },
-              {
-                step: "03",
-                title: "Jury Evaluation",
-                description:
-                  "An independent jury evaluates work against measurable criteria. Real feedback from industry professionals shapes every iteration.",
-                color: "text-[#FF6978]",
-                border: "hover:border-[#FF6978]/30",
-              },
-            ].map((item, i) => (
-              <ScrollReveal key={item.step} delay={i * 120}>
-                <div
-                  className={`group h-full rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.04] sm:p-8 ${item.border}`}
-                >
-                  <span className={`text-sm font-bold ${item.color}`}>{item.step}</span>
-                  <h3 className="mb-3 mt-4 text-xl font-semibold text-white">{item.title}</h3>
-                  <p className="text-sm leading-relaxed text-white/40">{item.description}</p>
+            <div className="order-1 lg:order-2">
+              <ScrollReveal>
+                <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-[#1FB6FF]">
+                  The Solution
+                </p>
+                <h2 className="mb-6 max-w-3xl text-3xl font-bold leading-tight sm:text-4xl lg:text-5xl">
+                  A fellowship that turns{" "}
+                  <span className="text-gradient">creators into brands.</span>
+                </h2>
+                <div className="mb-12 max-w-3xl space-y-4 text-base leading-relaxed text-white/40 sm:text-lg">
+                  <p>
+                    A 13-week, cohort-based program that puts selected creators through six live
+                    projects, mentorship sessions, and jury evaluations. We mirror the rigour of a
+                    top-tier business school, <span className="font-medium text-white/80">applied entirely to the creator economy</span>.
+                  </p>
                 </div>
               </ScrollReveal>
-            ))}
+
+              <div className="space-y-4 sm:space-y-6">
+                {[
+                  {
+                    step: "01",
+                    title: "Mentorship Session",
+                    description:
+                      "A domain expert introduces the brief and teaches the methodology. Fellows receive structured frameworks before execution.",
+                    color: "text-[#B4FF00]",
+                    border: "hover:border-[#B4FF00]/30",
+                  },
+                  {
+                    step: "02",
+                    title: "Live Project",
+                    description:
+                      "Fellows execute work against the brief independently. Cross-domain teams create friction, as the best ideas emerge from diverse perspectives.",
+                    color: "text-[#1FB6FF]",
+                    border: "hover:border-[#1FB6FF]/30",
+                  },
+                  {
+                    step: "03",
+                    title: "Jury Evaluation",
+                    description:
+                      "An independent jury evaluates work against measurable criteria. Real feedback from industry professionals shapes every iteration.",
+                    color: "text-[#FF6978]",
+                    border: "hover:border-[#FF6978]/30",
+                  },
+                ].map((item, i) => (
+                  <ScrollReveal key={item.step} delay={i * 120}>
+                    <div
+                      className={`group rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm transition-all duration-300 hover:bg-white/[0.04] sm:p-8 ${item.border}`}
+                    >
+                      <div className="sm:flex sm:gap-6 sm:items-start">
+                        <span className={`text-2xl font-black opacity-50 sm:text-4xl ${item.color}`}>{item.step}</span>
+                        <div className="mt-4 sm:mt-0">
+                          <h3 className="mb-2 text-xl font-semibold text-white">{item.title}</h3>
+                          <p className="text-sm leading-relaxed text-white/40">{item.description}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* ═══════════ CURRICULUM ═══════════ */}
-      <section className="relative px-4 py-24 sm:py-32" id="curriculum">
+      <section className="relative px-4 py-12 sm:py-16" id="curriculum">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
         <div className="mx-auto max-w-6xl">
-          <ScrollReveal>
-            <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-[#B4FF00]">
-              Curriculum
-            </p>
-            <h2 className="mb-6 text-3xl font-bold sm:text-4xl lg:text-5xl">
-              6 Projects. 13 Weeks.
-            </h2>
-            <p className="mb-16 max-w-2xl text-base leading-relaxed text-white/40 sm:text-lg">
-              Each project follows a structured arc — learn, execute, evaluate — building skills
-              progressively from personal branding to real product launches.
-            </p>
-          </ScrollReveal>
+          <div className="grid lg:grid-cols-[1.5fr_1fr] lg:gap-16 lg:items-center">
+            <ScrollReveal>
+              <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-[#B4FF00]">
+                Curriculum
+              </p>
+              <h2 className="mb-6 text-3xl font-bold sm:text-4xl lg:text-5xl">
+                6 Projects. 13 Weeks.
+              </h2>
+              <div className="mb-12 max-w-3xl space-y-4 text-base leading-relaxed text-white/40 sm:text-lg">
+                <p>
+                  Each project follows a structured arc: <strong className="font-semibold text-white/80">learn, execute, evaluate</strong>, building skills
+                  progressively from personal branding to real product launches.
+                </p>
+              </div>
+            </ScrollReveal>
+
+            <ScrollReveal delay={200} className="hidden lg:block relative h-64 w-full rounded-3xl overflow-hidden border border-purple-500/20 shadow-[0_0_40px_rgba(168,85,247,0.15)] group">
+              <div className="absolute inset-0 z-10 bg-gradient-to-tr from-[#010409] via-transparent to-transparent opacity-60" />
+              <Image
+                src="/creatorcohort/curriculum_toolkit.png"
+                alt="Creator Tools"
+                fill
+                className="object-cover transition-transform duration-1000 ease-out group-hover:scale-105"
+              />
+            </ScrollReveal>
+          </div>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {projects.map((project, i) => (
@@ -523,7 +583,7 @@ export default function CreatorFellowshipCohort1() {
                 </div>
                 <div>
                   <h3 className="mb-1 text-lg font-semibold text-white">
-                    Grand Finale — June 27, 2026
+                    Grand Finale, June 27, 2026
                   </h3>
                   <p className="text-sm text-white/40">
                     Founder × Creator Demo Day (offline). Fellows present to founders, mentors,
@@ -537,7 +597,7 @@ export default function CreatorFellowshipCohort1() {
       </section>
 
       {/* ═══════════ JOURNEY TIMELINE ═══════════ */}
-      <section className="relative px-4 py-24 sm:py-32" id="timeline">
+      <section className="relative px-4 py-12 sm:py-16" id="timeline">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
         <div className="mx-auto max-w-4xl">
@@ -609,7 +669,7 @@ export default function CreatorFellowshipCohort1() {
       </section>
 
       {/* ═══════════ MEET THE FELLOWS ═══════════ */}
-      <section className="relative px-4 py-24 sm:py-32" id="fellows">
+      <section className="relative px-4 py-12 sm:py-16" id="fellows">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
         {/* Background accent */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_30%_at_50%_50%,rgba(180,255,0,0.03),transparent)]" />
@@ -623,25 +683,28 @@ export default function CreatorFellowshipCohort1() {
               Meet the Fellows
             </h2>
             <p className="mb-16 max-w-xl text-base text-white/40 sm:text-lg">
-              9 creators across 6 content niches — Lifestyle, Tech, Gaming, Marketing, and
-              Motivational — united by ambition.
+              9 creators across 6 content niches: Lifestyle, Tech, Gaming, Marketing, and
+              Motivational, united by ambition.
             </p>
           </ScrollReveal>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
             {fellows.map((fellow, i) => (
               <ScrollReveal key={fellow.name} delay={i * 80}>
-                <div className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.04] sm:p-6">
-                  <div className="flex items-start gap-4">
-                    {/* Avatar */}
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04] transition-all duration-300 group-hover:border-[#B4FF00]/20 sm:h-20 sm:w-20">
-                      <Image
-                        src={fellow.image}
-                        alt={fellow.name}
-                        width={80}
-                        height={80}
-                        className="h-full w-full object-cover object-top"
-                      />
+                <div className="group relative overflow-hidden rounded-[2rem] border border-white/[0.06] bg-white/[0.02] p-5 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.04] sm:p-8">
+                  <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
+                    {/* Avatar with 3D lift */}
+                    <div className="relative shrink-0">
+                      <div className="absolute inset-0 bg-[#B4FF00]/20 blur-xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                      <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-2xl transition-all duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-105 group-hover:border-[#B4FF00]/40 group-hover:shadow-[0_8px_30px_rgb(180,255,0,0.2)] sm:h-32 sm:w-32">
+                        <Image
+                          src={fellow.image}
+                          alt={fellow.name}
+                          width={128}
+                          height={128}
+                          className="h-full w-full object-cover object-top"
+                        />
+                      </div>
                     </div>
 
                     {/* Info */}
@@ -701,7 +764,7 @@ export default function CreatorFellowshipCohort1() {
       </section>
 
       {/* ═══════════ MENTORS & JURY ═══════════ */}
-      <section className="relative px-4 py-24 sm:py-32" id="mentors">
+      <section className="relative px-4 py-12 sm:py-16" id="mentors">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
         <div className="mx-auto max-w-6xl">
@@ -714,24 +777,27 @@ export default function CreatorFellowshipCohort1() {
             </h2>
             <p className="mb-16 max-w-xl text-base text-white/40 sm:text-lg">
               Senior professionals from American Express, Times Internet, Nagarro, IIT Delhi, 
-              MRSOOL, and more — guiding every project.
+              MRSOOL, and more, guiding every project.
             </p>
           </ScrollReveal>
 
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 sm:gap-5">
             {mentors.map((mentor, i) => (
               <ScrollReveal key={mentor.name} delay={i * 80}>
-                <div className="group relative overflow-hidden rounded-2xl border border-white/[0.06] bg-white/[0.02] p-5 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.04] sm:p-6">
-                  <div className="flex items-start gap-4">
-                    {/* Avatar */}
-                    <div className="relative h-16 w-16 shrink-0 overflow-hidden rounded-2xl border border-white/[0.08] bg-white/[0.04] transition-all duration-300 group-hover:border-[#1FB6FF]/20 sm:h-20 sm:w-20">
-                      <Image
-                        src={mentor.image}
-                        alt={mentor.name}
-                        width={80}
-                        height={80}
-                        className="h-full w-full object-cover object-top"
-                      />
+                <div className="group relative overflow-hidden rounded-[2rem] border border-white/[0.06] bg-white/[0.02] p-5 backdrop-blur-sm transition-all duration-300 hover:border-white/[0.12] hover:bg-white/[0.04] sm:p-8">
+                  <div className="flex flex-col gap-5 sm:flex-row sm:items-start sm:gap-6">
+                    {/* Avatar with 3D lift */}
+                    <div className="relative shrink-0">
+                      <div className="absolute inset-0 bg-[#1FB6FF]/20 blur-xl opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
+                      <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 bg-white/5 shadow-2xl transition-all duration-500 ease-out group-hover:-translate-y-1 group-hover:scale-105 group-hover:border-[#1FB6FF]/40 group-hover:shadow-[0_8px_30px_rgb(31,182,255,0.2)] sm:h-32 sm:w-32">
+                        <Image
+                          src={mentor.image}
+                          alt={mentor.name}
+                          width={128}
+                          height={128}
+                          className="h-full w-full object-cover object-top"
+                        />
+                      </div>
                     </div>
 
                     {/* Info */}
@@ -770,7 +836,7 @@ export default function CreatorFellowshipCohort1() {
       </section>
 
       {/* ═══════════ MEASURABLE IMPACT ═══════════ */}
-      <section className="relative px-4 py-24 sm:py-32" id="impact">
+      <section className="relative px-4 py-12 sm:py-16" id="impact">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_40%_at_30%_50%,rgba(31,182,255,0.03),transparent)]" />
 
@@ -787,22 +853,27 @@ export default function CreatorFellowshipCohort1() {
           <div className="grid gap-6 md:grid-cols-2">
             {/* For Fellows */}
             <ScrollReveal>
-              <div className="h-full rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm sm:p-8">
-                <h3 className="mb-6 text-lg font-semibold text-white">For the Fellows</h3>
-                <div className="space-y-4">
+              <div className="flex h-full flex-col rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm sm:p-8">
+                <div className="mb-8 flex items-center gap-4 border-b border-white/[0.06] pb-6">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#B4FF00]/10 border border-[#B4FF00]/20">
+                    <Briefcase className="h-5 w-5 text-[#B4FF00]" />
+                  </div>
+                  <h3 className="text-xl font-bold tracking-tight text-white">For the Fellows</h3>
+                </div>
+                <div className="flex-1 space-y-3">
                   {[
-                    "6 jury-evaluated projects forming a professional-grade creator portfolio",
-                    "3 completed real brand briefs (FinTech, F&B, Health) evaluated by brand stakeholders",
-                    "Credential: 'Ambixous Creator Fellow — Cohort 01' for LinkedIn and public profiles",
-                    "Cross-domain peer network across 6 content niches",
-                    "Direct mentor relationships built over 13 weeks of structured engagement",
-                    "Public recognition at the offline Grand Finale: Founder × Creator Demo Day",
+                    { text: "6 jury-evaluated projects forming a professional creator portfolio", icon: FileText },
+                    { text: "3 completed real brand briefs evaluated by stakeholders", icon: Target },
+                    { text: "Credential: 'Ambixous Creator Fellow, Cohort 01'", icon: GraduationCap },
+                    { text: "Cross-domain peer network across 6 content niches", icon: Network },
+                    { text: "Direct mentor relationships built over 13 weeks of engagement", icon: Users },
+                    { text: "Public recognition at the Founder × Creator Demo Day", icon: Trophy },
                   ].map((item, i) => (
-                    <div key={i} className="flex gap-3">
-                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#B4FF00]/10">
-                        <Check className="h-3 w-3 text-[#B4FF00]" />
+                    <div key={i} className="group flex gap-4 rounded-2xl border border-transparent p-3 transition-colors hover:border-white/[0.04] hover:bg-white/[0.02]">
+                      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#B4FF00]/[0.08] transition-colors group-hover:bg-[#B4FF00]/15">
+                        <item.icon className="h-4 w-4 text-[#B4FF00]/80" />
                       </div>
-                      <p className="text-sm leading-relaxed text-white/50">{item}</p>
+                      <p className="text-sm font-medium leading-relaxed text-white/70 group-hover:text-white/90">{item.text}</p>
                     </div>
                   ))}
                 </div>
@@ -811,32 +882,37 @@ export default function CreatorFellowshipCohort1() {
 
             {/* For the Ecosystem */}
             <ScrollReveal delay={150}>
-              <div className="h-full rounded-2xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm sm:p-8">
-                <h3 className="mb-6 text-lg font-semibold text-white">
-                  For the Ecosystem
-                </h3>
-                <div className="space-y-4">
+              <div className="flex h-full flex-col rounded-3xl border border-white/[0.06] bg-white/[0.02] p-6 backdrop-blur-sm sm:p-8">
+                <div className="mb-8 flex items-center gap-4 border-b border-white/[0.06] pb-6">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#1FB6FF]/10 border border-[#1FB6FF]/20">
+                    <Globe className="h-5 w-5 text-[#1FB6FF]" />
+                  </div>
+                  <h3 className="text-xl font-bold tracking-tight text-white">For the Ecosystem</h3>
+                </div>
+                <div className="flex-1 space-y-3">
                   {[
-                    "A replicable, scalable model for structured creator education — demonstrated in India for the first time",
-                    "Data on cohort-based learning outcomes for creator-entrepreneurs: portfolio quality, brand collaboration readiness, and long-term audience growth post-fellowship",
-                    "A network of 9 benchmark creators across niches, documented as Cohort 01 alumni",
+                    { text: "Replicable model for structured creator education, demonstrated in India for the first time", icon: Layers },
+                    { text: "Data on cohort learning outcomes: portfolio quality, brand readiness, audience growth", icon: BarChart },
+                    { text: "Network of 9 benchmark creators across niches, documented as alumni", icon: TrendingUp },
                   ].map((item, i) => (
-                    <div key={i} className="flex gap-3">
-                      <div className="mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-[#1FB6FF]/10">
-                        <Check className="h-3 w-3 text-[#1FB6FF]" />
+                    <div key={i} className="group flex gap-4 rounded-2xl border border-transparent p-3 transition-colors hover:border-white/[0.04] hover:bg-white/[0.02]">
+                      <div className="mt-1 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[#1FB6FF]/[0.08] transition-colors group-hover:bg-[#1FB6FF]/15">
+                        <item.icon className="h-4 w-4 text-[#1FB6FF]/80" />
                       </div>
-                      <p className="text-sm leading-relaxed text-white/50">{item}</p>
+                      <p className="text-sm font-medium leading-relaxed text-white/70 group-hover:text-white/90">{item.text}</p>
                     </div>
                   ))}
                 </div>
 
                 {/* Extra visual element */}
-                <div className="mt-8 rounded-xl border border-white/[0.04] bg-white/[0.02] p-5">
-                  <div className="flex items-center gap-3">
-                    <Zap className="h-5 w-5 text-amber-400" />
+                <div className="mt-8 rounded-2xl border border-amber-500/10 bg-gradient-to-r from-amber-500/[0.05] to-orange-500/[0.02] p-5">
+                  <div className="flex items-start gap-4">
+                    <div className="mt-0.5 rounded-xl bg-amber-500/20 p-2">
+                      <Zap className="h-4 w-4 text-amber-500" />
+                    </div>
                     <div>
-                      <p className="text-sm font-medium text-white/70">First of its kind</p>
-                      <p className="text-xs text-white/30">
+                      <p className="mb-1 text-sm font-semibold tracking-wide text-white/90">First of its kind</p>
+                      <p className="text-xs leading-relaxed text-white/50">
                         India&apos;s first structured, cohort-based creator education program with
                         real brand briefs and jury evaluations.
                       </p>
@@ -850,7 +926,7 @@ export default function CreatorFellowshipCohort1() {
       </section>
 
       {/* ═══════════ FAQ SECTION ═══════════ */}
-      <section className="relative px-4 py-24 sm:py-32" id="faq">
+      <section className="relative px-4 py-12 sm:py-16" id="faq">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
 
         <div className="mx-auto max-w-3xl">
@@ -873,7 +949,7 @@ export default function CreatorFellowshipCohort1() {
       </section>
 
       {/* ═══════════ CTA SECTION ═══════════ */}
-      <section className="relative px-4 py-24 sm:py-32">
+      <section className="relative px-4 py-12 sm:py-16">
         <div className="pointer-events-none absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/[0.06] to-transparent" />
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_50%_60%_at_50%_100%,rgba(180,255,0,0.06),transparent)]" />
 
