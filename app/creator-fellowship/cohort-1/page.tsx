@@ -187,7 +187,7 @@ const mentors = [
     linkedin: "https://www.linkedin.com/in/anand-gangadharan/",
   },
   {
-    name: "Sarvistha Singh",
+    name: "Sarvistha",
     designation: "Director of Product Design, Rebel Foods",
     domain: "F&B Product",
     image: "/creatorcohort/mentors/sarvistha.png",
@@ -626,24 +626,22 @@ export default function CreatorFellowshipCohort1() {
               {timeline.map((event, i) => (
                 <ScrollReveal key={i} delay={i * 60}>
                   <div
-                    className={`relative flex items-start gap-6 py-4 sm:gap-0 ${
-                      i % 2 === 0 ? "sm:flex-row" : "sm:flex-row-reverse"
-                    }`}
+                    className={`relative flex items-start gap-6 py-4 sm:gap-0 ${i % 2 === 0 ? "sm:flex-row" : "sm:flex-row-reverse"
+                      }`}
                   >
                     {/* Content */}
                     <div className={`flex-1 pl-10 sm:pl-0 ${i % 2 === 0 ? "sm:pr-12 sm:text-right" : "sm:pl-12"}`}>
                       <div className="inline-block">
                         {event.journey && (
                           <span
-                            className={`mb-1.5 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                              event.journey === "START"
+                            className={`mb-1.5 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${event.journey === "START"
                                 ? "bg-[#B4FF00]/15 text-[#B4FF00]"
                                 : event.journey === "GRADUATION"
-                                ? "bg-amber-500/15 text-amber-300"
-                                : event.journey === "EXPLORE"
-                                ? "bg-purple-500/15 text-purple-300"
-                                : "bg-white/[0.06] text-white/50"
-                            }`}
+                                  ? "bg-amber-500/15 text-amber-300"
+                                  : event.journey === "EXPLORE"
+                                    ? "bg-purple-500/15 text-purple-300"
+                                    : "bg-white/[0.06] text-white/50"
+                              }`}
                           >
                             {event.journey}
                           </span>
@@ -658,11 +656,10 @@ export default function CreatorFellowshipCohort1() {
                     {/* Dot */}
                     <div className="absolute left-4 top-5 -translate-x-1/2 sm:left-1/2">
                       <div
-                        className={`h-3 w-3 rounded-full border-2 ${
-                          event.isMilestone
+                        className={`h-3 w-3 rounded-full border-2 ${event.isMilestone
                             ? "border-[#B4FF00] bg-[#B4FF00]/30 shadow-[0_0_8px_rgba(180,255,0,0.4)]"
                             : "border-white/20 bg-[#010409]"
-                        }`}
+                          }`}
                       />
                     </div>
 
@@ -721,9 +718,8 @@ export default function CreatorFellowshipCohort1() {
                         {fellow.name}
                       </h3>
                       <span
-                        className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                          nicheColor[fellow.niche] || "bg-white/10 text-white/60"
-                        }`}
+                        className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${nicheColor[fellow.niche] || "bg-white/10 text-white/60"
+                          }`}
                       >
                         {fellow.niche}
                       </span>
@@ -784,7 +780,7 @@ export default function CreatorFellowshipCohort1() {
               Industry Leaders
             </h2>
             <p className="mb-16 max-w-xl text-base text-white/40 sm:text-lg">
-              Senior professionals from American Express, Times Internet, Nagarro, IIT Delhi, 
+              Senior professionals from American Express, Times Internet, Nagarro, IIT Delhi,
               MRSOOL, and more, guiding every project.
             </p>
           </ScrollReveal>
@@ -828,9 +824,8 @@ export default function CreatorFellowshipCohort1() {
                         {mentor.designation}
                       </p>
                       <span
-                        className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                          domainColor[mentor.domain] || "bg-white/10 text-white/60"
-                        }`}
+                        className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${domainColor[mentor.domain] || "bg-white/10 text-white/60"
+                          }`}
                       >
                         {mentor.domain}
                       </span>
