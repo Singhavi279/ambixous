@@ -186,6 +186,13 @@ const mentors = [
     image: "/creatorcohort/mentors/anand.png",
     linkedin: "https://www.linkedin.com/in/anand-gangadharan/",
   },
+  {
+    name: "Sarvistha Singh",
+    designation: "Director of Product Design, Rebel Foods",
+    domain: "F&B Product",
+    image: "/creatorcohort/mentors/sarvistha.png",
+    linkedin: "https://www.linkedin.com/in/sarvistha/",
+  },
 ]
 
 const projects = [
@@ -270,6 +277,7 @@ const domainColor: Record<string, string> = {
   Video: "bg-purple-500/15 text-purple-300 border border-purple-500/25",
   Graphics: "bg-teal-500/15 text-teal-300 border border-teal-500/25",
   "Fintech Product": "bg-sky-500/15 text-sky-300 border border-sky-500/25",
+  "F&B Product": "bg-emerald-500/15 text-emerald-300 border border-emerald-500/25",
 }
 
 /* ─────────────── PAGE COMPONENT ─────────────── */
