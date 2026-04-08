@@ -120,6 +120,27 @@ const fellows = [
     linkedin: "https://www.linkedin.com/in/surya-gupta-ai",
     instagram: "https://www.instagram.com/suryaweb3",
   },
+  {
+    name: "Jiya Tomar",
+    niche: "MedTech",
+    image: "/creatorcohort/fellows/jiya.png",
+    linkedin: "https://www.linkedin.com/in/jiya-tomar-538b21235",
+    instagram: "https://www.instagram.com/techtea_withjiya",
+  },
+  {
+    name: "Vedansh Chugh",
+    niche: "Tech",
+    image: "/creatorcohort/fellows/vedansh.png",
+    linkedin: "https://www.linkedin.com/in/vedanshchugh2003",
+    instagram: "https://www.instagram.com/_its.vedansh",
+  },
+  {
+    name: "Kavisha Mathur",
+    niche: "Tech",
+    image: "/creatorcohort/fellows/kavisha.png",
+    linkedin: "https://www.linkedin.com/in/kavisha-mathur/",
+    instagram: "https://www.instagram.com/chao.tech_/",
+  },
 ]
 
 const mentors = [
@@ -270,6 +291,7 @@ const nicheColor: Record<string, string> = {
   Gaming: "bg-purple-500/15 text-purple-300 border border-purple-500/25",
   Marketing: "bg-amber-500/15 text-amber-300 border border-amber-500/25",
   Motivational: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/25",
+  MedTech: "bg-teal-500/15 text-teal-300 border border-teal-500/25",
 }
 
 const domainColor: Record<string, string> = {
@@ -343,7 +365,7 @@ export default function CreatorFellowshipCohort1() {
           {/* Stats Bar */}
           <div className="animate-slide-up mx-auto grid max-w-2xl grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-4" style={{ animationDelay: "0.35s" }}>
             {[
-              { value: "9", label: "Fellows", icon: Users },
+              { value: "12", label: "Fellows", icon: Users },
               { value: "13", label: "Weeks", icon: Calendar },
               { value: "6", label: "Projects", icon: Briefcase },
               { value: "4", label: "Teams", icon: Trophy },
@@ -688,7 +710,7 @@ export default function CreatorFellowshipCohort1() {
               Meet the Fellows
             </h2>
             <p className="mb-16 max-w-xl text-base text-white/40 sm:text-lg">
-              9 creators across 6 content niches: Lifestyle, Tech, Gaming, Marketing, and
+              12 creators across 6 content niches: Lifestyle, Tech, Gaming, Marketing, MedTech, and
               Motivational, united by ambition.
             </p>
           </ScrollReveal>
