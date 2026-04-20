@@ -180,6 +180,13 @@ const mentors = [
     linkedin: "https://www.linkedin.com/in/mohinachadha/",
   },
   {
+    name: "Priyanka Goel",
+    designation: "CoFounder & Chief Marketing Head, Go Grub",
+    domain: "F&B Product",
+    image: "/creatorcohort/mentors/priyanka.png",
+    linkedin: "https://www.linkedin.com/in/priyankagoel13/",
+  },
+  {
     name: "Sarvistha",
     designation: "Director of Product Design, Rebel Foods",
     domain: "F&B Product",
@@ -657,12 +664,12 @@ export default function CreatorFellowshipCohort1() {
                         {event.journey && (
                           <span
                             className={`mb-1.5 inline-block rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${event.journey === "START"
-                                ? "bg-[#B4FF00]/15 text-[#B4FF00]"
-                                : event.journey === "GRADUATION"
-                                  ? "bg-amber-500/15 text-amber-300"
-                                  : event.journey === "EXPLORE"
-                                    ? "bg-purple-500/15 text-purple-300"
-                                    : "bg-white/[0.06] text-white/50"
+                              ? "bg-[#B4FF00]/15 text-[#B4FF00]"
+                              : event.journey === "GRADUATION"
+                                ? "bg-amber-500/15 text-amber-300"
+                                : event.journey === "EXPLORE"
+                                  ? "bg-purple-500/15 text-purple-300"
+                                  : "bg-white/[0.06] text-white/50"
                               }`}
                           >
                             {event.journey}
@@ -679,8 +686,8 @@ export default function CreatorFellowshipCohort1() {
                     <div className="absolute left-4 top-5 -translate-x-1/2 sm:left-1/2">
                       <div
                         className={`h-3 w-3 rounded-full border-2 ${event.isMilestone
-                            ? "border-[#B4FF00] bg-[#B4FF00]/30 shadow-[0_0_8px_rgba(180,255,0,0.4)]"
-                            : "border-white/20 bg-[#010409]"
+                          ? "border-[#B4FF00] bg-[#B4FF00]/30 shadow-[0_0_8px_rgba(180,255,0,0.4)]"
+                          : "border-white/20 bg-[#010409]"
                           }`}
                       />
                     </div>
