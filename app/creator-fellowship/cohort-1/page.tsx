@@ -159,13 +159,6 @@ const mentors = [
     linkedin: "https://www.linkedin.com/in/anand-gangadharan/",
   },
   {
-    name: "Ankit G",
-    designation: "Founder, Remote CMO · Ex-Grab, Jumia, Groupon",
-    domain: "Personal Branding",
-    image: "/creatorcohort/mentors/ankit.png",
-    linkedin: "https://www.linkedin.com/in/ankit-gup/",
-  },
-  {
     name: "Ayushi Somani",
     designation: "Founder, WildGo Media · 50M+ LinkedIn Impressions",
     domain: "Personal Branding",
