@@ -1,91 +1,128 @@
-import { Quote, Mail } from "lucide-react"
-import { FaLinkedin } from "react-icons/fa"
+import { Mail, Linkedin } from "lucide-react"
+
+const founders = [
+  {
+    name: "Riti Gupta",
+    role: "Community Evangelist · Brand Strategist · Storyteller-in-Chief",
+    description:
+      "A community builder and strategist, twice over a community founder. Known for creating authentic connections through narrative, design, and execution.",
+    linkedin: "https://www.linkedin.com/in/ritigupta05/",
+    email: "codework.riti@gmail.com",
+    initials: "RG",
+    accent: "ambixous-neon",
+  },
+  {
+    name: "Avnish Singh",
+    role: "Public Speaker · Product Manager · Community-Driven Builder",
+    description:
+      "A product professional with hands-on experience building and scaling at startups and enterprises. Known for turning bold ideas into measurable, high-impact growth.",
+    linkedin: "https://www.linkedin.com/in/singhavi279/",
+    email: "t20avnish@gmail.com",
+    initials: "AS",
+    accent: "signal-blue",
+  },
+]
 
 export function FoundersSection() {
-  const founders = [
-    {
-      name: "Riti Gupta",
-      role: "Community Evangelist | Brand Strategist | Storyteller-in-Chief",
-      description:
-        "A community builder and strategist, 2x Community Founder. Recognised for creating authentic connections through powerful narrative and design.",
-      linkedin: "https://www.linkedin.com/in/ritigupta05/",
-      email: "codework.riti@gmail.com"
-    },
-    {
-      name: "Avnish Singh",
-      role: "Public Speaker | Product Manager | Community-Driven Builder",
-      description:
-        "A product professional with hands-on experience building products, scaling startups and enterprises. Known for turning bold ideas into measurable, high-impact growth.",
-      linkedin: "https://www.linkedin.com/in/singhavi279/",
-      email: "t20avnish@gmail.com"
-    },
-  ]
-
   return (
-    <section className="py-24 bg-light-ash text-electric-ink">
-      <div className="container-width section-padding">
-        <div className="space-y-16 animate-fade-in">
-          {/* Header */}
-          <div className="text-center space-y-6">
-            <h2 className="text-4xl md:text-5xl font-bold">
-              The <span className="text-gradient">Humans</span> Behind the Hustle
-            </h2>
-            <p className="text-xl text-slate-600 max-w-3xl mx-auto">
-              Together, they co-built Ambixous to blend community-first thinking with executional excellence.
-            </p>
-          </div>
+    <section
+      aria-labelledby="home-founders-title"
+      className="relative bg-light-ash text-electric-ink"
+    >
+      <div className="container-width section-padding py-20 sm:py-24 lg:py-28">
+        {/* Header */}
+        <div className="max-w-3xl">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-500 sm:text-xs">
+            The founders
+          </p>
+          <h2
+            id="home-founders-title"
+            className="mt-4 text-3xl font-bold leading-[1.05] tracking-tight sm:text-4xl md:text-5xl lg:text-6xl"
+          >
+            The humans behind{" "}
+            <span className="text-slate-500">the hustle.</span>
+          </h2>
+          <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
+            Ambixous was co-built to blend community-first thinking with executional
+            excellence. Two operators, one mission, and a network that scales.
+          </p>
+        </div>
 
-          {/* Founders Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-            {founders.map((founder, index) => (
+        {/* Founders grid */}
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:mt-14 md:grid-cols-2 md:gap-6">
+          {founders.map((founder) => (
+            <article
+              key={founder.name}
+              className="group relative overflow-hidden rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgba(2,4,9,0.06)] ring-1 ring-slate-200 transition-all hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(2,4,9,0.10)] sm:p-8"
+            >
               <div
-                key={founder.name}
-                className="space-y-6 animate-slide-up"
-                style={{ animationDelay: `${index * 200}ms` }}
-              >
-                <div className="bg-white p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 group">
-                  <div className="space-y-4">
-                    <div className="flex items-start gap-4">
-                      <div className="p-2 bg-ambixous-neon/20 rounded-lg group-hover:bg-ambixous-neon/30 transition-colors duration-300">
-                        <Quote className="text-ambixous-neon" size={20} />
-                      </div>
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-2xl font-bold text-electric-ink">{founder.name}</h3>
-                          <a
-                            href={founder.linkedin}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            aria-label={`LinkedIn profile of ${founder.name}`}
-                          >
-                            <FaLinkedin size={20} color="#0A66C2" />
-                          </a>
-                          <a
-                            href={`mailto:${founder.email}`}
-                            aria-label={`Email ${founder.name}`}
-                          >
-                            <Mail size={20} color="#EA4335" />
-                          </a>
-                        </div>
-                        <p className="text-signal-blue font-semibold">{founder.role}</p>
-                      </div>
-                    </div>
-                    <p className="text-slate-600 leading-relaxed">{founder.description}</p>
-                  </div>
+                className={`absolute inset-x-0 top-0 h-1 ${
+                  founder.accent === "ambixous-neon"
+                    ? "bg-gradient-to-r from-ambixous-neon to-transparent"
+                    : "bg-gradient-to-r from-signal-blue to-transparent"
+                }`}
+              />
+
+              <div className="flex items-center gap-4">
+                <div
+                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-lg font-bold ${
+                    founder.accent === "ambixous-neon"
+                      ? "bg-ambixous-neon/15 text-ambixous-neon"
+                      : "bg-signal-blue/15 text-signal-blue"
+                  }`}
+                  aria-hidden="true"
+                >
+                  {founder.initials}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <h3 className="text-xl font-bold tracking-tight text-electric-ink sm:text-2xl">
+                    {founder.name}
+                  </h3>
+                  <p className="mt-1 text-xs font-semibold text-slate-500 sm:text-sm">
+                    {founder.role}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
 
-          {/* Origin Story */}
-          <div className="text-center bg-white p-8 rounded-2xl shadow-lg max-w-4xl mx-auto">
-            <div className="space-y-4">
-              <h3 className="text-2xl font-bold text-electric-ink">Our Origin Story</h3>
-              <p className="text-slate-600 leading-relaxed text-lg">
-                Ambixous began as small talks about blending community impact with business growth. Now, it’s a 5,000+ members strong grassroots-to-global network, inclusive of founders, investors, professionals & students, turning shared ideas into real, lasting impact.
+              <p className="mt-5 text-sm leading-relaxed text-slate-600 sm:text-base">
+                {founder.description}
               </p>
-            </div>
-          </div>
+
+              <div className="mt-6 flex flex-wrap gap-2">
+                <a
+                  href={founder.linkedin}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label={`${founder.name} on LinkedIn`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-electric-ink transition-colors hover:border-[#0A66C2]/30 hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
+                >
+                  <Linkedin size={13} aria-hidden="true" />
+                  LinkedIn
+                </a>
+                <a
+                  href={`mailto:${founder.email}`}
+                  aria-label={`Email ${founder.name}`}
+                  className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-50 px-3 py-1.5 text-xs font-semibold text-electric-ink transition-colors hover:border-sun-coral/30 hover:bg-sun-coral/10 hover:text-sun-coral"
+                >
+                  <Mail size={13} aria-hidden="true" />
+                  Email
+                </a>
+              </div>
+            </article>
+          ))}
+        </div>
+
+        {/* Origin */}
+        <div className="mt-10 rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgba(2,4,9,0.06)] ring-1 ring-slate-200 sm:mt-12 sm:p-10">
+          <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-slate-500 sm:text-xs">
+            Origin story
+          </p>
+          <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-lg lg:text-xl">
+            Ambixous began as small conversations about blending community impact with
+            business growth. Today it is a 5,000+ member grassroots-to-global network of
+            founders, investors, professionals, and students turning shared ideas into
+            lasting impact.
+          </p>
         </div>
       </div>
     </section>

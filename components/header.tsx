@@ -17,12 +17,23 @@ export function Header() {
     { name: "Events", href: "/events" },
     { name: "Mentors", href: "/mentors" },
     {
+      name: "Fellowship",
+      href: "/creator-fellowship/cohort-1",
+      live: true,
+    },
+    {
       name: "ACE",
       href: "https://ace.ambixous.in",
       external: true,
       badge: true,
     },
-  ]
+  ] as Array<{
+    name: string
+    href: string
+    external?: boolean
+    badge?: boolean
+    live?: boolean
+  }>
 
   return (
     <header className="sticky top-0 z-50 bg-electric-ink/95 backdrop-blur-sm border-b border-slate-gray/20">
@@ -45,6 +56,12 @@ export function Header() {
                 </Link>
                 {item.badge && (
                   <div className="absolute -top-2 -right-4 w-3 h-3 bg-red-500 rounded-full animate-blink shadow-red-500/50 shadow-lg" />
+                )}
+                {item.live && (
+                  <span className="absolute -top-2 -right-4 flex h-3 w-3">
+                    <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ambixous-neon opacity-75" />
+                    <span className="relative inline-flex h-3 w-3 rounded-full bg-ambixous-neon shadow-lg shadow-ambixous-neon/50" />
+                  </span>
                 )}
               </div>
             ))}
@@ -89,6 +106,12 @@ export function Header() {
                   </Link>
                   {item.badge && (
                     <div className="absolute -top-1 -right-3 w-3 h-3 bg-red-500 rounded-full animate-blink shadow-red-500/50 shadow-lg" />
+                  )}
+                  {item.live && (
+                    <span className="absolute -top-1 -right-3 flex h-3 w-3">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ambixous-neon opacity-75" />
+                      <span className="relative inline-flex h-3 w-3 rounded-full bg-ambixous-neon shadow-lg shadow-ambixous-neon/50" />
+                    </span>
                   )}
                 </div>
               ))}

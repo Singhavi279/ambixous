@@ -199,10 +199,287 @@ html {
 /* Scroll reveal base */
 .scroll-reveal {
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+  transition: opacity 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.9s cubic-bezier(0.22, 1, 0.36, 1),
+    filter 0.9s cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: opacity, transform, filter;
 }
-.scroll-reveal.revealed {
-  opacity: 1;
-  transform: translateY(0);
+.scroll-reveal.reveal-up { transform: translateY(36px); }
+.scroll-reveal.reveal-up.revealed { transform: translateY(0); }
+
+.scroll-reveal.reveal-blur { transform: translateY(20px); filter: blur(14px); }
+.scroll-reveal.reveal-blur.revealed { transform: translateY(0); filter: blur(0); }
+
+.scroll-reveal.reveal-right { transform: translateX(-40px); }
+.scroll-reveal.reveal-right.revealed { transform: translateX(0); }
+
+.scroll-reveal.reveal-left { transform: translateX(40px); }
+.scroll-reveal.reveal-left.revealed { transform: translateX(0); }
+
+.scroll-reveal.reveal-scale { transform: scale(0.96); }
+.scroll-reveal.reveal-scale.revealed { transform: scale(1); }
+
+.scroll-reveal.revealed { opacity: 1; }
+
+/* ──────────────────────────────────────────── */
+/* Cohort-01 cinematic system                  */
+/* ──────────────────────────────────────────── */
+
+/* Loader light stream */
+@keyframes loaderStream {
+  0% { transform: translateX(-100%); opacity: 0; }
+  20% { opacity: 1; }
+  80% { opacity: 1; }
+  100% { transform: translateX(100%); opacity: 0; }
+}
+.loader-stream {
+  animation: loaderStream 2.4s ease-in-out infinite;
+  filter: blur(2px);
+}
+@keyframes loaderShimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(400%); }
+}
+.loader-shimmer {
+  animation: loaderShimmer 1.6s ease-in-out infinite;
+}
+@keyframes markIn {
+  from { opacity: 0; letter-spacing: 0.5em; filter: blur(8px); }
+  to { opacity: 1; letter-spacing: -0.02em; filter: blur(0); }
+}
+.loader-mark {
+  animation: markIn 1.4s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  letter-spacing: -0.02em;
+}
+
+/* Editorial typography */
+.font-editorial {
+  font-feature-settings: "ss01", "ss02";
+  letter-spacing: -0.04em;
+}
+
+/* Cinematic display */
+.display-mega {
+  font-weight: 700;
+  letter-spacing: -0.055em;
+  line-height: 0.92;
+}
+
+/* Subtle film grain */
+.grain::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.035;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.6 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+}
+
+/* Vignette */
+.vignette::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(0,0,0,0.5) 100%);
+}
+
+/* Soft glow ring on hover */
+.glow-ring {
+  position: relative;
+  isolation: isolate;
+}
+.glow-ring::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  border-radius: inherit;
+  padding: 1px;
+  background: linear-gradient(135deg, rgba(180,255,0,0.6), rgba(31,182,255,0.5), transparent 70%);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+          mask-composite: exclude;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+  z-index: 1;
+}
+.glow-ring:hover::before { opacity: 1; }
+
+/* Card spotlight follows cursor */
+.spotlight {
+  position: relative;
+  isolation: isolate;
+}
+.spotlight::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    400px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(180, 255, 0, 0.10),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+  z-index: 0;
+}
+.spotlight:hover::after { opacity: 1; }
+
+/* Cinematic light streams */
+@keyframes lightStream {
+  0% { transform: translateX(-100%) skewX(-12deg); opacity: 0; }
+  20% { opacity: 0.6; }
+  80% { opacity: 0.6; }
+  100% { transform: translateX(100vw) skewX(-12deg); opacity: 0; }
+}
+.light-stream {
+  animation: lightStream 8s ease-in-out infinite;
+}
+
+/* Pulse ring */
+@keyframes pulseRing {
+  0% { transform: scale(0.8); opacity: 0.6; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.pulse-ring {
+  animation: pulseRing 2.4s cubic-bezier(0, 0, 0.2, 1) infinite;
+}
+
+/* Breathing glow */
+@keyframes breathe {
+  0%, 100% { opacity: 0.3; transform: scale(1); }
+  50% { opacity: 0.55; transform: scale(1.04); }
+}
+.breathe {
+  animation: breathe 5s ease-in-out infinite;
+}
+
+/* Word reveal for hero headline */
+@keyframes wordRise {
+  from { opacity: 0; transform: translateY(110%); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.word-rise {
+  display: inline-block;
+  overflow: hidden;
+}
+.word-rise > span {
+  display: inline-block;
+  animation: wordRise 1s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Marquee tape */
+@keyframes tape {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.tape-track {
+  animation: tape 40s linear infinite;
+}
+
+/* Cinematic divider */
+.cine-divider {
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.10), transparent);
+}
+
+/* Project gallery hover */
+.gallery-card {
+  position: relative;
+  isolation: isolate;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.gallery-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, var(--from, #B4FF00), var(--to, #1FB6FF));
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  z-index: -1;
+  filter: blur(40px);
+  transform: scale(0.8);
+}
+.gallery-card:hover::before {
+  opacity: 0.25;
+  transform: scale(1);
+}
+
+/* Editorial number */
+.editorial-number {
+  font-weight: 700;
+  letter-spacing: -0.06em;
+  line-height: 0.85;
+  font-feature-settings: "tnum";
+}
+
+/* Cinematic underline that draws */
+.draw-line {
+  position: relative;
+}
+.draw-line::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -4px;
+  height: 1px;
+  width: 100%;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.draw-line:hover::after { transform: scaleX(1); }
+
+/* Tilt card inner spotlight */
+.tilt-card { position: relative; }
+.tilt-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    320px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(255,255,255,0.06),
+    transparent 60%
+  );
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+.tilt-card:hover::after { opacity: 1; }
+
+/* Magnetic button shine */
+.btn-shine {
+  position: relative;
+  overflow: hidden;
+}
+.btn-shine::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(110deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+  transform: translateX(-100%);
+  transition: transform 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.btn-shine:hover::before {
+  transform: translateX(100%);
+}
+
+/* Smooth momentum scroll feel */
+@media (prefers-reduced-motion: no-preference) {
+  html { scroll-behavior: smooth; }
+}
+
+/* Reduced motion respect */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal { opacity: 1 !important; transform: none !important; filter: none !important; }
+  .loader-stream, .loader-shimmer, .light-stream, .pulse-ring, .breathe, .tape-track,
+  .animate-float, .animate-pulse-slow, .animate-marquee {
+    animation: none !important;
+  }
 }

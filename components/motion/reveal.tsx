@@ -4,17 +4,14 @@ import { useEffect, useRef, type ReactNode } from "react"
 
 type Variant = "up" | "blur" | "right" | "left" | "scale"
 
-export function ScrollReveal({
-  children,
-  className = "",
-  delay = 0,
-  variant = "up",
-}: {
+interface RevealProps {
   children: ReactNode
   className?: string
   delay?: number
   variant?: Variant
-}) {
+}
+
+export function Reveal({ children, className = "", delay = 0, variant = "up" }: RevealProps) {
   const ref = useRef<HTMLDivElement>(null)
 
   useEffect(() => {

@@ -1,5 +1,6 @@
 import { HeroSection } from "@/components/home/hero-section"
 import { AboutSection } from "@/components/home/about-section"
+import { FellowshipSection } from "@/components/home/fellowship-section"
 import { AceSection } from "@/components/home/ace-section"
 import { EventsSection } from "@/components/home/events-section"
 import { FoundersSection } from "@/components/home/founders-section"
@@ -11,6 +12,7 @@ export default function HomePage() {
     <div className="space-y-0">
       <HeroSection />
       <AboutSection />
+      <FellowshipSection />
       <AceSection />
       <EventsSection />
       <FoundersSection />
