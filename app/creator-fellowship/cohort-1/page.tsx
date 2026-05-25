@@ -67,7 +67,7 @@ export const metadata: Metadata = {
 const fellows = [
   {
     name: "Abhay Mishra",
-    niche: "Gaming",
+    niche: "Storyteller",
     image: "/creatorcohort/fellows/abhay.png",
     linkedin: "https://www.linkedin.com/in/abhay-mishra-04a442315",
     youtube: "https://m.youtube.com/%40bravey2007",

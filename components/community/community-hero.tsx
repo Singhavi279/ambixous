@@ -4,7 +4,7 @@ import Link from "next/link"
 
 export function CommunityHero() {
   return (
-    <section className="relative min-h-screen flex items-center justify-center bg-gradient-to-br from-electric-ink via-electric-ink to-slate-900 overflow-hidden">
+    <section className="relative min-h-[100dvh] flex items-center justify-center bg-gradient-to-br from-electric-ink via-electric-ink to-slate-900 overflow-hidden pt-20 sm:pt-24">
       {/* Background Animation */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-1/3 left-1/3 w-72 h-72 bg-ambixous-neon/20 rounded-full blur-3xl animate-pulse"></div>
