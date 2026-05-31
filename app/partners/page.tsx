@@ -10,6 +10,7 @@ import {
   Headset,
   Zap,
   Phone,
+  MessageCircle,
   Calendar,
   MapPin,
   Video,
@@ -115,6 +116,40 @@ const pricingTiers = [
     ],
     accent: "#FFB347",
     popular: false,
+  },
+]
+
+const whatsappMessage = encodeURIComponent(
+  "Hi, i am interested in partnership for the creator meetup event, need more details."
+)
+
+const contactCards = [
+  {
+    name: "Riti Gupta",
+    label: "Sponsorship",
+    phoneDisplay: "+91 9971434800",
+    phoneHref: "tel:+919971434800",
+    whatsappHref: `https://wa.me/919971434800?text=${whatsappMessage}`,
+    icon: Headset,
+    accent: "#1FB6FF",
+  },
+  {
+    name: "Avnish Singh",
+    label: "General Query",
+    phoneDisplay: "+91 7417914565",
+    phoneHref: "tel:+917417914565",
+    whatsappHref: `https://wa.me/917417914565?text=${whatsappMessage}`,
+    icon: Zap,
+    accent: "#B4FF00",
+  },
+  {
+    name: "Yug Sarin",
+    label: "Partnerships",
+    phoneDisplay: "+91 95558 37295",
+    phoneHref: "tel:+919555837295",
+    whatsappHref: `https://wa.me/919555837295?text=${whatsappMessage}`,
+    icon: MessageCircle,
+    accent: "#FF6978",
   },
 ]
 
@@ -433,44 +468,47 @@ export default function PartnersPage() {
               </p>
             </ScrollReveal>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-              {/* Riti Contact */}
-              <ScrollReveal variant="up" delay={100}>
-                <div className="spotlight glow-ring group relative overflow-hidden rounded-[2.5rem] border border-white/[0.08] bg-white/[0.03] p-10 backdrop-blur-md transition-all duration-500 hover:border-[#1FB6FF]/50 flex flex-col items-center">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.05] shadow-inner transition-transform duration-500 group-hover:scale-110">
-                    <Headset className="h-7 w-7 text-[#1FB6FF]" />
-                  </div>
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">Partnerships</p>
-                  <p className="mb-8 text-2xl font-bold text-white">Riti Gupta</p>
-                  
-                  <a
-                    href="tel:+919971434800"
-                    className="btn-shine w-full group/btn relative inline-flex items-center justify-center gap-3 rounded-2xl border border-white/[0.15] bg-white/[0.05] py-4 text-lg font-bold text-white transition-all hover:border-[#1FB6FF] hover:bg-[#1FB6FF] hover:text-[#05070C] hover:shadow-[0_0_30px_rgba(31,182,255,0.4)]"
-                  >
-                    <Phone className="h-5 w-5 text-[#1FB6FF] transition-colors group-hover/btn:text-[#05070C]" />
-                    +91 9971434800
-                  </a>
-                </div>
-              </ScrollReveal>
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
+              {contactCards.map((contact, i) => {
+                const ContactIcon = contact.icon
 
-              {/* Avnish Contact */}
-              <ScrollReveal variant="up" delay={200}>
-                <div className="spotlight glow-ring group relative overflow-hidden rounded-[2.5rem] border border-white/[0.08] bg-white/[0.03] p-10 backdrop-blur-md transition-all duration-500 hover:border-[#B4FF00]/50 flex flex-col items-center">
-                  <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.05] shadow-inner transition-transform duration-500 group-hover:scale-110">
-                    <Zap className="h-7 w-7 text-[#B4FF00]" />
-                  </div>
-                  <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">Operations</p>
-                  <p className="mb-8 text-2xl font-bold text-white">Avnish Singh</p>
-                  
-                  <a
-                    href="tel:+917417914565"
-                    className="btn-shine w-full group/btn relative inline-flex items-center justify-center gap-3 rounded-2xl border border-white/[0.15] bg-white/[0.05] py-4 text-lg font-bold text-white transition-all hover:border-[#B4FF00] hover:bg-[#B4FF00] hover:text-[#05070C] hover:shadow-[0_0_30px_rgba(180,255,0,0.4)]"
-                  >
-                    <Phone className="h-5 w-5 text-[#B4FF00] transition-colors group-hover/btn:text-[#05070C]" />
-                    +91 7417914565
-                  </a>
-                </div>
-              </ScrollReveal>
+                return (
+                  <ScrollReveal key={contact.name} variant="up" delay={100 + i * 100}>
+                    <div
+                      className="spotlight glow-ring group relative flex h-full flex-col items-center overflow-hidden rounded-[2rem] border border-white/[0.08] bg-white/[0.03] p-7 backdrop-blur-md transition-all duration-500 hover:-translate-y-1 hover:border-[var(--contact-accent)] sm:p-8"
+                      style={{ "--contact-accent": `${contact.accent}80` } as CSSProperties}
+                    >
+                      <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-full border border-white/[0.1] bg-white/[0.05] shadow-inner transition-transform duration-500 group-hover:scale-110">
+                        <ContactIcon className="h-7 w-7" style={{ color: contact.accent }} />
+                      </div>
+                      <p className="mb-2 text-[10px] font-bold uppercase tracking-[0.3em] text-white/40">
+                        {contact.label}
+                      </p>
+                      <p className="mb-8 text-2xl font-bold text-white">{contact.name}</p>
+
+                      <div className="mt-auto flex w-full flex-col gap-3">
+                        <a
+                          href={contact.phoneHref}
+                          className="btn-shine group/btn relative inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-white/[0.15] bg-white/[0.05] py-4 text-base font-bold text-white transition-all hover:border-[var(--contact-accent)] hover:bg-white/[0.08] sm:text-lg"
+                        >
+                          <Phone className="h-5 w-5" style={{ color: contact.accent }} />
+                          {contact.phoneDisplay}
+                        </a>
+                        <a
+                          href={contact.whatsappHref}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          aria-label={`Message ${contact.name} on WhatsApp`}
+                          className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#25D366]/30 bg-[#25D366]/10 px-4 py-3 text-sm font-bold text-[#DFFFEA] transition-all hover:border-[#25D366] hover:bg-[#25D366] hover:text-[#05070C]"
+                        >
+                          <MessageCircle className="h-5 w-5" />
+                          WhatsApp
+                        </a>
+                      </div>
+                    </div>
+                  </ScrollReveal>
+                )
+              })}
             </div>
           </div>
 
