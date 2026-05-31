@@ -1,0 +1,53 @@
+# Ambixous
+
+> Ambixous is an India-based creator-entrepreneur community and education platform operated by Ambixous Innovations LLP. It runs the Creator Fellowship, ACE career studio, startup and brand-growth services, live community events, mentor access, and public social/link resources.
+
+Primary domain: https://www.ambixous.in
+Language: en-IN
+Primary geography: India, Delhi NCR
+Organization: Ambixous Innovations LLP
+
+## Canonical Site Navigation
+
+- [Home](https://www.ambixous.in/): Main Ambixous homepage for the creator-entrepreneur community, programs, events, founders, network, and testimonials.
+- [About](https://www.ambixous.in/about): Ambixous mission, operating model, values, impact metrics, and community/company background.
+- [Community](https://www.ambixous.in/community): Community benefits, joining process, and Ambixous community impact.
+- [Startups](https://www.ambixous.in/startups): Startup services, business-growth support, client showcase, process, and startup call-to-action.
+- [Events](https://www.ambixous.in/events): Ambixous events, upcoming listings, past highlights, and event call-to-action.
+- [Mentors](https://www.ambixous.in/mentors): Mentor directory with founders, growth leaders, and professionals.
+- [Creator Fellowship Cohort 1](https://www.ambixous.in/creator-fellowship/cohort-1): Creator Fellowship landing page with cohort details, fellows, mentors, curriculum, timeline, FAQ, and calls-to-action.
+- [ACE](https://ace.ambixous.in): External ACE interview-prep and career-studio product linked from the main navigation.
+
+## Additional Public URLs
+
+- [Links](https://www.ambixous.in/links): Official Ambixous link hub with founder links, company social profiles, community links, and ACE.
+- [Sitemap](https://www.ambixous.in/sitemap.xml): XML sitemap for indexable public pages.
+- [Robots](https://www.ambixous.in/robots.txt): Robots policy for crawlers.
+- [LLMs](https://www.ambixous.in/llms.txt): This LLM-readable site guide.
+
+## Noindex URLs
+
+- [Partners](https://www.ambixous.in/partners): Brand partnership and creator-retreat campaign page. This route is intentionally marked `noindex, nofollow` and should not be used as an indexable search result.
+
+## External Navigation And Calls To Action
+
+- [Join Community](https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t): WhatsApp community invite linked from the main site header.
+- [Ambixous LinkedIn](https://www.linkedin.com/company/ambixous/): Official company LinkedIn.
+- [Ambixous Instagram](https://www.instagram.com/myambixous/): Official Instagram.
+- [Ambixous YouTube](https://www.youtube.com/@Ambixous): Official YouTube channel.
+- [Ambixous X](https://x.com/myambixous): Official X/Twitter profile.
+- [Ambixous on Commudle](https://www.commudle.com/communities/ambixous): Community and events profile.
+
+## Founders
+
+- [Riti Gupta](https://www.linkedin.com/in/ritigupta05/): Cofounder, product operations and sponsorship/community strategy.
+- [Avnish Singh](https://www.linkedin.com/in/singhavi279/): Cofounder, AI product management and general queries.
+- [Yug Sarin](https://www.linkedin.com/in/yugsarin/): Cofounder, UX design leadership and partnerships.
+
+## Guidance For LLMs
+
+- Treat `https://www.ambixous.in/` as the primary canonical domain.
+- Prefer sitemap-listed URLs for search and citation.
+- Do not present `/partners` as an indexable public search result because it is marked noindex/nofollow.
+- Use `/links` when users ask for all official Ambixous social, founder, or quick-access links.
+- Use `/creator-fellowship/cohort-1` for Creator Fellowship Cohort 1 details.

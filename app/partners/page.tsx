@@ -45,6 +45,17 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "https://www.ambixous.in/partners",
   },
+  robots: {
+    index: false,
+    follow: false,
+    googleBot: {
+      index: false,
+      follow: false,
+      noarchive: true,
+      nosnippet: true,
+      noimageindex: true,
+    },
+  },
 }
 
 /* ─────────────── DATA ─────────────── */
@@ -127,7 +138,6 @@ const contactCards = [
   {
     name: "Riti Gupta",
     label: "Sponsorship",
-    phoneDisplay: "+91 9971434800",
     phoneHref: "tel:+919971434800",
     whatsappHref: `https://wa.me/919971434800?text=${whatsappMessage}`,
     icon: Headset,
@@ -136,7 +146,6 @@ const contactCards = [
   {
     name: "Avnish Singh",
     label: "General Query",
-    phoneDisplay: "+91 7417914565",
     phoneHref: "tel:+917417914565",
     whatsappHref: `https://wa.me/917417914565?text=${whatsappMessage}`,
     icon: Zap,
@@ -145,7 +154,6 @@ const contactCards = [
   {
     name: "Yug Sarin",
     label: "Partnerships",
-    phoneDisplay: "+91 95558 37295",
     phoneHref: "tel:+919555837295",
     whatsappHref: `https://wa.me/919555837295?text=${whatsappMessage}`,
     icon: MessageCircle,
@@ -486,13 +494,14 @@ export default function PartnersPage() {
                       </p>
                       <p className="mb-8 text-2xl font-bold text-white">{contact.name}</p>
 
-                      <div className="mt-auto flex w-full flex-col gap-3">
+                      <div className="relative z-10 mt-auto flex w-full flex-col gap-3">
                         <a
                           href={contact.phoneHref}
+                          aria-label={`Call ${contact.name}`}
                           className="btn-shine group/btn relative inline-flex w-full items-center justify-center gap-3 rounded-2xl border border-white/[0.15] bg-white/[0.05] py-4 text-base font-bold text-white transition-all hover:border-[var(--contact-accent)] hover:bg-white/[0.08] sm:text-lg"
                         >
                           <Phone className="h-5 w-5" style={{ color: contact.accent }} />
-                          {contact.phoneDisplay}
+                          Call Now
                         </a>
                         <a
                           href={contact.whatsappHref}
@@ -502,7 +511,7 @@ export default function PartnersPage() {
                           className="inline-flex w-full items-center justify-center gap-2 rounded-2xl border border-[#25D366]/30 bg-[#25D366]/10 px-4 py-3 text-sm font-bold text-[#DFFFEA] transition-all hover:border-[#25D366] hover:bg-[#25D366] hover:text-[#05070C]"
                         >
                           <MessageCircle className="h-5 w-5" />
-                          WhatsApp
+                          Chat on WA
                         </a>
                       </div>
                     </div>

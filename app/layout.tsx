@@ -44,7 +44,20 @@ export const metadata: Metadata = {
     "startup mentorship India",
   ],
   authors: [{ name: "Ambixous Innovations LLP" }],
+  creator: "Ambixous Innovations LLP",
+  publisher: "Ambixous Innovations LLP",
   category: "education",
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+      "max-video-preview": -1,
+    },
+  },
   openGraph: {
     type: "website",
     siteName: "Ambixous",
@@ -64,6 +77,14 @@ export const metadata: Metadata = {
   icons: {
     icon: "/favicon.png",
     apple: "/apple-icon.png",
+  },
+  other: {
+    "geo.region": "IN-DL",
+    "geo.placename": "Delhi NCR, India",
+    "geo.position": "28.6139;77.2090",
+    ICBM: "28.6139, 77.2090",
+    "distribution": "global",
+    "target-country": "IN",
   },
 }
 
