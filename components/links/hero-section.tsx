@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react"
 import Image from "next/image"
 import { Logo } from "@/components/logo"
+import { founders } from "@/lib/founders"
 
 export function HeroSection() {
     const imageRef = useRef<HTMLDivElement>(null)
@@ -50,35 +51,42 @@ export function HeroSection() {
                     </p>
                 </div>
 
-                {/* Founders Photo — 3D Lifted */}
+                {/* Founder portraits */}
                 <div
                     ref={imageRef}
-                    className="scroll-reveal w-full max-w-xs sm:max-w-sm md:max-w-md"
+                    className="scroll-reveal w-full max-w-xl"
                 >
                     <div className="image-3d-lift">
-                        <div className="image-3d-target rounded-2xl overflow-hidden border border-white/[0.08]">
-                            <Image
-                                src="/hero.jpg"
-                                alt="Riti Gupta and Avnish Singh — Cofounders of Ambixous"
-                                width={1248}
-                                height={832}
-                                priority
-                                className="w-full h-auto object-cover"
-                                sizes="(max-width: 640px) 320px, (max-width: 768px) 384px, 448px"
-                            />
-                        </div>
-                    </div>
-
-                    {/* Founder captions */}
-                    <div className="mt-4 flex justify-center gap-6 text-xs sm:text-sm text-slate-gray">
-                        <div className="text-center">
-                            <p className="text-warm-white font-semibold">Riti Gupta</p>
-                            <p>Cofounder</p>
-                        </div>
-                        <div className="w-px bg-white/10" />
-                        <div className="text-center">
-                            <p className="text-warm-white font-semibold">Avnish Singh</p>
-                            <p>Cofounder</p>
+                        <div className="image-3d-target rounded-3xl border border-white/[0.08] bg-white/[0.04] p-4 backdrop-blur-sm">
+                            <div className="grid grid-cols-3 gap-3 sm:gap-5">
+                                {founders.map((founder) => (
+                                    <div key={founder.name} className="flex flex-col items-center text-center">
+                                        <div
+                                            className={`rounded-full p-1 ${
+                                                founder.accent === "ambixous-neon"
+                                                    ? "bg-ambixous-neon/20"
+                                                    : founder.accent === "signal-blue"
+                                                        ? "bg-signal-blue/20"
+                                                        : "bg-sun-coral/20"
+                                            }`}
+                                        >
+                                            <Image
+                                                src={founder.photo}
+                                                alt={`${founder.name}, Cofounder of Ambixous`}
+                                                width={112}
+                                                height={112}
+                                                priority
+                                                className="h-20 w-20 rounded-full object-cover ring-2 ring-white/15 sm:h-24 sm:w-24"
+                                                sizes="96px"
+                                            />
+                                        </div>
+                                        <p className="mt-3 text-xs font-semibold text-warm-white sm:text-sm">
+                                            {founder.name}
+                                        </p>
+                                        <p className="text-[11px] text-slate-gray">Cofounder</p>
+                                    </div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                 </div>

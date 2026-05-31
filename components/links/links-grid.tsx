@@ -2,22 +2,16 @@
 
 import { Linkedin, Instagram, Youtube, Twitter, Calendar, Rocket } from "lucide-react"
 import { LinkCard } from "./link-card"
+import { founders } from "@/lib/founders"
 
 const links = [
-    {
-        href: "https://www.linkedin.com/in/ritigupta05/",
-        label: "Riti Gupta",
+    ...founders.map((founder) => ({
+        href: founder.linkedin,
+        label: founder.name,
         sublabel: "Cofounder · Ambixous",
         icon: Linkedin,
         iconColor: "#0A66C2",
-    },
-    {
-        href: "https://www.linkedin.com/in/singhavi279/",
-        label: "Avnish Singh",
-        sublabel: "Cofounder · Ambixous",
-        icon: Linkedin,
-        iconColor: "#0A66C2",
-    },
+    })),
     {
         href: "https://www.linkedin.com/company/ambixous/",
         label: "Ambixous",

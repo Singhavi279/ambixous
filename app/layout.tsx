@@ -7,6 +7,7 @@ import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { AuthProvider } from "@/components/auth-provider"
 import { SiteLoader } from "@/components/site/site-loader"
+import { founders } from "@/lib/founders"
 
 const sora = Sora({
   subsets: ["latin"],
@@ -75,10 +76,11 @@ const organizationJsonLd = {
   logo: `${siteUrl}/logo.jpg`,
   description:
     "Creator-entrepreneur community and education platform in India. Operates the Creator Fellowship, ACE career studio, and a calendar of live events.",
-  founder: [
-    { "@type": "Person", name: "Riti Gupta", url: "https://www.linkedin.com/in/ritigupta05/" },
-    { "@type": "Person", name: "Avnish Singh", url: "https://www.linkedin.com/in/singhavi279/" },
-  ],
+  founder: founders.map((founder) => ({
+    "@type": "Person",
+    name: founder.name,
+    url: founder.linkedin,
+  })),
   foundingLocation: { "@type": "Place", name: "India" },
   areaServed: "IN",
   sameAs: [

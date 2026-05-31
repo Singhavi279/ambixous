@@ -20,7 +20,7 @@ export const metadata: Metadata = {
                 url: "/hero.jpg",
                 width: 1248,
                 height: 832,
-                alt: "Riti Gupta and Avnish Singh — Cofounders of Ambixous",
+                alt: "Ambixous cofounders",
             },
         ],
         type: "website",
@@ -49,7 +49,7 @@ export default function LinksPage() {
                 }}
             />
             <div className="min-h-screen bg-electric-ink">
-                {/* Hero: Logo + headline + bio + founders photo */}
+                {/* Hero: Logo + headline + bio + founder portraits */}
                 <HeroSection />
 
                 {/* Share bar: Share link, Copy URL, QR code */}

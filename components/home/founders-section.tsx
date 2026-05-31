@@ -1,27 +1,6 @@
 import { Mail, Linkedin } from "lucide-react"
-
-const founders = [
-  {
-    name: "Riti Gupta",
-    role: "Community Evangelist · Brand Strategist · Storyteller-in-Chief",
-    description:
-      "A community builder and strategist, twice over a community founder. Known for creating authentic connections through narrative, design, and execution.",
-    linkedin: "https://www.linkedin.com/in/ritigupta05/",
-    email: "codework.riti@gmail.com",
-    initials: "RG",
-    accent: "ambixous-neon",
-  },
-  {
-    name: "Avnish Singh",
-    role: "Public Speaker · Product Manager · Community-Driven Builder",
-    description:
-      "A product professional with hands-on experience building and scaling at startups and enterprises. Known for turning bold ideas into measurable, high-impact growth.",
-    linkedin: "https://www.linkedin.com/in/singhavi279/",
-    email: "t20avnish@gmail.com",
-    initials: "AS",
-    accent: "signal-blue",
-  },
-]
+import Image from "next/image"
+import { founders } from "@/lib/founders"
 
 export function FoundersSection() {
   return (
@@ -43,52 +22,71 @@ export function FoundersSection() {
             <span className="text-slate-500">the hustle.</span>
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
-            Ambixous was co-built to blend community-first thinking with executional
-            excellence. Two operators, one mission, and a network that scales.
+            Ambixous is built by operators across community, product, and design.
+            Three leaders, one mission, and a network that scales.
           </p>
         </div>
 
         {/* Founders grid */}
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:mt-14 md:grid-cols-2 md:gap-6">
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:mt-14 md:grid-cols-3 md:gap-6">
           {founders.map((founder) => (
             <article
               key={founder.name}
-              className="group relative overflow-hidden rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgba(2,4,9,0.06)] ring-1 ring-slate-200 transition-all hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(2,4,9,0.10)] sm:p-8"
+              className="group relative flex h-full flex-col overflow-hidden rounded-3xl bg-white p-6 shadow-[0_8px_30px_rgba(2,4,9,0.06)] ring-1 ring-slate-200 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(2,4,9,0.10)] sm:p-7"
             >
               <div
                 className={`absolute inset-x-0 top-0 h-1 ${
                   founder.accent === "ambixous-neon"
                     ? "bg-gradient-to-r from-ambixous-neon to-transparent"
-                    : "bg-gradient-to-r from-signal-blue to-transparent"
+                    : founder.accent === "signal-blue"
+                      ? "bg-gradient-to-r from-signal-blue to-transparent"
+                      : "bg-gradient-to-r from-sun-coral to-transparent"
                 }`}
               />
+              <div
+                className={`pointer-events-none absolute -right-16 -top-16 h-44 w-44 rounded-full blur-3xl transition-opacity duration-300 group-hover:opacity-100 ${
+                  founder.accent === "ambixous-neon"
+                    ? "bg-ambixous-neon/15"
+                    : founder.accent === "signal-blue"
+                      ? "bg-signal-blue/15"
+                      : "bg-sun-coral/15"
+                } opacity-60`}
+              />
 
-              <div className="flex items-center gap-4">
+              <div className="relative flex flex-col items-start gap-5">
                 <div
-                  className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl text-lg font-bold ${
+                  className={`rounded-full p-1.5 ${
                     founder.accent === "ambixous-neon"
-                      ? "bg-ambixous-neon/15 text-ambixous-neon"
-                      : "bg-signal-blue/15 text-signal-blue"
+                      ? "bg-ambixous-neon/20"
+                      : founder.accent === "signal-blue"
+                        ? "bg-signal-blue/20"
+                        : "bg-sun-coral/20"
                   }`}
-                  aria-hidden="true"
                 >
-                  {founder.initials}
+                  <Image
+                    src={founder.photo}
+                    alt={`${founder.name}, Cofounder of Ambixous`}
+                    width={128}
+                    height={128}
+                    className="h-24 w-24 rounded-full object-cover ring-4 ring-white sm:h-28 sm:w-28"
+                    sizes="112px"
+                  />
                 </div>
                 <div className="min-w-0 flex-1">
                   <h3 className="text-xl font-bold tracking-tight text-electric-ink sm:text-2xl">
                     {founder.name}
                   </h3>
-                  <p className="mt-1 text-xs font-semibold text-slate-500 sm:text-sm">
+                  <p className="mt-1 text-xs font-semibold text-slate-500 sm:min-h-[3.75rem] sm:text-sm">
                     {founder.role}
                   </p>
                 </div>
               </div>
 
-              <p className="mt-5 text-sm leading-relaxed text-slate-600 sm:text-base">
+              <p className="relative mt-5 flex-1 text-sm leading-relaxed text-slate-600">
                 {founder.description}
               </p>
 
-              <div className="mt-6 flex flex-wrap gap-2">
+              <div className="relative mt-6 flex flex-wrap gap-2 pt-1">
                 <a
                   href={founder.linkedin}
                   target="_blank"
@@ -120,8 +118,8 @@ export function FoundersSection() {
           <p className="mt-4 max-w-3xl text-base leading-relaxed text-slate-600 sm:text-lg lg:text-xl">
             Ambixous began as small conversations about blending community impact with
             business growth. Today it is a 5,000+ member grassroots-to-global network of
-            founders, investors, professionals, and students turning shared ideas into
-            lasting impact.
+            founders, investors, professionals, designers, and students turning shared
+            ideas into lasting impact.
           </p>
         </div>
       </div>
