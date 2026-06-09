@@ -8,6 +8,9 @@
     "lint": "next lint",
     "start": "next start"
   },
+  "overrides": {
+    "nodemailer": "^8.0.10"
+  },
   "dependencies": {
     "@radix-ui/react-slot": "^1.2.3",
     "@types/nodemailer": "^8.0.0",
@@ -19,7 +22,7 @@
     "lucide-react": "^0.454.0",
     "next": "^15.5.14",
     "next-auth": "^4.24.13",
-    "nodemailer": "^7.0.13",
+    "nodemailer": "^8.0.10",
     "pdf-lib": "^1.17.1",
     "qrcode.react": "^4.2.0",
     "react": "^19",
