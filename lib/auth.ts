@@ -16,11 +16,19 @@ export const authOptions: NextAuthOptions = {
         }),
     ],
     callbacks: {
-        async signIn({ user }) {
-            // Only allow admin emails to sign in
-            return ADMIN_EMAILS.includes(user.email || "")
+        async signIn() {
+            // Allow any Google account to sign in.
+            // Admin-only features are gated separately via isAdmin() at the
+            // page/API level (e.g. /certify and /api/certificates/*).
+            return true
         },
         async session({ session }) {
+            // Expose admin flag to the client so admin-only UIs can gate access.
+            if (session.user) {
+                ;(session.user as { isAdmin?: boolean }).isAdmin = isAdmin(
+                    session.user.email
+                )
+            }
             return session
         },
     },

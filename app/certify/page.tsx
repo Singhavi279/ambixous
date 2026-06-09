@@ -37,8 +37,15 @@ export default function CertifyPage() {
     useEffect(() => {
         if (status === "unauthenticated") {
             router.push("/certify/sign-in")
+        } else if (
+            status === "authenticated" &&
+            !(session?.user as { isAdmin?: boolean })?.isAdmin
+        ) {
+            // Non-admins can now sign in (for other tools), but the certify
+            // admin console remains admin-only.
+            router.push("/certify/sign-in")
         }
-    }, [status, router])
+    }, [status, session, router])
 
     const handleSave = async () => {
         setIsSaving(true)
