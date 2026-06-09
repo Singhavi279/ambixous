@@ -21,6 +21,8 @@ Organization: Ambixous Innovations LLP
 ## Additional Public URLs
 
 - [Links](https://www.ambixous.in/links): Official Ambixous link hub with founder links, company social profiles, community links, and ACE.
+- [Privacy Policy](https://www.ambixous.in/privacy-policy): How Ambixous Innovations LLP collects, uses, shares, and protects personal data, including DPDP Act 2023 rights and grievance contact.
+- [Terms & Conditions](https://www.ambixous.in/terms): Terms governing use of the Ambixous website and services, including electronic signatures, acceptable use, liability, and governing law.
 - [Sitemap](https://www.ambixous.in/sitemap.xml): XML sitemap for indexable public pages.
 - [Robots](https://www.ambixous.in/robots.txt): Robots policy for crawlers.
 - [LLMs](https://www.ambixous.in/llms.txt): This LLM-readable site guide.

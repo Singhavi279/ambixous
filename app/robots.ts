@@ -5,7 +5,13 @@ export default function robots(): MetadataRoute.Robots {
     rules: {
       userAgent: "*",
       allow: "/",
-      disallow: [],
+      disallow: [
+        "/api/",
+        "/certify",
+        "/certify/",
+        "/partners",
+        "/creator-fellowship/cohort-1/graduation-agreement",
+      ],
     },
     sitemap: "https://www.ambixous.in/sitemap.xml",
   }

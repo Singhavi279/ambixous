@@ -75,8 +75,24 @@ export function Footer() {
           </div>
         </div>
 
-        <div className="border-t border-slate-gray/20 mt-8 pt-8 text-center">
-          <p className="text-slate-gray">© {new Date().getFullYear()} Ambixous. All rights reserved.</p>
+        <div className="border-t border-slate-gray/20 mt-8 pt-8 flex flex-col items-center gap-4 sm:flex-row sm:justify-between">
+          <p className="text-slate-gray text-center sm:text-left">
+            © {new Date().getFullYear()} Ambixous Innovations LLP. All rights reserved.
+          </p>
+          <nav className="flex items-center gap-6">
+            <Link
+              href="/privacy-policy"
+              className="text-slate-gray hover:text-ambixous-neon transition-colors duration-200"
+            >
+              Privacy Policy
+            </Link>
+            <Link
+              href="/terms"
+              className="text-slate-gray hover:text-ambixous-neon transition-colors duration-200"
+            >
+              Terms &amp; Conditions
+            </Link>
+          </nav>
         </div>
       </div>
     </footer>
