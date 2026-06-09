@@ -92,8 +92,9 @@ export async function POST(req: Request) {
         return NextResponse.json({ ok: true, signedAtIST })
     } catch (err) {
         console.error("sign-and-send error:", err)
+        const detail = err instanceof Error ? err.message : String(err)
         return NextResponse.json(
-            { error: "Failed to sign and send documents" },
+            { error: "Failed to sign and send documents", detail },
             { status: 500 }
         )
     }
