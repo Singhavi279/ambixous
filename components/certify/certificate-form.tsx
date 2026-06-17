@@ -1,17 +1,8 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import { Check, AlertTriangle, RefreshCw, Calendar } from "lucide-react"
-
-interface CertificateFormData {
-    id: string
-    candidateName: string
-    designation: string
-    domain: string
-    tenureStart: string
-    tenureEnd: string
-    issueDate: string
-}
+import { Check, AlertTriangle, RefreshCw } from "lucide-react"
+import type { CertificateFormData } from "@/app/certify/page"
 
 interface CertificateFormProps {
     formData: CertificateFormData
@@ -32,34 +23,49 @@ export function CertificateForm({
 }: CertificateFormProps) {
     const [duplicateWarning, setDuplicateWarning] = useState(false)
     const [isGeneratingId, setIsGeneratingId] = useState(false)
+    const [isCheckingDuplicate, setIsCheckingDuplicate] = useState(false)
+    const [idError, setIdError] = useState<string | null>(null)
 
     const generateNewId = async () => {
         setIsGeneratingId(true)
+        setIdError(null)
         try {
             const res = await fetch("/api/certificates/generate-id")
+            if (!res.ok) {
+                setIdError("Could not generate ID — please type one manually")
+                return
+            }
             const data = await res.json()
             onFormChange({ ...formData, id: data.id })
             setDuplicateWarning(false)
-        } catch (error) {
-            console.error("Failed to generate ID")
+        } catch {
+            setIdError("Could not generate ID — please type one manually")
+        } finally {
+            setIsGeneratingId(false)
         }
-        setIsGeneratingId(false)
     }
 
     const checkDuplicate = async (id: string) => {
         if (!id) return
+        setIsCheckingDuplicate(true)
         try {
             const res = await fetch(`/api/certificates/${id}`)
             setDuplicateWarning(res.ok)
         } catch {
             setDuplicateWarning(false)
+        } finally {
+            setIsCheckingDuplicate(false)
         }
     }
 
     useEffect(() => {
         if (formData.id) {
+            setIsCheckingDuplicate(true)
             const timeout = setTimeout(() => checkDuplicate(formData.id), 500)
-            return () => clearTimeout(timeout)
+            return () => {
+                clearTimeout(timeout)
+                setIsCheckingDuplicate(false)
+            }
         }
     }, [formData.id])
 
@@ -77,6 +83,15 @@ export function CertificateForm({
     const updateField = (field: keyof CertificateFormData, value: string) => {
         onFormChange({ ...formData, [field]: value })
     }
+
+    const isSaveDisabled =
+        isSaving ||
+        isGeneratingId ||
+        isCheckingDuplicate ||
+        duplicateWarning ||
+        !formData.candidateName ||
+        !formData.designation ||
+        !formData.domain
 
     return (
         <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 h-full overflow-y-auto">
@@ -96,7 +111,7 @@ export function CertificateForm({
                                 onChange={(e) => updateField("id", e.target.value.toUpperCase())}
                                 placeholder="AMBXJAN260001"
                                 className={`
-                  w-full px-4 py-3 rounded-lg bg-white/5 border 
+                  w-full px-4 py-3 rounded-lg bg-white/5 border
                   ${duplicateWarning ? "border-red-500" : "border-white/10"}
                   text-warm-white placeholder-slate-gray
                   focus:outline-none focus:border-ambixous-neon/50
@@ -112,7 +127,7 @@ export function CertificateForm({
                         <button
                             onClick={generateNewId}
                             disabled={isGeneratingId}
-                            className="px-3 py-3 rounded-lg bg-white/5 border border-white/10 
+                            className="px-3 py-3 rounded-lg bg-white/5 border border-white/10
                        text-slate-gray hover:text-ambixous-neon hover:border-ambixous-neon/50
                        transition-all duration-200"
                             title="Generate new ID"
@@ -122,6 +137,9 @@ export function CertificateForm({
                     </div>
                     {duplicateWarning && (
                         <p className="mt-2 text-sm text-red-400">⚠️ This ID already exists!</p>
+                    )}
+                    {idError && (
+                        <p className="mt-2 text-sm text-amber-400">⚠️ {idError}</p>
                     )}
                 </div>
 
@@ -135,7 +153,7 @@ export function CertificateForm({
                         value={formData.candidateName}
                         onChange={(e) => updateField("candidateName", e.target.value)}
                         placeholder="Sanskriti Gupta"
-                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 
+                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10
                      text-warm-white placeholder-slate-gray
                      focus:outline-none focus:border-ambixous-neon/50
                      transition-all duration-200"
@@ -152,7 +170,7 @@ export function CertificateForm({
                         value={formData.designation}
                         onChange={(e) => updateField("designation", e.target.value)}
                         placeholder="Team Member"
-                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 
+                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10
                      text-warm-white placeholder-slate-gray
                      focus:outline-none focus:border-ambixous-neon/50
                      transition-all duration-200"
@@ -169,7 +187,7 @@ export function CertificateForm({
                         onChange={(e) => updateField("domain", e.target.value)}
                         placeholder="Community Fundraising, Strategic Outreach, and Membership Expansion"
                         rows={3}
-                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 
+                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10
                      text-warm-white placeholder-slate-gray
                      focus:outline-none focus:border-ambixous-neon/50
                      transition-all duration-200 resize-none"
@@ -182,17 +200,15 @@ export function CertificateForm({
                         <label className="block text-sm font-medium text-slate-gray mb-2">
                             Tenure Start
                         </label>
-                        <div className="relative">
-                            <input
-                                type="date"
-                                value={formData.tenureStart}
-                                onChange={(e) => updateField("tenureStart", e.target.value)}
-                                className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 
+                        <input
+                            type="date"
+                            value={formData.tenureStart}
+                            onChange={(e) => updateField("tenureStart", e.target.value)}
+                            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10
                          text-warm-white
                          focus:outline-none focus:border-ambixous-neon/50
                          transition-all duration-200"
-                            />
-                        </div>
+                        />
                     </div>
                     <div>
                         <label className="block text-sm font-medium text-slate-gray mb-2">
@@ -202,7 +218,7 @@ export function CertificateForm({
                             type="date"
                             value={formData.tenureEnd}
                             onChange={(e) => updateField("tenureEnd", e.target.value)}
-                            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 
+                            className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10
                        text-warm-white
                        focus:outline-none focus:border-ambixous-neon/50
                        transition-all duration-200"
@@ -219,7 +235,7 @@ export function CertificateForm({
                         type="date"
                         value={formData.issueDate}
                         onChange={(e) => updateField("issueDate", e.target.value)}
-                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10 
+                        className="w-full px-4 py-3 rounded-lg bg-white/5 border border-white/10
                      text-warm-white
                      focus:outline-none focus:border-ambixous-neon/50
                      transition-all duration-200"
@@ -244,7 +260,7 @@ export function CertificateForm({
                 {/* Save Button */}
                 <button
                     onClick={onSave}
-                    disabled={isSaving || duplicateWarning || !formData.candidateName || !formData.designation || !formData.domain}
+                    disabled={isSaveDisabled}
                     className={`
             w-full flex items-center justify-center gap-2
             px-6 py-4 rounded-xl font-bold
@@ -256,7 +272,7 @@ export function CertificateForm({
           `}
                 >
                     <Check size={20} />
-                    {isSaving ? "Saving..." : "Save Certificate"}
+                    {isSaving ? "Saving..." : isCheckingDuplicate ? "Checking ID..." : "Save Certificate"}
                 </button>
             </div>
         </div>

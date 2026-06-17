@@ -10,13 +10,17 @@ export async function GET(
 ) {
     const { id } = await params
 
-    const certificate = getCertificateById(id)
+    // Reject obviously invalid IDs early
+    if (!id || !/^AMBX[A-Z]{3}\d{6}$/.test(id)) {
+        return NextResponse.json({ error: "Certificate not found" }, { status: 404 })
+    }
+
+    const certificate = await getCertificateById(id)
 
     if (!certificate) {
         return NextResponse.json({ error: "Certificate not found" }, { status: 404 })
     }
 
-    // Transform snake_case to camelCase for frontend
     return NextResponse.json({
         certificate: {
             id: certificate.id,

@@ -13,9 +13,9 @@ export default function SignInPage() {
         setError(null)
 
         try {
-            const result = await signIn("google", {
+            await signIn("google", {
                 callbackUrl: "/certify",
-                redirect: true
+                redirect: true,
             })
         } catch (err) {
             setError("Failed to sign in. Please try again.")

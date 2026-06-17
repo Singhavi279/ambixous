@@ -7,7 +7,7 @@ import { CertificateForm } from "@/components/certify/certificate-form"
 import { CertificatePreview } from "@/components/certify/certificate-preview"
 import { LogOut, Shield } from "lucide-react"
 
-interface CertificateFormData {
+export interface CertificateFormData {
     id: string
     candidateName: string
     designation: string
@@ -41,8 +41,6 @@ export default function CertifyPage() {
             status === "authenticated" &&
             !(session?.user as { isAdmin?: boolean })?.isAdmin
         ) {
-            // Non-admins can now sign in (for other tools), but the certify
-            // admin console remains admin-only.
             router.push("/certify/sign-in")
         }
     }, [status, session, router])
@@ -70,10 +68,19 @@ export default function CertifyPage() {
             const data = await res.json()
 
             if (!res.ok) {
-                setSaveError(data.error || "Failed to save certificate")
+                if (res.status === 409) {
+                    // ID conflict — regenerate and prompt the admin to try again
+                    setSaveError("ID conflict: that certificate ID already exists. A new ID has been generated — please save again.")
+                    const idRes = await fetch("/api/certificates/generate-id")
+                    if (idRes.ok) {
+                        const idData = await idRes.json()
+                        setFormData(prev => ({ ...prev, id: idData.id }))
+                    }
+                } else {
+                    setSaveError(data.error || "Failed to save certificate")
+                }
             } else {
                 setSaveSuccess(true)
-                // Reset form with new ID after successful save
                 setTimeout(() => {
                     setFormData({
                         id: "",
@@ -87,11 +94,11 @@ export default function CertifyPage() {
                     setSaveSuccess(false)
                 }, 2000)
             }
-        } catch (error) {
+        } catch {
             setSaveError("Network error. Please try again.")
+        } finally {
+            setIsSaving(false)
         }
-
-        setIsSaving(false)
     }
 
     if (status === "loading") {

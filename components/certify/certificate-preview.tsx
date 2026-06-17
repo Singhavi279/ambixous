@@ -17,7 +17,9 @@ interface CertificatePreviewProps {
 
 function formatDisplayDate(dateStr: string | undefined): string {
     if (!dateStr) return "Date"
-    const date = new Date(dateStr)
+    // Parse as local date to avoid UTC-offset day shifts
+    const [year, month, day] = dateStr.split("-")
+    const date = new Date(+year, +month - 1, +day)
     return date.toLocaleDateString("en-US", {
         month: "long",
         day: "numeric",
@@ -246,6 +248,7 @@ export function CertificatePreview({
     showDownload = true,
 }: CertificatePreviewProps) {
     const [isGenerating, setIsGenerating] = useState(false)
+    const [downloadError, setDownloadError] = useState<string | null>(null)
     const [scale, setScale] = useState(1)
     const verificationUrl = `https://ambixous.in/certify/${id || "XXXX"}`
 
@@ -264,10 +267,12 @@ export function CertificatePreview({
 
     const handleDownload = async () => {
         setIsGenerating(true)
-        await generateCertificatePDF({
+        setDownloadError(null)
+        const ok = await generateCertificatePDF({
             elementId: "certificate-preview",
             filename: `certificate-${id || "preview"}`,
         })
+        if (!ok) setDownloadError("PDF generation failed — please try again")
         setIsGenerating(false)
     }
 
@@ -394,19 +399,24 @@ export function CertificatePreview({
 
             {/* Download Button */}
             {showDownload && (
-                <button
-                    onClick={handleDownload}
-                    disabled={isGenerating}
-                    className="mt-4 flex items-center justify-center gap-2
-                   px-6 py-3 rounded-xl font-medium
-                   bg-signal-blue/20 text-signal-blue border border-signal-blue/30
-                   hover:bg-signal-blue/30 hover:border-signal-blue/50
-                   transition-all duration-300
-                   disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                    <Download size={18} />
-                    {isGenerating ? "Generating PDF..." : "Download as PDF"}
-                </button>
+                <div className="mt-4 flex flex-col items-center gap-2">
+                    <button
+                        onClick={handleDownload}
+                        disabled={isGenerating}
+                        className="w-full flex items-center justify-center gap-2
+                       px-6 py-3 rounded-xl font-medium
+                       bg-signal-blue/20 text-signal-blue border border-signal-blue/30
+                       hover:bg-signal-blue/30 hover:border-signal-blue/50
+                       transition-all duration-300
+                       disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <Download size={18} />
+                        {isGenerating ? "Generating PDF..." : "Download as PDF"}
+                    </button>
+                    {downloadError && (
+                        <p className="text-sm text-red-400">{downloadError}</p>
+                    )}
+                </div>
             )}
         </div>
     )
