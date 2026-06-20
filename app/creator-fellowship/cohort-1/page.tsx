@@ -179,6 +179,13 @@ const mentors = [
     linkedin: "https://www.linkedin.com/in/hitesh-lakhyani-468b8a18/",
   },
   {
+    name: "Ipshita Mishra",
+    designation: "Senior Manager - Brand Marketing & Growth, TATA 1MG",
+    domain: "Health",
+    image: "/creatorcohort/mentors/ipshita.png",
+    linkedin: "https://www.linkedin.com/in/ipshitamishra/",
+  },
+  {
     name: "Mohina Chadha",
     designation: "Group Product Manager, Times Internet",
     domain: "Fintech Product",
@@ -818,9 +825,8 @@ export default function CreatorFellowshipCohort1() {
                             {fellow.name}
                           </h3>
                           <span
-                            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] ${
-                              nicheColor[fellow.niche] || "bg-white/10 text-white/60"
-                            }`}
+                            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] ${nicheColor[fellow.niche] || "bg-white/10 text-white/60"
+                              }`}
                           >
                             {fellow.niche}
                           </span>
@@ -918,9 +924,8 @@ export default function CreatorFellowshipCohort1() {
                             {mentor.designation}
                           </p>
                           <span
-                            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] ${
-                              domainColor[mentor.domain] || "bg-white/10 text-white/60"
-                            }`}
+                            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] ${domainColor[mentor.domain] || "bg-white/10 text-white/60"
+                              }`}
                           >
                             {mentor.domain}
                           </span>
