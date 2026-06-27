@@ -384,13 +384,6 @@ export const mentors: Mentor[] = [
     company: 'Deutsche Telekom Digital Labs',
     category: 'professionals',
   },
-  {
-    id: 'p40',
-    name: 'Ipshita Mishra',
-    linkedin: 'https://www.linkedin.com/in/ipshitamishra/',
-    company: 'TATA 1MG',
-    category: 'growth',
-  },
 ]
 
 export const categories = [

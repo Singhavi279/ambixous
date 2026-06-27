@@ -172,20 +172,6 @@ const mentors = [
     linkedin: "https://www.linkedin.com/in/ayushi-somani-%F0%9F%92%99-46a41811a/",
   },
   {
-    name: "Hitesh Lakhyani",
-    designation: "Sr. Design Manager - Smartsheet, Former Design Leader - Tata 1MG",
-    domain: "Health",
-    image: "/creatorcohort/mentors/hitesh.png",
-    linkedin: "https://www.linkedin.com/in/hitesh-lakhyani-468b8a18/",
-  },
-  {
-    name: "Ipshita Mishra",
-    designation: "Senior Manager - Brand Marketing & Growth, TATA 1MG",
-    domain: "Health",
-    image: "/creatorcohort/mentors/ipshita.png",
-    linkedin: "https://www.linkedin.com/in/ipshitamishra/",
-  },
-  {
     name: "Mohina Chadha",
     designation: "Group Product Manager, Times Internet",
     domain: "Fintech Product",
