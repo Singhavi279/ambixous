@@ -165,6 +165,13 @@ const mentors = [
     linkedin: "https://www.linkedin.com/in/anand-gangadharan/",
   },
   {
+    name: "Aryendra Prakash Singh",
+    designation: "Design @ Publicis Sapient | Co-Organiser @ GDG Noida",
+    domain: "Health",
+    image: "/creatorcohort/mentors/aryendra.png",
+    linkedin: "https://www.linkedin.com/in/hashtagaps/",
+  },
+  {
     name: "Ayushi Somani",
     designation: "Founder, WildGo Media · 50M+ LinkedIn Impressions",
     domain: "Personal Branding",
@@ -205,6 +212,13 @@ const mentors = [
     domain: "Personal Branding",
     image: "/creatorcohort/mentors/snehlata.png",
     linkedin: "https://www.linkedin.com/in/snehlata-singh/",
+  },
+  {
+    name: "Vanshita Singh",
+    designation: "Product Designer 2 @Spinny | Co-Organiser, GDG Noida | WTM Ambassador",
+    domain: "Health",
+    image: "/creatorcohort/mentors/vanshita.png",
+    linkedin: "https://www.linkedin.com/in/vanshify/",
   },
   {
     name: "Varedh Nigam",

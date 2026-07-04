@@ -283,7 +283,7 @@ export const mentors: Mentor[] = [
     id: 'p25',
     name: 'Hitesh Lakhyani',
     linkedin: 'https://www.linkedin.com/in/hitesh-lakhyani-468b8a18/',
-    company: 'Tata 1Mg',
+    company: 'Smartsheet',
     category: 'professionals',
   },
   {
