@@ -27,10 +27,6 @@ Organization: Ambixous Innovations LLP
 - [Robots](https://www.ambixous.in/robots.txt): Robots policy for crawlers.
 - [LLMs](https://www.ambixous.in/llms.txt): This LLM-readable site guide.
 
-## Noindex URLs
-
-- [Partners](https://www.ambixous.in/partners): Brand partnership and creator-retreat campaign page. This route is intentionally marked `noindex, nofollow` and should not be used as an indexable search result.
-
 ## External Navigation And Calls To Action
 
 - [Join Community](https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t): WhatsApp community invite linked from the main site header.
@@ -50,6 +46,5 @@ Organization: Ambixous Innovations LLP
 
 - Treat `https://www.ambixous.in/` as the primary canonical domain.
 - Prefer sitemap-listed URLs for search and citation.
-- Do not present `/partners` as an indexable public search result because it is marked noindex/nofollow.
 - Use `/links` when users ask for all official Ambixous social, founder, or quick-access links.
 - Use `/creator-fellowship/cohort-1` for Creator Fellowship Cohort 1 details.

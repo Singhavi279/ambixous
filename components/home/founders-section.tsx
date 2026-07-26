@@ -1,5 +1,4 @@
 import { Mail, Linkedin } from "lucide-react"
-import Image from "next/image"
 import { founders } from "@/lib/founders"
 
 export function FoundersSection() {
@@ -53,33 +52,13 @@ export function FoundersSection() {
                 } opacity-60`}
               />
 
-              <div className="relative flex flex-col items-start gap-5">
-                <div
-                  className={`rounded-full p-1.5 ${
-                    founder.accent === "ambixous-neon"
-                      ? "bg-ambixous-neon/20"
-                      : founder.accent === "signal-blue"
-                        ? "bg-signal-blue/20"
-                        : "bg-sun-coral/20"
-                  }`}
-                >
-                  <Image
-                    src={founder.photo}
-                    alt={`${founder.name}, Cofounder of Ambixous`}
-                    width={128}
-                    height={128}
-                    className="h-24 w-24 rounded-full object-cover ring-4 ring-white sm:h-28 sm:w-28"
-                    sizes="112px"
-                  />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <h3 className="text-xl font-bold tracking-tight text-electric-ink sm:text-2xl">
-                    {founder.name}
-                  </h3>
-                  <p className="mt-1 text-xs font-semibold text-slate-500 sm:min-h-[3.75rem] sm:text-sm">
-                    {founder.role}
-                  </p>
-                </div>
+              <div className="relative">
+                <h3 className="text-xl font-bold tracking-tight text-electric-ink sm:text-2xl">
+                  {founder.name}
+                </h3>
+                <p className="mt-1 text-xs font-semibold text-slate-500 sm:min-h-[2.5rem] sm:text-sm">
+                  {founder.role}
+                </p>
               </div>
 
               <p className="relative mt-5 flex-1 text-sm leading-relaxed text-slate-600">

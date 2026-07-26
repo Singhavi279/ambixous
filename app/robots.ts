@@ -9,7 +9,6 @@ export default function robots(): MetadataRoute.Robots {
         "/api/",
         "/certify",
         "/certify/",
-        "/partners",
         "/creator-fellowship/cohort-1/graduation-agreement",
       ],
     },

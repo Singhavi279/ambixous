@@ -42,7 +42,7 @@ import { Logo } from "@/components/logo"
 export const metadata: Metadata = {
   title: "Creator Fellowship Cohort 01 | Ambixous",
   description:
-    "A 13-week, cohort-based fellowship turning India's creators into creator-entrepreneurs. 12 fellows, 6 live projects, real brand briefs, and jury evaluations. March 29 – June 27, 2026.",
+    "A 13-week, cohort-based fellowship turning India's creators into creator-entrepreneurs. 12 fellows, 6 live projects, real brand briefs, and jury evaluations. March 29 – July 19, 2026.",
   openGraph: {
     title: "Ambixous Creator Fellowship, Cohort 01",
     description:
@@ -302,7 +302,7 @@ const timeline = [
   { date: "13 Jun", agenda: "Product Launch Mentorship (Health)", journey: "PROJECT 6", isMilestone: true },
   { date: "20 Jun", agenda: "Product Launch Jury (Health)", journey: "", isMilestone: false },
   { date: "21 Jun", agenda: "Creator Digital Toolkit Mentorship", journey: "EXPLORE", isMilestone: true },
-  { date: "27 Jun", agenda: "Founder × Creator MeetUp", journey: "GRADUATION", isMilestone: true },
+  { date: "18-19 Jul", agenda: "Founder × Creator MeetUp", journey: "GRADUATION", isMilestone: true },
 ]
 
 const nicheColor: Record<string, string> = {
@@ -372,7 +372,7 @@ export default function CreatorFellowshipCohort1() {
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B4FF00]" />
                 </span>
                 <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#B4FF00]">
-                  Cohort 01 · Live Now
+                  Cohort 01 · Concluded
                 </span>
               </div>
             </ScrollReveal>
@@ -400,7 +400,7 @@ export default function CreatorFellowshipCohort1() {
 
             <ScrollReveal variant="up" delay={400}>
               <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.32em] text-white/35">
-                Mar 29 — Jun 27, 2026 · Ambixous Innovations LLP
+                Mar 29 — Jul 19, 2026 · Ambixous Innovations LLP
               </p>
             </ScrollReveal>
 
@@ -450,6 +450,135 @@ export default function CreatorFellowshipCohort1() {
                 ))}
               </div>
             </ScrollReveal>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════ */}
+        {/* PARTNERS — Cohort Partners & Sponsors                   */}
+        {/* ════════════════════════════════════════════════════════ */}
+        <section id="partners" className="relative px-4 py-20 sm:py-24">
+          <div className="cine-divider absolute inset-x-0 top-0" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(180,255,0,0.05),transparent_70%)]" />
+
+          <div className="relative mx-auto max-w-5xl">
+            <ScrollReveal variant="blur">
+              <SectionLabel num="00" label="Cohort Partners" accent="#B4FF00" />
+            </ScrollReveal>
+
+            <ScrollReveal variant="up" delay={120}>
+              <h2 className="font-editorial mb-4 text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+                Backed by
+                <br />
+                <span className="text-white/40">category leaders.</span>
+              </h2>
+            </ScrollReveal>
+
+            <ScrollReveal variant="up" delay={200}>
+              <p className="mb-12 max-w-xl text-base leading-relaxed text-white/55 sm:text-lg">
+                The visionary brands partnering with Ambixous Creator Fellowship Cohort 01 to elevate fellow experiences, vibes, and rewards.
+              </p>
+            </ScrollReveal>
+
+            {/* TOP HIERARCHY — NORI */}
+            <ScrollReveal variant="up" delay={260}>
+              <div className="spotlight relative mb-8 overflow-hidden rounded-[2.5rem] border border-[#B4FF00]/30 bg-gradient-to-br from-[#B4FF00]/[0.08] via-white/[0.03] to-transparent p-8 backdrop-blur-xl sm:p-12">
+                <div className="pointer-events-none absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#B4FF00]/15 blur-[80px]" />
+                
+                <div className="flex flex-col items-center justify-between gap-8 md:flex-row md:items-center">
+                  <div className="space-y-4 text-center md:text-left">
+                    <div className="inline-flex items-center gap-2 rounded-full border border-[#B4FF00]/40 bg-[#B4FF00]/10 px-3.5 py-1 backdrop-blur-md">
+                      <span className="relative flex h-2 w-2">
+                        <span className="pulse-ring absolute inline-flex h-full w-full rounded-full bg-[#B4FF00] opacity-75" />
+                        <span className="relative inline-flex h-2 w-2 rounded-full bg-[#B4FF00]" />
+                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-[0.28em] text-[#B4FF00]">
+                        Travel Experience Partner
+                      </span>
+                    </div>
+
+                    <h3 className="font-editorial text-3xl font-bold tracking-tight text-white sm:text-4xl">
+                      NORI
+                    </h3>
+                    <p className="max-w-md text-sm leading-relaxed text-white/60">
+                      Powering travel experiences and retreats for Creator Fellowship Cohort 01.
+                    </p>
+                  </div>
+
+                  {/* Logo container */}
+                  <div className="relative flex h-44 w-full max-w-[320px] shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-gradient-to-b from-white/15 to-white/[0.06] p-4 shadow-2xl backdrop-blur-xl transition-all hover:scale-[1.02] hover:border-[#B4FF00]/40 hover:from-white/20 hover:to-white/10 sm:h-48 sm:max-w-[360px]">
+                    <div className="relative h-full w-full">
+                      <Image
+                        src="/nori.png"
+                        alt="NORI - Travel Experience Partner"
+                        fill
+                        className="object-contain p-2 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </ScrollReveal>
+
+            {/* SECONDARY HIERARCHY GRID — PARTAY & GIFT KYA DE */}
+            <div className="grid gap-6 md:grid-cols-2">
+              {/* Partay - Vibe Partner */}
+              <ScrollReveal variant="up" delay={340}>
+                <div className="spotlight relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01] p-8 backdrop-blur-md transition-all hover:border-white/20">
+                  <div>
+                    <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-[#1FB6FF]/30 bg-[#1FB6FF]/10 px-3 py-1 backdrop-blur-md">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#1FB6FF]">
+                        Vibe Partner
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-white">Partay</h3>
+                    <p className="mt-2 text-sm text-white/55">
+                      Curating energy, celebration, and official cohort event vibes.
+                    </p>
+                  </div>
+
+                  <div className="mt-8 flex h-40 w-full items-center justify-center rounded-2xl border border-white/20 bg-gradient-to-b from-white/15 to-white/[0.06] p-4 shadow-2xl backdrop-blur-xl transition-all hover:scale-[1.02] hover:border-[#1FB6FF]/40 hover:from-white/20 hover:to-white/10 sm:h-44">
+                    <div className="relative h-full w-full">
+                      <Image
+                        src="/partay.png"
+                        alt="Partay - Vibe Partner"
+                        fill
+                        className="object-contain p-2 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
+
+              {/* Gift Kya De - Gifting Partner */}
+              <ScrollReveal variant="up" delay={420}>
+                <div className="spotlight relative flex h-full flex-col justify-between overflow-hidden rounded-[2rem] border border-white/[0.08] bg-gradient-to-b from-white/[0.04] to-white/[0.01] p-8 backdrop-blur-md transition-all hover:border-white/20">
+                  <div>
+                    <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-amber-400/30 bg-amber-400/10 px-3 py-1 backdrop-blur-md">
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.24em] text-amber-300">
+                        Gifting Partner
+                      </span>
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-white">Gift Kya De</h3>
+                    <p className="mt-2 text-sm text-white/55">
+                      Providing curated hampers and rewards for creators and mentors.
+                    </p>
+                  </div>
+
+                  <div className="mt-8 flex h-40 w-full items-center justify-center rounded-2xl border border-white/20 bg-gradient-to-b from-white/15 to-white/[0.06] p-4 shadow-2xl backdrop-blur-xl transition-all hover:scale-[1.02] hover:border-amber-400/40 hover:from-white/20 hover:to-white/10 sm:h-44">
+                    <div className="relative h-full w-full">
+                      <Image
+                        src="/gkd.png"
+                        alt="Gift Kya De - Gifting Partner"
+                        fill
+                        className="object-contain p-2 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
+                      />
+                    </div>
+                  </div>
+                </div>
+              </ScrollReveal>
+            </div>
           </div>
         </section>
 
@@ -529,6 +658,175 @@ export default function CreatorFellowshipCohort1() {
         </section>
 
         {/* ════════════════════════════════════════════════════════ */}
+        {/* MENTORS                                                  */}
+        {/* ════════════════════════════════════════════════════════ */}
+        <section id="mentors" className="relative px-4 py-20 sm:py-24">
+          <div className="cine-divider absolute inset-x-0 top-0" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_30%_at_50%_50%,rgba(31,182,255,0.04),transparent_70%)]" />
+
+          <div className="relative mx-auto max-w-6xl">
+            <ScrollReveal variant="blur">
+              <SectionLabel num="02" label="Mentors & Jury" accent="#1FB6FF" />
+            </ScrollReveal>
+
+            <div className="mb-10 grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-end">
+              <ScrollReveal variant="up" delay={120}>
+                <h2 className="font-editorial text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+                  Senior leaders.
+                  <br />
+                  <span className="text-white/40">Real critique.</span>
+                </h2>
+              </ScrollReveal>
+              <ScrollReveal variant="up" delay={240}>
+                <p className="max-w-md text-base leading-relaxed text-white/45 sm:text-lg">
+                  Professionals from American Express, Times Internet, Nagarro, IIT Delhi,
+                  MRSOOL, Smartsheet, and more — guiding every project.
+                </p>
+              </ScrollReveal>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {mentors.map((mentor, i) => (
+                <ScrollReveal key={mentor.name} variant="up" delay={i * 60}>
+                  <TiltCard className="h-full" max={4}>
+                    <div className="spotlight glow-ring group relative h-full overflow-hidden rounded-[2rem] border border-white/[0.06] bg-gradient-to-b from-white/[0.025] to-transparent p-6 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:border-[#1FB6FF]/25 sm:p-7">
+                      <div className="relative z-[2] flex items-start gap-5">
+                        <div className="relative shrink-0">
+                          <div className="absolute -inset-2 rounded-3xl bg-[#1FB6FF]/20 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+                          <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all duration-500 group-hover:border-[#1FB6FF]/40 sm:h-28 sm:w-28">
+                            <Image
+                              src={mentor.image}
+                              alt={mentor.name}
+                              width={128}
+                              height={128}
+                              className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                            />
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                          </div>
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <div className="mb-1.5 flex items-start justify-between gap-2">
+                            <h3 className="text-base font-semibold tracking-tight text-white sm:text-lg">
+                              {mentor.name}
+                            </h3>
+                            <a
+                              href={mentor.linkedin}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-white/30 transition-all hover:border-[#0A66C2]/40 hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
+                              aria-label={`${mentor.name} LinkedIn`}
+                            >
+                              <Linkedin className="h-3 w-3" />
+                            </a>
+                          </div>
+                          <p className="mb-3 text-xs leading-relaxed text-white/40 line-clamp-2">
+                            {mentor.designation}
+                          </p>
+                          <span
+                            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] ${domainColor[mentor.domain] || "bg-white/10 text-white/60"
+                              }`}
+                          >
+                            {mentor.domain}
+                          </span>
+                        </div>
+                      </div>
+
+                    </div>
+                  </TiltCard>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════ */}
+        {/* FELLOWS — editorial                                      */}
+        {/* ════════════════════════════════════════════════════════ */}
+        <section id="fellows" className="relative px-4 py-20 sm:py-24">
+          <div className="cine-divider absolute inset-x-0 top-0" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_30%_at_50%_50%,rgba(180,255,0,0.04),transparent_70%)]" />
+
+          <div className="relative mx-auto max-w-6xl">
+            <ScrollReveal variant="blur">
+              <SectionLabel num="03" label="The Fellows" accent="#B4FF00" />
+            </ScrollReveal>
+
+            <div className="mb-10 grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-end">
+              <ScrollReveal variant="up" delay={120}>
+                <h2 className="font-editorial text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
+                  The class of
+                  <br />
+                  <span className="text-gradient">Cohort 01.</span>
+                </h2>
+              </ScrollReveal>
+              <ScrollReveal variant="up" delay={240}>
+                <p className="max-w-md text-base leading-relaxed text-white/45 sm:text-lg">
+                  12 creators across six content niches — Lifestyle, Tech, Gaming,
+                  Marketing, MedTech, and Motivational — united by ambition.
+                </p>
+              </ScrollReveal>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {fellows.map((fellow, i) => (
+                <ScrollReveal key={fellow.name} variant="up" delay={i * 60}>
+                  <TiltCard className="h-full" max={4}>
+                    <div className="spotlight glow-ring group relative h-full overflow-hidden rounded-[2rem] border border-white/[0.06] bg-gradient-to-b from-white/[0.025] to-transparent p-6 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:border-white/[0.12] sm:p-7">
+                      <div className="relative z-[2] flex items-start gap-5">
+                        {/* Portrait */}
+                        <div className="relative shrink-0">
+                          <div className="absolute -inset-2 rounded-3xl bg-[#B4FF00]/20 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
+                          <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all duration-500 group-hover:border-[#B4FF00]/40 sm:h-28 sm:w-28">
+                            <Image
+                              src={fellow.image}
+                              alt={fellow.name}
+                              width={128}
+                              height={128}
+                              className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
+                            />
+                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
+                          </div>
+                        </div>
+
+                        <div className="min-w-0 flex-1">
+                          <h3 className="mb-1.5 text-base font-semibold tracking-tight text-white sm:text-lg">
+                            {fellow.name}
+                          </h3>
+                          <span
+                            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] ${nicheColor[fellow.niche] || "bg-white/10 text-white/60"
+                              }`}
+                          >
+                            {fellow.niche}
+                          </span>
+
+                          <div className="mt-4 flex gap-2">
+                            <SocialLink href={fellow.linkedin} label={`${fellow.name} LinkedIn`} accent="#0A66C2">
+                              <Linkedin className="h-3.5 w-3.5" />
+                            </SocialLink>
+                            {fellow.instagram && (
+                              <SocialLink href={fellow.instagram} label={`${fellow.name} Instagram`} accent="#E4405F">
+                                <Instagram className="h-3.5 w-3.5" />
+                              </SocialLink>
+                            )}
+                            {fellow.youtube && (
+                              <SocialLink href={fellow.youtube} label={`${fellow.name} YouTube`} accent="#FF0033">
+                                <Youtube className="h-3.5 w-3.5" />
+                              </SocialLink>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+                  </TiltCard>
+                </ScrollReveal>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* ════════════════════════════════════════════════════════ */}
         {/* METHOD / SOLUTION                                        */}
         {/* ════════════════════════════════════════════════════════ */}
         <section id="method" className="relative px-4 py-20 sm:py-24">
@@ -537,7 +835,7 @@ export default function CreatorFellowshipCohort1() {
 
           <div className="relative mx-auto max-w-6xl">
             <ScrollReveal variant="blur">
-              <SectionLabel num="02" label="The Method" accent="#1FB6FF" />
+              <SectionLabel num="04" label="The Method" accent="#1FB6FF" />
             </ScrollReveal>
 
             <div className="grid gap-12 lg:grid-cols-[1fr_1.4fr] lg:items-start lg:gap-20">
@@ -715,13 +1013,13 @@ export default function CreatorFellowshipCohort1() {
                     </div>
                     <div>
                       <p className="mb-1 text-[10px] font-semibold uppercase tracking-[0.32em] text-[#B4FF00]/80">
-                        Grand Finale
+                        Graduation
                       </p>
                       <h3 className="text-xl font-semibold text-white sm:text-2xl">
-                        Founder × Creator Demo Day · June 27, 2026
+                        Founder × Creator MeetUp · July 18–19, 2026
                       </h3>
                       <p className="mt-1 text-sm text-white/45">
-                        Offline. Fellows present to founders, mentors, jury, sponsors and media.
+                        Creators Retreat at Beri Farm, Manesar — 24-hour chill vibe, live shoots & non-stop content creation.
                       </p>
                     </div>
                   </div>
@@ -748,7 +1046,7 @@ export default function CreatorFellowshipCohort1() {
           <div className="relative mx-auto max-w-4xl">
             <div className="mb-10 text-center">
               <ScrollReveal variant="blur">
-                <SectionLabel num="04" label="The Journey" accent="#B4FF00" center />
+                <SectionLabel num="06" label="The Journey" accent="#B4FF00" center />
               </ScrollReveal>
 
               <ScrollReveal variant="up" delay={120}>
@@ -768,175 +1066,6 @@ export default function CreatorFellowshipCohort1() {
             </div>
 
             <CinematicTimeline events={timeline} />
-          </div>
-        </section>
-
-        {/* ════════════════════════════════════════════════════════ */}
-        {/* FELLOWS — editorial                                      */}
-        {/* ════════════════════════════════════════════════════════ */}
-        <section id="fellows" className="relative px-4 py-20 sm:py-24">
-          <div className="cine-divider absolute inset-x-0 top-0" />
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_30%_at_50%_50%,rgba(180,255,0,0.04),transparent_70%)]" />
-
-          <div className="relative mx-auto max-w-6xl">
-            <ScrollReveal variant="blur">
-              <SectionLabel num="05" label="The Fellows" accent="#B4FF00" />
-            </ScrollReveal>
-
-            <div className="mb-10 grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-end">
-              <ScrollReveal variant="up" delay={120}>
-                <h2 className="font-editorial text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-                  The class of
-                  <br />
-                  <span className="text-gradient">Cohort 01.</span>
-                </h2>
-              </ScrollReveal>
-              <ScrollReveal variant="up" delay={240}>
-                <p className="max-w-md text-base leading-relaxed text-white/45 sm:text-lg">
-                  12 creators across six content niches — Lifestyle, Tech, Gaming,
-                  Marketing, MedTech, and Motivational — united by ambition.
-                </p>
-              </ScrollReveal>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {fellows.map((fellow, i) => (
-                <ScrollReveal key={fellow.name} variant="up" delay={i * 60}>
-                  <TiltCard className="h-full" max={4}>
-                    <div className="spotlight glow-ring group relative h-full overflow-hidden rounded-[2rem] border border-white/[0.06] bg-gradient-to-b from-white/[0.025] to-transparent p-6 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:border-white/[0.12] sm:p-7">
-                      <div className="relative z-[2] flex items-start gap-5">
-                        {/* Portrait */}
-                        <div className="relative shrink-0">
-                          <div className="absolute -inset-2 rounded-3xl bg-[#B4FF00]/20 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
-                          <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all duration-500 group-hover:border-[#B4FF00]/40 sm:h-28 sm:w-28">
-                            <Image
-                              src={fellow.image}
-                              alt={fellow.name}
-                              width={128}
-                              height={128}
-                              className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                            />
-                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-                          </div>
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <h3 className="mb-1.5 text-base font-semibold tracking-tight text-white sm:text-lg">
-                            {fellow.name}
-                          </h3>
-                          <span
-                            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] ${nicheColor[fellow.niche] || "bg-white/10 text-white/60"
-                              }`}
-                          >
-                            {fellow.niche}
-                          </span>
-
-                          <div className="mt-4 flex gap-2">
-                            <SocialLink href={fellow.linkedin} label={`${fellow.name} LinkedIn`} accent="#0A66C2">
-                              <Linkedin className="h-3.5 w-3.5" />
-                            </SocialLink>
-                            {fellow.instagram && (
-                              <SocialLink href={fellow.instagram} label={`${fellow.name} Instagram`} accent="#E4405F">
-                                <Instagram className="h-3.5 w-3.5" />
-                              </SocialLink>
-                            )}
-                            {fellow.youtube && (
-                              <SocialLink href={fellow.youtube} label={`${fellow.name} YouTube`} accent="#FF0033">
-                                <Youtube className="h-3.5 w-3.5" />
-                              </SocialLink>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-
-                    </div>
-                  </TiltCard>
-                </ScrollReveal>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* ════════════════════════════════════════════════════════ */}
-        {/* MENTORS                                                  */}
-        {/* ════════════════════════════════════════════════════════ */}
-        <section id="mentors" className="relative px-4 py-20 sm:py-24">
-          <div className="cine-divider absolute inset-x-0 top-0" />
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_60%_30%_at_50%_50%,rgba(31,182,255,0.04),transparent_70%)]" />
-
-          <div className="relative mx-auto max-w-6xl">
-            <ScrollReveal variant="blur">
-              <SectionLabel num="06" label="Mentors & Jury" accent="#1FB6FF" />
-            </ScrollReveal>
-
-            <div className="mb-10 grid gap-8 lg:grid-cols-[1.5fr_1fr] lg:items-end">
-              <ScrollReveal variant="up" delay={120}>
-                <h2 className="font-editorial text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
-                  Senior leaders.
-                  <br />
-                  <span className="text-white/40">Real critique.</span>
-                </h2>
-              </ScrollReveal>
-              <ScrollReveal variant="up" delay={240}>
-                <p className="max-w-md text-base leading-relaxed text-white/45 sm:text-lg">
-                  Professionals from American Express, Times Internet, Nagarro, IIT Delhi,
-                  MRSOOL, Smartsheet, and more — guiding every project.
-                </p>
-              </ScrollReveal>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {mentors.map((mentor, i) => (
-                <ScrollReveal key={mentor.name} variant="up" delay={i * 60}>
-                  <TiltCard className="h-full" max={4}>
-                    <div className="spotlight glow-ring group relative h-full overflow-hidden rounded-[2rem] border border-white/[0.06] bg-gradient-to-b from-white/[0.025] to-transparent p-6 backdrop-blur-sm transition-all duration-500 hover:-translate-y-1 hover:border-[#1FB6FF]/25 sm:p-7">
-                      <div className="relative z-[2] flex items-start gap-5">
-                        <div className="relative shrink-0">
-                          <div className="absolute -inset-2 rounded-3xl bg-[#1FB6FF]/20 opacity-0 blur-2xl transition-opacity duration-500 group-hover:opacity-100" />
-                          <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] shadow-[0_12px_40px_rgba(0,0,0,0.45)] transition-all duration-500 group-hover:border-[#1FB6FF]/40 sm:h-28 sm:w-28">
-                            <Image
-                              src={mentor.image}
-                              alt={mentor.name}
-                              width={128}
-                              height={128}
-                              className="h-full w-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
-                            />
-                            <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/30 via-transparent to-transparent" />
-                          </div>
-                        </div>
-
-                        <div className="min-w-0 flex-1">
-                          <div className="mb-1.5 flex items-start justify-between gap-2">
-                            <h3 className="text-base font-semibold tracking-tight text-white sm:text-lg">
-                              {mentor.name}
-                            </h3>
-                            <a
-                              href={mentor.linkedin}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-white/30 transition-all hover:border-[#0A66C2]/40 hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
-                              aria-label={`${mentor.name} LinkedIn`}
-                            >
-                              <Linkedin className="h-3 w-3" />
-                            </a>
-                          </div>
-                          <p className="mb-3 text-xs leading-relaxed text-white/40 line-clamp-2">
-                            {mentor.designation}
-                          </p>
-                          <span
-                            className={`inline-block rounded-full px-2.5 py-0.5 text-[10px] font-semibold uppercase tracking-[0.2em] ${domainColor[mentor.domain] || "bg-white/10 text-white/60"
-                              }`}
-                          >
-                            {mentor.domain}
-                          </span>
-                        </div>
-                      </div>
-
-                    </div>
-                  </TiltCard>
-                </ScrollReveal>
-              ))}
-            </div>
           </div>
         </section>
 
@@ -986,7 +1115,7 @@ export default function CreatorFellowshipCohort1() {
                       { text: "Credential: 'Ambixous Creator Fellow, Cohort 01'", icon: GraduationCap },
                       { text: "Cross-domain peer network across 6 content niches", icon: Network },
                       { text: "Direct mentor relationships built over 13 weeks of engagement", icon: Users },
-                      { text: "Public recognition at the Founder × Creator Demo Day", icon: Trophy },
+                      { text: "Public recognition at the Creators Retreat", icon: Trophy },
                     ].map((item, i) => (
                       <div
                         key={i}
@@ -1067,7 +1196,7 @@ export default function CreatorFellowshipCohort1() {
         </section>
 
         {/* ════════════════════════════════════════════════════════ */}
-        {/* FINALE — cinematic                                       */}
+        {/* FINALE — Creators Retreat                                 */}
         {/* ════════════════════════════════════════════════════════ */}
         <section id="finale" className="relative overflow-hidden px-4 py-24 sm:py-28">
           <div className="cine-divider absolute inset-x-0 top-0" />
@@ -1087,35 +1216,42 @@ export default function CreatorFellowshipCohort1() {
               <div className="mx-auto mb-6 inline-flex items-center gap-3 rounded-full border border-[#B4FF00]/25 bg-[#B4FF00]/[0.06] px-4 py-1.5 backdrop-blur-md">
                 <Film className="h-3.5 w-3.5 text-[#B4FF00]" />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#B4FF00]">
-                  Final Cut · June 27, 2026
+                  July 18, 2026 – July 19, 2026 · Beri Farm, Manesar
                 </span>
               </div>
             </ScrollReveal>
 
             <ScrollReveal variant="up" delay={120}>
-              <h2 className="font-editorial text-5xl font-bold leading-[0.92] tracking-tight sm:text-7xl lg:text-[8rem]">
-                Founder
+              <h2 className="font-editorial text-4xl font-bold leading-[0.95] tracking-tight sm:text-6xl lg:text-[6.5rem]">
+                Creators
                 <br />
-                <span className="text-white/30">×</span>
-                <br />
-                <span className="text-gradient">Creator.</span>
+                <span className="text-gradient">Retreat.</span>
               </h2>
             </ScrollReveal>
 
+            <ScrollReveal variant="up" delay={200}>
+              <p className="mt-4 text-[11px] font-bold uppercase tracking-[0.36em] text-[#B4FF00]/90 sm:text-xs">
+                ACF Cohort 1 Graduation
+              </p>
+            </ScrollReveal>
+
             <ScrollReveal variant="up" delay={260}>
-              <p className="mx-auto mt-10 max-w-xl text-base leading-relaxed text-white/55 sm:text-lg">
-                An offline demo day. Fellows present 13 weeks of work to founders,
-                mentors, jury, sponsors and media. A closing frame designed to feel
-                inevitable.
+              <p className="mx-auto mt-6 max-w-xl text-base leading-relaxed text-white/60 sm:text-lg">
+                A 24-hour chill vibe to celebrate graduation, create non-stop content, and host live shoots at Beri Farm, Manesar.
               </p>
             </ScrollReveal>
 
             <ScrollReveal variant="up" delay={380}>
-              <div className="mx-auto mt-12 flex max-w-md flex-wrap items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-white/40">
-                {["Founders", "Mentors", "Jury", "Sponsors", "Media"].map((t) => (
+              <div className="mx-auto mt-10 flex max-w-lg flex-wrap items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-white/50">
+                {[
+                  "24-Hour Chill Vibe",
+                  "Non-Stop Content Creation",
+                  "Live Shoots",
+                  "Beri Farm, Manesar",
+                ].map((t) => (
                   <span
                     key={t}
-                    className="rounded-full border border-white/[0.08] bg-white/[0.03] px-3 py-1 backdrop-blur"
+                    className="rounded-full border border-white/[0.12] bg-white/[0.04] px-4 py-1.5 backdrop-blur"
                   >
                     {t}
                   </span>
@@ -1133,7 +1269,7 @@ export default function CreatorFellowshipCohort1() {
 
           <div className="relative mx-auto max-w-3xl">
             <ScrollReveal variant="blur">
-              <SectionLabel num="09" label="FAQ" accent="#B4FF00" center />
+              <SectionLabel num="08" label="FAQ" accent="#B4FF00" center />
             </ScrollReveal>
 
             <ScrollReveal variant="up" delay={120}>
@@ -1239,7 +1375,7 @@ export default function CreatorFellowshipCohort1() {
                 <Logo size="md" href="/" />
               </div>
               <div className="text-left text-xs uppercase tracking-[0.32em] text-white/25 sm:text-right">
-                Mar — Jun 2026
+                Mar — Jul 2026
               </div>
             </div>
             <div className="mt-8 flex flex-wrap items-center justify-between gap-4 text-[10px] uppercase tracking-[0.32em] text-white/20">
