@@ -31,15 +31,4 @@ export const founders: Founder[] = [
     photo:
       "https://media.licdn.com/dms/image/v2/D5603AQGKVh1xb4ha-Q/profile-displayphoto-crop_800_800/B56Z0VqogkKAAI-/0/1774184995842?e=1781740800&v=beta&t=TrABs3KB4eyaCTDXqu9Yq7zPDQU9IuCnAelr6XfEqew",
   },
-  {
-    name: "Yug Sarin",
-    role: "UX Design Leader · Design Systems Strategist · Mentor",
-    description:
-      "A UX design leader with 15+ years creating digital experiences for ByteDance, Mrsool, Airtel, TikTok, Mercedes, Adobe, Mastercard, and Intel. He builds design systems, mentors teams, and aligns design strategy with business goals.",
-    linkedin: "https://www.linkedin.com/in/yugsarin/",
-    email: "yugsarin@gmail.com",
-    accent: "sun-coral",
-    photo:
-      "https://media.licdn.com/dms/image/v2/D5603AQFEAmXYmC2Wtw/profile-displayphoto-crop_800_800/B56ZyJ1_zLJMAI-/0/1771839161064?e=1781740800&v=beta&t=OxVi-hd4OsvtJGvbmThefu0dqRnyI1HxfK6E7nk40aM",
-  },
 ]

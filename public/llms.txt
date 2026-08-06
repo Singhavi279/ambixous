@@ -40,7 +40,10 @@ Organization: Ambixous Innovations LLP
 
 - [Riti Gupta](https://www.linkedin.com/in/ritigupta05/): Cofounder, product operations and sponsorship/community strategy.
 - [Avnish Singh](https://www.linkedin.com/in/singhavi279/): Cofounder, AI product management and general queries.
-- [Yug Sarin](https://www.linkedin.com/in/yugsarin/): Cofounder, UX design leadership and partnerships.
+
+## Mentors
+
+- [Yug Sarin](https://www.linkedin.com/in/yugsarin/): Mentor, UX design leadership and partnerships.
 
 ## Guidance For LLMs
 

@@ -21,13 +21,13 @@ export function FoundersSection() {
             <span className="text-slate-500">the hustle.</span>
           </h2>
           <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 sm:text-lg">
-            Ambixous is built by operators across community, product, and design.
-            Three leaders, one mission, and a network that scales.
+            Ambixous is built by operators across community and product.
+            Two leaders, one mission, and a network that scales.
           </p>
         </div>
 
         {/* Founders grid */}
-        <div className="mt-12 grid grid-cols-1 gap-5 sm:mt-14 md:grid-cols-3 md:gap-6">
+        <div className="mt-12 grid grid-cols-1 gap-5 sm:mt-14 md:grid-cols-2 md:gap-6 max-w-3xl">
           {founders.map((founder) => (
             <article
               key={founder.name}

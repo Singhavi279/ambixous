@@ -58,7 +58,7 @@ export function HeroSection() {
                 >
                     <div className="image-3d-lift">
                         <div className="image-3d-target rounded-3xl border border-white/[0.08] bg-white/[0.04] p-4 backdrop-blur-sm">
-                            <div className="grid grid-cols-3 gap-3 sm:gap-5">
+                            <div className="grid grid-cols-2 gap-3 sm:gap-5 justify-items-center">
                                 {founders.map((founder) => (
                                     <div key={founder.name} className="flex flex-col items-center text-center">
                                         <div
