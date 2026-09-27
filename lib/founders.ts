@@ -17,8 +17,7 @@ export const founders: Founder[] = [
     linkedin: "https://www.linkedin.com/in/ritigupta05/",
     email: "codework.riti@gmail.com",
     accent: "ambixous-neon",
-    photo:
-      "https://media.licdn.com/dms/image/v2/D5603AQFGaMUY0yBH9g/profile-displayphoto-crop_800_800/B56Z0Qwll1JIAI-/0/1774102666926?e=1781740800&v=beta&t=z4vv6sk8zMF5ipn5w7cKkRWYNcRHtnrCHWlKpUH9dZ0",
+    photo: "/founders/riti.png",
   },
   {
     name: "Avnish Singh",
@@ -28,7 +27,6 @@ export const founders: Founder[] = [
     linkedin: "https://www.linkedin.com/in/singhavi279/",
     email: "t20avnish@gmail.com",
     accent: "signal-blue",
-    photo:
-      "https://media.licdn.com/dms/image/v2/D5603AQGKVh1xb4ha-Q/profile-displayphoto-crop_800_800/B56Z0VqogkKAAI-/0/1774184995842?e=1781740800&v=beta&t=TrABs3KB4eyaCTDXqu9Yq7zPDQU9IuCnAelr6XfEqew",
+    photo: "/founders/avnish.jpeg",
   },
 ]

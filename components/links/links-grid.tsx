@@ -1,10 +1,17 @@
 "use client"
 
-import { Linkedin, Instagram, Youtube, Twitter, Calendar, Rocket } from "lucide-react"
+import { Linkedin, Instagram, Youtube, Twitter, Calendar, Rocket, MessageCircle } from "lucide-react"
 import { LinkCard } from "./link-card"
 import { founders } from "@/lib/founders"
 
 const links = [
+    {
+        href: "https://chat.whatsapp.com/K1P2mZyUutN9AyvY7M26Cb",
+        label: "Join WhatsApp Community",
+        sublabel: "WhatsApp",
+        icon: MessageCircle,
+        iconColor: "#25D366",
+    },
     ...founders.map((founder) => ({
         href: founder.linkedin,
         label: founder.name,

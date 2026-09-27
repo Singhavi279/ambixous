@@ -71,6 +71,16 @@ export function Footer() {
                   )
                 })}
               </div>
+              <div className="mt-4 space-y-1">
+                <p className="text-slate-gray text-sm leading-relaxed">
+                  Ambixous Innovations LLP, 1st Floor, A-23,<br />
+                  Hardware Paints and Tools Aggarwal Electrical<br />
+                  and Dundahera Village; Lal Dora, Sec 20, 122016
+                </p>
+                <p className="text-slate-gray text-sm">
+                  LLPIN: ACL-1668
+                </p>
+              </div>
             </div>
           </div>
         </div>
