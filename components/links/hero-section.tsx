@@ -62,7 +62,7 @@ export function HeroSection() {
                                 {founders.map((founder) => (
                                     <div key={founder.name} className="flex flex-col items-center text-center">
                                         <div
-                                            className={`rounded-full p-1 ${
+                                            className={`rounded-2xl p-1 ${
                                                 founder.accent === "ambixous-neon"
                                                     ? "bg-ambixous-neon/20"
                                                     : founder.accent === "signal-blue"
@@ -76,7 +76,7 @@ export function HeroSection() {
                                                 width={112}
                                                 height={112}
                                                 priority
-                                                className="h-20 w-20 rounded-full object-cover ring-2 ring-white/15 sm:h-24 sm:w-24"
+                                                className="h-20 w-20 rounded-xl object-cover ring-2 ring-white/15 sm:h-24 sm:w-24"
                                                 sizes="96px"
                                             />
                                         </div>

@@ -1,3 +1,4 @@
+import Image from "next/image"
 import { Mail, Linkedin } from "lucide-react"
 import { founders } from "@/lib/founders"
 
@@ -51,6 +52,17 @@ export function FoundersSection() {
                       : "bg-sun-coral/15"
                 } opacity-60`}
               />
+
+              <div className="relative mb-4">
+                <Image
+                  src={founder.photo}
+                  alt={`${founder.name}, Cofounder of Ambixous`}
+                  width={280}
+                  height={280}
+                  className="w-full aspect-square rounded-2xl object-cover ring-1 ring-slate-200"
+                  sizes="(max-width: 768px) 100vw, 280px"
+                />
+              </div>
 
               <div className="relative">
                 <h3 className="text-xl font-bold tracking-tight text-electric-ink sm:text-2xl">
