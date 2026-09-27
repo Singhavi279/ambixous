@@ -6,6 +6,8 @@ Primary domain: https://www.ambixous.in
 Language: en-IN
 Primary geography: India, Delhi NCR
 Organization: Ambixous Innovations LLP
+LLPIN: ACL-1668
+Registered Address: 1st Floor, A-23, Hardware Paints and Tools Aggarwal Electrical and Dundahera Village; Lal Dora, Sec 20, Gurugram, Haryana 122016, India
 
 ## Canonical Site Navigation
 

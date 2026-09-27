@@ -26,11 +26,11 @@ const siteUrl = "https://www.ambixous.in"
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Ambixous | India's Creator-Entrepreneur Community",
+    default: "Ambixous | India's Leading Creator-Entrepreneur Community",
     template: "%s | Ambixous",
   },
   description:
-    "Ambixous helps creators, students, and professionals in India become creator-entrepreneurs through the Creator Fellowship, ACE career studio, and live community events.",
+    "Ambixous is a premier network helping creators, students, and professionals in India transition into creator-entrepreneurs. Join the Creator Fellowship, ACE career studio, and exclusive live events.",
   applicationName: "Ambixous",
   keywords: [
     "creator fellowship India",
@@ -42,6 +42,8 @@ export const metadata: Metadata = {
     "ACE by Ambixous",
     "creator education",
     "startup mentorship India",
+    "founder community",
+    "personal branding",
   ],
   authors: [{ name: "Ambixous Innovations LLP" }],
   creator: "Ambixous Innovations LLP",
@@ -62,16 +64,25 @@ export const metadata: Metadata = {
     type: "website",
     siteName: "Ambixous",
     url: siteUrl,
-    title: "Ambixous | India's Creator-Entrepreneur Community",
+    title: "Ambixous | India's Leading Creator-Entrepreneur Community",
     description:
-      "Ambixous helps creators, students, and professionals in India become creator-entrepreneurs through the Creator Fellowship, ACE career studio, and live community events.",
+      "Empowering India's next generation of builders. Discover the Creator Fellowship, ACE career studio, and high-impact live community events.",
     locale: "en_IN",
+    images: [
+      {
+        url: "/hero.jpg",
+        width: 1200,
+        height: 630,
+        alt: "Ambixous Creator Community",
+      },
+    ],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Ambixous | India's Creator-Entrepreneur Community",
+    title: "Ambixous | Creator-Entrepreneur Community",
     description:
       "Creator Fellowship, ACE career studio, and live community events for India's next generation of builders.",
+    images: ["/hero.jpg"],
   },
   alternates: { canonical: siteUrl },
   icons: {
@@ -79,10 +90,10 @@ export const metadata: Metadata = {
     apple: "/apple-icon.png",
   },
   other: {
-    "geo.region": "IN-DL",
-    "geo.placename": "Delhi NCR, India",
-    "geo.position": "28.6139;77.2090",
-    ICBM: "28.6139, 77.2090",
+    "geo.region": "IN-HR",
+    "geo.placename": "Gurugram, Haryana, India",
+    "geo.position": "28.5134;77.0645",
+    ICBM: "28.5134, 77.0645",
     "distribution": "global",
     "target-country": "IN",
   },
@@ -104,8 +115,24 @@ const organizationJsonLd = {
   })),
   foundingLocation: { "@type": "Place", name: "India" },
   areaServed: "IN",
+  address: {
+    "@type": "PostalAddress",
+    streetAddress: "1st Floor, A-23, Hardware Paints and Tools Aggarwal Electrical and Dundahera Village; Lal Dora, Sec 20",
+    addressLocality: "Gurugram",
+    addressRegion: "Haryana",
+    postalCode: "122016",
+    addressCountry: "IN"
+  },
+  contactPoint: {
+    "@type": "ContactPoint",
+    email: "hi.ambixous@gmail.com",
+    contactType: "customer support"
+  },
   sameAs: [
     "https://www.linkedin.com/company/ambixous/",
+    "https://www.instagram.com/myambixous/",
+    "https://www.youtube.com/@Ambixous",
+    "https://x.com/myambixous",
     "https://www.commudle.com/communities/ambixous",
   ],
 }
