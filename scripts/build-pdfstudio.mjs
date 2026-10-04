@@ -29,15 +29,6 @@ indexHtml = replaceRequired(
 )
 fs.writeFileSync(indexPath, indexHtml)
 
-const appPath = path.join(outputDirectory, "js", "app.js")
-let appSource = fs.readFileSync(appPath, "utf8")
-appSource = replaceRequired(
-  appSource,
-  "new Worker('js/wasm-worker.js')",
-  "new Worker('/pdfstudio/js/wasm-worker.js')",
-)
-fs.writeFileSync(appPath, appSource)
-
 console.log(`PDF Studio built in ${outputDirectory}`)
 
 function replaceRequired(content, search, replacement) {

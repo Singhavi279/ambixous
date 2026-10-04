@@ -183,11 +183,13 @@
             <div class="brand-shell footer-grid">
                 <div class="footer-brand">
                     <a href="/" aria-label="Ambixous home"><img src="/logo.jpg" alt="Ambixous" width="150" height="48"></a>
-                    <p>PDF Studio by Ambixous. Where ambition finds speed and impact finds scale.</p>
-                    <small>Ambixous Innovations LLP · LLPIN: ACL-1668</small>
+                    <p>Where ambition finds speed and impact finds scale.</p>
+                    <address>Ambixous Innovations LLP, 1st Floor, A-23, Hardware Paints and Tools Aggarwal Electrical and Dundahera Village; Lal Dora, Sec 20, 122016</address>
+                    <small>LLPIN: ACL-1668</small>
+                    <img class="footer-community-image" src="/bottom.png" alt="Ambixous Community" width="280" height="80" loading="lazy">
                 </div>
-                <nav aria-label="Footer links"><h2>Quick Links</h2><a href="/about">About</a><a href="/community">Community</a><a href="/startups">Startups</a><a href="/events">Events</a></nav>
-                <div><h2>Connect</h2><a href="mailto:hi.ambixous@gmail.com">hi.ambixous@gmail.com</a><div class="social-links"><a href="https://www.linkedin.com/company/ambixous/" target="_blank" rel="noopener noreferrer" aria-label="Ambixous on LinkedIn"><i class="fab fa-linkedin-in"></i></a><a href="https://www.instagram.com/myambixous/" target="_blank" rel="noopener noreferrer" aria-label="Ambixous on Instagram"><i class="fab fa-instagram"></i></a><a href="https://www.youtube.com/@Ambixous" target="_blank" rel="noopener noreferrer" aria-label="Ambixous on YouTube"><i class="fab fa-youtube"></i></a></div></div>
+                <nav aria-label="Footer links"><h2>Quick Links</h2><a href="/">Home</a><a href="/about">About</a><a href="/community">Community</a><a href="/startups">Startups</a><a href="/events">Events</a></nav>
+                <div><h2>Connect</h2><a href="mailto:hi.ambixous@gmail.com">hi.ambixous@gmail.com</a><div class="social-links"><a href="https://www.linkedin.com/company/ambixous/" target="_blank" rel="noopener noreferrer" aria-label="Ambixous on LinkedIn"><i class="fab fa-linkedin-in"></i></a><a href="https://www.instagram.com/myambixous/" target="_blank" rel="noopener noreferrer" aria-label="Ambixous on Instagram"><i class="fab fa-instagram"></i></a><a href="https://www.youtube.com/@Ambixous" target="_blank" rel="noopener noreferrer" aria-label="Ambixous on YouTube"><i class="fab fa-youtube"></i></a><a href="https://x.com/myambixous" target="_blank" rel="noopener noreferrer" aria-label="Ambixous on X"><i class="fab fa-x-twitter"></i></a></div></div>
             </div>
             <div class="brand-shell footer-bottom"><span>© 2026 Ambixous Innovations LLP. All rights reserved.</span><span><a href="/privacy-policy">Privacy Policy</a><a href="/terms">Terms &amp; Conditions</a></span></div>
         </footer>
@@ -264,10 +266,6 @@
                 <button class="save-btn" id="save-btn" title="Download edited PDF (Ctrl+S)" aria-label="Save and download the edited PDF">
                     <i class="fas fa-download" aria-hidden="true"></i>
                     <span>Save &amp; Download</span>
-                </button>
-                <button class="ai-toggle-btn" id="toggle-ai" title="Open private document assistant" aria-label="Open private document assistant" aria-expanded="false" aria-controls="ai-sidebar">
-                    <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>
-                    <span>Ask PDF</span>
                 </button>
                 <!-- A11Y-01 FIX: aria-label on icon-only button -->
                 <button class="icon-btn" id="toggle-sidebar" title="Toggle Pages Panel" aria-label="Toggle pages panel" aria-expanded="true" aria-controls="sidebar">
@@ -420,7 +418,11 @@
                     </div>
                     <div class="zoom-controls" role="group" aria-label="Zoom controls">
                         <button class="ctrl-btn" id="zoom-out" title="Zoom Out" aria-label="Zoom out"><i class="fas fa-search-minus" aria-hidden="true"></i></button>
-                        <span class="zoom-level" id="zoom-level" aria-live="polite" aria-atomic="true">100%</span>
+                        <label class="sr-only" for="zoom-level">Zoom percentage</label>
+                        <div class="zoom-input-wrap">
+                            <input class="zoom-level" id="zoom-level" type="number" min="25" max="400" step="1" value="100" inputmode="numeric" aria-label="Zoom percentage">
+                            <span aria-hidden="true">%</span>
+                        </div>
                         <button class="ctrl-btn" id="zoom-in" title="Zoom In" aria-label="Zoom in"><i class="fas fa-search-plus" aria-hidden="true"></i></button>
                         <button class="ctrl-btn" id="zoom-fit" title="Fit to Width" aria-label="Fit page to window width"><i class="fas fa-expand" aria-hidden="true"></i></button>
                     </div>
@@ -446,32 +448,6 @@
                     </div>
                 </div>
             </main>
-            <aside class="ai-sidebar collapsed" id="ai-sidebar" aria-label="Private document assistant">
-                <div class="ai-header">
-                    <div>
-                        <span class="ai-eyebrow"><i class="fas fa-shield-halved" aria-hidden="true"></i> Private &amp; on-device</span>
-                        <h2>Document intelligence</h2>
-                    </div>
-                    <button class="icon-btn-sm" id="close-ai" aria-label="Close assistant"><i class="fas fa-times" aria-hidden="true"></i></button>
-                </div>
-                <div class="engine-status" aria-label="Engine capabilities">
-                    <span class="status-pill" id="status-gpu"><i class="fas fa-circle"></i> GPU checking</span>
-                    <span class="status-pill" id="status-storage"><i class="fas fa-circle"></i> OPFS checking</span>
-                    <span class="status-pill" id="status-memory"><i class="fas fa-circle"></i> Worker checking</span>
-                </div>
-                <div class="ai-actions">
-                    <button class="ai-action" id="ai-summarize"><i class="fas fa-align-left"></i><span><strong>Summarize</strong><small>Find the document’s key points</small></span></button>
-                    <button class="ai-action" id="ai-scan-pii"><i class="fas fa-user-secret"></i><span><strong>Scan sensitive data</strong><small>Find PII before sharing</small></span></button>
-                </div>
-                <div class="ai-messages" id="ai-messages" aria-live="polite">
-                    <div class="ai-message assistant">Your PDF stays on this device. Ask about a clause, name, amount, date, or topic and I’ll cite the relevant pages.</div>
-                </div>
-                <form class="ai-composer" id="ai-form">
-                    <label class="sr-only" for="ai-input">Ask this PDF</label>
-                    <textarea id="ai-input" rows="2" placeholder="Ask this PDF…" required></textarea>
-                    <button type="submit" id="ai-send" aria-label="Send question"><i class="fas fa-arrow-up"></i></button>
-                </form>
-            </aside>
         </div>
     </div>
 

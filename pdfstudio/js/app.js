@@ -1,6 +1,5 @@
 /* =============================================
-   PDF Studio — Professional PDF Editor v3.0 (God-Tier)
-   Enterprise Edition — WebGPU & Local LLM Integration
+   PDF Studio — Professional PDF Editor v3.0
    ============================================= */
 import { WebGPURenderer } from './webgpu-renderer.js';
 import { opfsStore } from './opfs-store.js';
@@ -84,19 +83,15 @@ const state = {
     // Existing text editing
     modifiedText: {},     // pageNum -> { index -> { originalText, newText, transform, fontName, ... } }
     pageTextItems: {},    // pageNum -> array of extracted text item data
-    documentIndexed: false,
     assets: new Map(),
     assetIdsBySource: new Map(),
     assetSequence: 0,
-    workerRequests: new Map(),
     renderRevision: 0,
     loadRevision: 0,
-    indexRevision: 0,
     loadingTask: null,
     renderTask: null,
     thumbnailObserver: null,
     rasterCanvas: null,
-    sharedState: null,
 };
 
 // =============================================
@@ -143,34 +138,12 @@ const dom = {
     
     sigCanvas: document.getElementById('sig-canvas'),
     imageUploadInput: document.getElementById('image-upload-input'),
-    aiSidebar: document.getElementById('ai-sidebar'),
-    aiMessages: document.getElementById('ai-messages'),
-    aiInput: document.getElementById('ai-input'),
 };
 
 // =============================================
 // Initialize
 // =============================================
 async function init() {
-    // Document analysis stays in a worker so indexing never blocks editing.
-    state.wasmWorker = new Worker('js/wasm-worker.js');
-    state.wasmWorker.onmessage = (e) => {
-        const pending = state.workerRequests.get(e.data.id);
-        if (!pending) return;
-        state.workerRequests.delete(e.data.id);
-        clearTimeout(pending.timer);
-        if (e.data.status === 'success') pending.resolve(e.data.data);
-        else pending.reject(new Error(e.data.error || 'Worker request failed'));
-    };
-    state.wasmWorker.onerror = err => {
-        for (const pending of state.workerRequests.values()) {
-            clearTimeout(pending.timer);
-            pending.reject(new Error('Document worker unavailable'));
-        }
-        state.workerRequests.clear();
-        console.error('Document worker error:', err);
-    };
-    
     // WebGPU progressively enhances presentation; Canvas 2D remains a reliable fallback.
     state.gpuRenderer = new WebGPURenderer(dom.pdfCanvas);
     const gpuActive = await state.gpuRenderer.init();
@@ -187,21 +160,6 @@ async function init() {
     setupSidebar();
     setupNps();
     selectTool('select');
-    setupAssistant();
-    updateCapabilityStatus(gpuActive);
-}
-
-function callWorker(action, payload = {}) {
-    return new Promise((resolve, reject) => {
-        const id = `${Date.now()}-${Math.random()}`;
-        const timer = setTimeout(() => {
-            if (!state.workerRequests.has(id)) return;
-            state.workerRequests.delete(id);
-            reject(new Error('Document worker timed out'));
-        }, 30000);
-        state.workerRequests.set(id, { resolve, reject, timer });
-        state.wasmWorker.postMessage({ action, payload, id });
-    });
 }
 
 // =============================================
@@ -288,13 +246,9 @@ async function loadPDF(file, { persist = true } = {}) {
         state.pageRotations = {};
         state.modifiedText = {};
         state.pageTextItems = {};
-        state.documentIndexed = false;
         state.assets.clear();
         state.assetIdsBySource.clear();
         state.assetSequence = 0;
-        state.indexRevision = loadRevision;
-        const assistantIntro = dom.aiMessages.querySelector('.assistant');
-        if (assistantIntro) assistantIntro.textContent = 'Indexing this PDF locally…';
         previousPdf?.destroy().catch(() => {});
         saveHistory(false);
         
@@ -310,7 +264,6 @@ async function loadPDF(file, { persist = true } = {}) {
         if (loadRevision !== state.loadRevision) return;
         hideLoading();
         showToast(`Loaded "${file.name}" (${state.totalPages} pages)`, 'success');
-        indexDocument(loadRevision).catch(err => console.warn('Document indexing failed:', err));
     } catch (err) {
         if (loadRevision !== state.loadRevision) return;
         hideLoading();
@@ -474,7 +427,9 @@ function goToPage(pageNum) {
 function updatePageControls() {
     dom.pageIndicator.textContent = state.currentPage;
     dom.totalPagesEl.textContent = state.totalPages;
-    dom.zoomLevel.textContent = Math.round(state.zoom * 100) + '%';
+    if (document.activeElement !== dom.zoomLevel) {
+        dom.zoomLevel.value = String(Math.round(state.zoom * 100));
+    }
 }
 
 // =============================================
@@ -516,7 +471,6 @@ function setupToolbar() {
     document.getElementById('back-to-home').addEventListener('click', async () => {
         if (state.dirty && !await customConfirm('Go back to home? Unsaved changes will be lost.')) return;
         state.renderRevision++;
-        state.indexRevision++;
         state.renderTask?.cancel();
         state.thumbnailObserver?.disconnect();
         const pdf = state.pdf;
@@ -758,6 +712,8 @@ function setupProperties() {
 // Page Controls
 // =============================================
 function setZoom(newZoom) {
+    newZoom = Math.min(4, Math.max(0.25, Number(newZoom)));
+    if (!Number.isFinite(newZoom)) return;
     if (newZoom === state.zoom) return;
     const ratio = newZoom / state.zoom;
     state.zoom = newZoom;
@@ -792,6 +748,29 @@ function setZoom(newZoom) {
 }
 
 function setupPageControls() {
+    const applyZoomInput = () => {
+        const percentage = Number.parseFloat(dom.zoomLevel.value);
+        if (!Number.isFinite(percentage)) {
+            dom.zoomLevel.value = String(Math.round(state.zoom * 100));
+            return;
+        }
+        setZoom(percentage / 100);
+        dom.zoomLevel.value = String(Math.round(state.zoom * 100));
+    };
+
+    dom.zoomLevel.addEventListener('change', applyZoomInput);
+    dom.zoomLevel.addEventListener('keydown', event => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            applyZoomInput();
+            dom.zoomLevel.blur();
+        }
+        if (event.key === 'Escape') {
+            dom.zoomLevel.value = String(Math.round(state.zoom * 100));
+            dom.zoomLevel.blur();
+        }
+    });
+
     document.getElementById('zoom-in').addEventListener('click', () => {
         setZoom(Math.min(state.zoom + 0.25, 4));
     });
@@ -883,8 +862,6 @@ async function insertBlankPage(afterPage) {
         goToPage(afterPage + 1);
         await renderThumbnails();
         updatePageControls();
-        state.documentIndexed = false;
-        indexDocument(++state.indexRevision).catch(err => console.warn('Document indexing failed:', err));
         showToast('Blank page inserted', 'success');
     } catch (err) {
         showToast('Failed to insert page: ' + err.message, 'error');
@@ -927,8 +904,6 @@ async function deletePage(pageNum) {
         await renderPage(state.currentPage);
         await renderThumbnails();
         updatePageControls();
-        state.documentIndexed = false;
-        indexDocument(++state.indexRevision).catch(err => console.warn('Document indexing failed:', err));
         showToast(`Page ${pageNum} deleted`, 'success');
     } catch (err) {
         showToast('Failed to delete page: ' + err.message, 'error');
@@ -2383,167 +2358,6 @@ function setupSidebar() {
     document.getElementById('toggle-sidebar').addEventListener('click', () => {
         dom.sidebar.classList.toggle('collapsed');
     });
-}
-
-// =============================================
-// Private document assistant
-// =============================================
-function setupAssistant() {
-    const toggle = document.getElementById('toggle-ai');
-    const setOpen = open => {
-        dom.aiSidebar.classList.toggle('collapsed', !open);
-        toggle.setAttribute('aria-expanded', String(open));
-    };
-    toggle.addEventListener('click', () => setOpen(dom.aiSidebar.classList.contains('collapsed')));
-    document.getElementById('close-ai').addEventListener('click', () => setOpen(false));
-    document.getElementById('ai-form').addEventListener('submit', async event => {
-        event.preventDefault();
-        const question = dom.aiInput.value.trim();
-        if (!question || !state.pdf) return;
-        dom.aiInput.value = '';
-        appendAiMessage(question, 'user');
-        await runAssistantRequest('ASK_DOCUMENT', { question });
-    });
-    dom.aiInput.addEventListener('keydown', event => {
-        if (event.key === 'Enter' && !event.shiftKey) {
-            event.preventDefault();
-            document.getElementById('ai-form').requestSubmit();
-        }
-    });
-    document.getElementById('ai-summarize').addEventListener('click', () => runAssistantRequest('SUMMARIZE'));
-    document.getElementById('ai-scan-pii').addEventListener('click', scanSensitiveData);
-}
-
-async function updateCapabilityStatus(gpuActive) {
-    setStatus('status-gpu', gpuActive, gpuActive ? 'WebGPU active' : 'Canvas fallback');
-    setStatus('status-storage', opfsStore.supported, opfsStore.supported ? 'OPFS active' : 'Session storage');
-    try {
-        state.sharedState = globalThis.crossOriginIsolated && typeof SharedArrayBuffer !== 'undefined'
-            ? new SharedArrayBuffer(Int32Array.BYTES_PER_ELEMENT * 4) : null;
-        const info = await callWorker('INIT_ENGINE', { sharedState: state.sharedState });
-        setStatus('status-memory', true, info.sharedMemory ? 'Shared memory ready' : 'Worker isolated');
-    } catch { setStatus('status-memory', false, 'Worker unavailable'); }
-}
-
-function setStatus(id, active, label) {
-    const element = document.getElementById(id);
-    element.classList.toggle('active', active);
-    element.classList.toggle('fallback', !active);
-    element.lastChild.textContent = ` ${label}`;
-}
-
-async function indexDocument(revision = state.indexRevision) {
-    const sourcePdf = state.pdf;
-    const indexed = new Array(sourcePdf.numPages);
-    const batchSize = 4;
-    for (let start = 1; start <= sourcePdf.numPages; start += batchSize) {
-        if (revision !== state.indexRevision || sourcePdf !== state.pdf) return;
-        const pageNumbers = Array.from(
-            { length: Math.min(batchSize, sourcePdf.numPages - start + 1) },
-            (_, index) => start + index
-        );
-        const batch = await Promise.all(pageNumbers.map(async pageNum => {
-            const page = await sourcePdf.getPage(pageNum);
-            const content = await page.getTextContent();
-            return { page: pageNum, text: content.items.map(item => item.str).join(' ') };
-        }));
-        batch.forEach(entry => { indexed[entry.page - 1] = entry; });
-        if (globalThis.scheduler?.yield) await globalThis.scheduler.yield();
-        else await new Promise(resolve => setTimeout(resolve, 0));
-    }
-    if (revision !== state.indexRevision || sourcePdf !== state.pdf) return;
-    await callWorker('INDEX_DOCUMENT', { pages: indexed });
-    if (revision !== state.indexRevision || sourcePdf !== state.pdf) return;
-    state.documentIndexed = true;
-    const intro = dom.aiMessages.querySelector('.assistant');
-    if (intro) intro.textContent = `Ready. I indexed ${indexed.length} page${indexed.length === 1 ? '' : 's'} locally. Ask about a clause, amount, date, name, or topic.`;
-}
-
-async function runAssistantRequest(action, payload = {}) {
-    if (!state.documentIndexed) {
-        appendAiMessage('I’m still indexing this PDF. Please try again in a moment.', 'assistant');
-        return;
-    }
-    const pending = appendAiMessage('Searching this document…', 'assistant pending');
-    try {
-        const result = await callWorker(action, payload);
-        pending.remove();
-        appendAiMessage(result.text, 'assistant', result.sources);
-    } catch (error) {
-        pending.remove();
-        appendAiMessage(`I couldn’t complete that request: ${error.message}`, 'assistant error');
-    }
-}
-
-function appendAiMessage(text, classes, sources = []) {
-    const message = document.createElement('div');
-    message.className = `ai-message ${classes}`;
-    const body = document.createElement('div');
-    body.textContent = text;
-    message.appendChild(body);
-    if (sources.length) {
-        const sourceRow = document.createElement('div');
-        sourceRow.className = 'ai-sources';
-        [...new Set(sources)].forEach(page => {
-            const button = document.createElement('button');
-            button.type = 'button';
-            button.textContent = `Page ${page}`;
-            button.addEventListener('click', () => goToPage(page));
-            sourceRow.appendChild(button);
-        });
-        message.appendChild(sourceRow);
-    }
-    dom.aiMessages.appendChild(message);
-    dom.aiMessages.scrollTop = dom.aiMessages.scrollHeight;
-    return message;
-}
-
-async function scanSensitiveData() {
-    if (!state.documentIndexed) return runAssistantRequest('ASK_DOCUMENT', { question: 'sensitive personal information' });
-    const pending = appendAiMessage('Scanning locally for sensitive data…', 'assistant pending');
-    try {
-        const matches = await callWorker('SCAN_PII');
-        pending.remove();
-        if (!matches.length) {
-            appendAiMessage('No common email addresses, phone numbers, Social Security numbers, or payment-card patterns were found.', 'assistant');
-            return;
-        }
-        const summary = matches.reduce((counts, item) => { counts[item.kind] = (counts[item.kind] || 0) + 1; return counts; }, {});
-        const message = appendAiMessage(Object.entries(summary).map(([kind, count]) => `${count} ${kind}${count === 1 ? '' : 's'}`).join(' · '), 'assistant', matches.map(x => x.page));
-        const redact = document.createElement('button');
-        redact.type = 'button'; redact.className = 'ai-redact-btn';
-        redact.innerHTML = '<i class="fas fa-eraser"></i> Apply whiteout redactions';
-        redact.addEventListener('click', async () => {
-            redact.disabled = true; redact.textContent = 'Applying redactions…';
-            const count = await applyPiiRedactions(matches);
-            redact.textContent = `${count} redactions applied`;
-            showToast(`${count} sensitive text matches covered. Review before saving.`, 'success');
-        });
-        message.appendChild(redact);
-    } catch (error) {
-        pending.remove(); appendAiMessage(`Scan failed: ${error.message}`, 'assistant error');
-    }
-}
-
-async function applyPiiRedactions(matches) {
-    let count = 0;
-    const byPage = new Map();
-    matches.forEach(match => byPage.set(match.page, [...(byPage.get(match.page) || []), match.value]));
-    for (const [pageNum, values] of byPage) {
-        const page = await state.pdf.getPage(pageNum);
-        const viewport = page.getViewport({ scale: state.zoom * 1.5, rotation: state.pageRotations[pageNum] || 0 });
-        const content = await page.getTextContent();
-        for (const item of content.items) {
-            if (!values.some(value => item.str.includes(value))) continue;
-            const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
-            const height = Math.max(8, Math.hypot(tx[0], tx[1]));
-            addElement(pageNum, { type: 'whiteout', x: tx[4] - 2, y: tx[5] - height - 2, width: Math.max(12, item.width * viewport.scale + 4), height: height + 4 });
-            count++;
-        }
-    }
-    saveHistory();
-    renderElements(state.currentPage);
-    return count;
 }
 
 // =============================================
