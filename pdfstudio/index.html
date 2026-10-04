@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>PDF Studio — Professional PDF Editor</title>
+    <meta name="description" content="A full-featured, enterprise-grade online PDF editor. Add text, images, shapes, annotations, forms, and signatures — all in your browser. No uploads, no server.">
+    <!-- A11Y-09 / SEC-05: Content Security Policy + referrer -->
+    <meta http-equiv="Content-Security-Policy"
+          content="default-src 'self'; script-src 'self' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:;">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
+    <!-- SEO -->
+    <meta property="og:title" content="PDF Studio — Professional PDF Editor">
+    <meta property="og:description" content="Edit PDFs like a pro — free, browser-based, no server uploads.">
+    <meta name="theme-color" content="#09090b">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23b4ff00'/%3E%3Cpath d='M9 7h9l5 5v13H9z' fill='%2309090b'/%3E%3Cpath d='M18 7v6h6' fill='none' stroke='%23b4ff00' stroke-width='2'/%3E%3C/svg%3E">
+
+    <!-- PERF-06 FIX: Single merged Google Fonts request (Inter + signature fonts) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Great+Vibes&display=swap" rel="stylesheet">
+
+    <!-- LIB-03 FIX: Font Awesome 6.7.2 (latest) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
+
+    <!-- LIB-01 FIX: PDF.js v4.9.155 via jsDelivr (ES module, loaded in app.js) -->
+    <!-- LIB-02 FIX: @cantoo/pdf-lib v2.11.1 (active maintained fork of pdf-lib) -->
+    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9.155/legacy/build/pdf.min.mjs" type="module" id="pdfjs-script"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@cantoo/pdf-lib@2.11.1/dist/pdf-lib.min.js"></script>
+
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <!-- Landing / Upload Screen -->
+    <div id="landing-screen" class="landing-screen" role="main">
+        <div class="landing-bg-shapes" aria-hidden="true">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+        </div>
+        <nav class="landing-nav" aria-label="PDF Studio navigation">
+            <div class="logo" aria-label="PDF Studio home">
+                <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                <span>PDF Studio</span>
+            </div>
+        </nav>
+        <div class="landing-content">
+            <h1>Edit PDFs Like a Pro</h1>
+            <p class="landing-subtitle">Add text, images, shapes, annotations, signatures and more — all in your browser. No uploads. No server.</p>
+            <div class="upload-zone" id="upload-zone" role="button" tabindex="0" aria-label="Upload PDF file — click or drag and drop">
+                <div class="upload-icon-wrapper" aria-hidden="true">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                </div>
+                <h2>Drop your PDF here</h2>
+                <label for="file-input" class="sr-only">Choose a PDF file</label>
+                <input type="file" id="file-input" class="hidden" accept=".pdf,application/pdf" aria-label="Choose PDF file">
+                <button class="upload-btn" id="upload-btn" type="button">
+                    <i class="fas fa-folder-open" aria-hidden="true"></i>
+                    Choose PDF File
+                </button>
+            </div>
+            <div class="features-grid" aria-label="Editor features">
+                <div class="feature-card">
+                    <i class="fas fa-font" aria-hidden="true"></i>
+                    <span>Add &amp; Edit Text</span>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-image" aria-hidden="true"></i>
+                    <span>Insert Images</span>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-signature" aria-hidden="true"></i>
+                    <span>Sign PDFs</span>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-shapes" aria-hidden="true"></i>
+                    <span>Draw Shapes</span>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-highlighter" aria-hidden="true"></i>
+                    <span>Annotate</span>
+                </div>
+                <div class="feature-card">
+                    <i class="fas fa-link" aria-hidden="true"></i>
+                    <span>Add Links</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Editor Screen -->
+    <div id="editor-screen" class="editor-screen hidden" aria-label="PDF Editor">
+        <!-- Top Toolbar -->
+        <header class="toolbar" id="main-toolbar" role="banner">
+            <div class="toolbar-left">
+                <button class="logo-mini" id="back-to-home" aria-label="Back to home — return to PDF Studio landing page" title="Back to home">
+                    <i class="fas fa-file-pdf" aria-hidden="true"></i>
+                    <span>PDF Studio</span>
+                </button>
+            </div>
+            <nav class="toolbar-center" aria-label="Editing tools">
+                <div class="tool-group" role="toolbar" aria-label="Main editing tools">
+                    <button class="tool-btn active" data-tool="select" id="tool-select" title="Select & Move" aria-label="Select tool — move and interact with elements" aria-pressed="true">
+                        <i class="fas fa-mouse-pointer" aria-hidden="true"></i>
+                        <span>Select</span>
+                    </button>
+                    <button class="tool-btn" data-tool="text" id="tool-text" title="Add Text" aria-label="Text tool — add or edit text" aria-pressed="false">
+                        <i class="fas fa-font" aria-hidden="true"></i>
+                        <span>Text</span>
+                    </button>
+                    <button class="tool-btn" data-tool="links" id="tool-links" title="Add Links" aria-label="Links tool" aria-pressed="false">
+                        <i class="fas fa-link" aria-hidden="true"></i>
+                        <span>Links</span>
+                    </button>
+                    <button class="tool-btn has-dropdown" data-tool="forms" id="tool-forms" title="Forms" aria-label="Forms tool — open forms menu" aria-pressed="false" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-list-check" aria-hidden="true"></i>
+                        <span>Forms</span>
+                        <i class="fas fa-caret-down dropdown-arrow" aria-hidden="true"></i>
+                    </button>
+                    <button class="tool-btn has-dropdown" data-tool="images" id="tool-images" title="Insert Images" aria-label="Images tool — open images menu" aria-pressed="false" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-image" aria-hidden="true"></i>
+                        <span>Images</span>
+                        <i class="fas fa-caret-down dropdown-arrow" aria-hidden="true"></i>
+                    </button>
+                    <button class="tool-btn" data-tool="object-capture" id="tool-objects" title="Edit Flattened Objects" aria-label="Objects tool — drag around a flattened logo, image, or graphic" aria-pressed="false">
+                        <i class="fas fa-crop-simple" aria-hidden="true"></i>
+                        <span>Objects</span>
+                    </button>
+                    <button class="tool-btn has-dropdown" data-tool="sign" id="tool-sign" title="Sign" aria-label="Sign tool — open signature menu" aria-pressed="false" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-signature" aria-hidden="true"></i>
+                        <span>Sign</span>
+                        <i class="fas fa-caret-down dropdown-arrow" aria-hidden="true"></i>
+                    </button>
+                    <button class="tool-btn" data-tool="whiteout" id="tool-whiteout" title="Whiteout" aria-label="Whiteout tool — cover areas of the PDF" aria-pressed="false">
+                        <i class="fas fa-eraser" aria-hidden="true"></i>
+                        <span>Whiteout</span>
+                    </button>
+                    <button class="tool-btn has-dropdown" data-tool="annotate" id="tool-annotate" title="Annotate" aria-label="Annotate tool — open annotation menu" aria-pressed="false" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-pen-fancy" aria-hidden="true"></i>
+                        <span>Annotate</span>
+                        <i class="fas fa-caret-down dropdown-arrow" aria-hidden="true"></i>
+                    </button>
+                    <button class="tool-btn has-dropdown" data-tool="shapes" id="tool-shapes" title="Shapes" aria-label="Shapes tool — open shapes menu" aria-pressed="false" aria-haspopup="true" aria-expanded="false">
+                        <i class="fas fa-shapes" aria-hidden="true"></i>
+                        <span>Shapes</span>
+                        <i class="fas fa-caret-down dropdown-arrow" aria-hidden="true"></i>
+                    </button>
+                    <button class="tool-btn" data-tool="undo" id="tool-undo" title="Undo (Ctrl+Z)" aria-label="Undo last action (Ctrl+Z)">
+                        <i class="fas fa-undo" aria-hidden="true"></i>
+                        <span>Undo</span>
+                    </button>
+                    <button class="tool-btn" data-tool="redo" id="tool-redo" title="Redo (Ctrl+Y)" aria-label="Redo last undone action (Ctrl+Y)">
+                        <i class="fas fa-redo" aria-hidden="true"></i>
+                        <span>Redo</span>
+                    </button>
+                </div>
+            </nav>
+            <div class="toolbar-right">
+                <button class="save-btn" id="save-btn" title="Download edited PDF (Ctrl+S)" aria-label="Save and download the edited PDF">
+                    <i class="fas fa-download" aria-hidden="true"></i>
+                    <span>Save &amp; Download</span>
+                </button>
+                <button class="ai-toggle-btn" id="toggle-ai" title="Open private document assistant" aria-label="Open private document assistant" aria-expanded="false" aria-controls="ai-sidebar">
+                    <i class="fas fa-wand-magic-sparkles" aria-hidden="true"></i>
+                    <span>Ask PDF</span>
+                </button>
+                <!-- A11Y-01 FIX: aria-label on icon-only button -->
+                <button class="icon-btn" id="toggle-sidebar" title="Toggle Pages Panel" aria-label="Toggle pages panel" aria-expanded="true" aria-controls="sidebar">
+                    <i class="fas fa-th-large" aria-hidden="true"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- Dropdown Menus -->
+        <div class="dropdown-menu" id="dropdown-forms" role="menu" aria-label="Form field types">
+            <button class="dropdown-item" data-action="text-field" role="menuitem"><i class="fas fa-i-cursor" aria-hidden="true"></i> Text Field</button>
+            <button class="dropdown-item" data-action="checkbox" role="menuitem"><i class="fas fa-square-check" aria-hidden="true"></i> Checkbox</button>
+            <button class="dropdown-item" data-action="radio" role="menuitem"><i class="fas fa-circle-dot" aria-hidden="true"></i> Radio Button</button>
+            <button class="dropdown-item" data-action="dropdown-field" role="menuitem"><i class="fas fa-caret-square-down" aria-hidden="true"></i> Dropdown</button>
+        </div>
+        <div class="dropdown-menu" id="dropdown-images" role="menu" aria-label="Insert image options">
+            <button class="dropdown-item" data-action="upload-image" role="menuitem"><i class="fas fa-upload" aria-hidden="true"></i> Upload Image</button>
+            <button class="dropdown-item" data-action="from-clipboard" role="menuitem"><i class="fas fa-clipboard" aria-hidden="true"></i> From Clipboard</button>
+            <button class="dropdown-item" data-action="capture-object" role="menuitem"><i class="fas fa-crop-simple" aria-hidden="true"></i> Edit Existing Object</button>
+        </div>
+        <div class="dropdown-menu" id="dropdown-sign" role="menu" aria-label="Signature options">
+            <button class="dropdown-item" data-action="draw-signature" role="menuitem"><i class="fas fa-pen" aria-hidden="true"></i> Draw Signature</button>
+            <button class="dropdown-item" data-action="type-signature" role="menuitem"><i class="fas fa-keyboard" aria-hidden="true"></i> Type Signature</button>
+            <button class="dropdown-item" data-action="upload-signature" role="menuitem"><i class="fas fa-upload" aria-hidden="true"></i> Upload Signature</button>
+        </div>
+        <div class="dropdown-menu" id="dropdown-annotate" role="menu" aria-label="Annotation types">
+            <button class="dropdown-item active" data-action="highlight" role="menuitem"><i class="fas fa-highlighter" aria-hidden="true"></i> Highlight</button>
+            <button class="dropdown-item" data-action="underline" role="menuitem"><i class="fas fa-underline" aria-hidden="true"></i> Underline</button>
+            <button class="dropdown-item" data-action="strikethrough" role="menuitem"><i class="fas fa-strikethrough" aria-hidden="true"></i> Strikethrough</button>
+            <button class="dropdown-item" data-action="freehand" role="menuitem"><i class="fas fa-pencil" aria-hidden="true"></i> Freehand Draw</button>
+            <button class="dropdown-item" data-action="comment" role="menuitem"><i class="fas fa-comment" aria-hidden="true"></i> Comment</button>
+        </div>
+        <div class="dropdown-menu" id="dropdown-shapes" role="menu" aria-label="Shape types">
+            <button class="dropdown-item" data-action="rectangle" role="menuitem"><i class="fas fa-square" aria-hidden="true"></i> Rectangle</button>
+            <button class="dropdown-item" data-action="circle" role="menuitem"><i class="fas fa-circle" aria-hidden="true"></i> Circle / Ellipse</button>
+            <button class="dropdown-item" data-action="line" role="menuitem"><i class="fas fa-minus" aria-hidden="true"></i> Line</button>
+            <button class="dropdown-item" data-action="arrow" role="menuitem"><i class="fas fa-arrow-right" aria-hidden="true"></i> Arrow</button>
+        </div>
+
+        <!-- Sub-toolbar / Properties Bar -->
+        <div class="properties-bar" id="properties-bar" role="region" aria-label="Tool properties">
+            <!-- Text Properties -->
+            <div class="prop-group" id="props-text">
+                <label for="font-family" class="sr-only">Font Family</label>
+                <select id="font-family" class="prop-select" title="Font Family" aria-label="Font Family">
+                    <option value="Helvetica">Helvetica</option>
+                    <option value="Times-Roman">Times Roman</option>
+                    <option value="Courier">Courier</option>
+                    <option value="Arial">Arial</option>
+                    <option value="Georgia">Georgia</option>
+                    <option value="Verdana">Verdana</option>
+                </select>
+                <label for="font-size" class="sr-only">Font Size</label>
+                <select id="font-size" class="prop-select" title="Font Size" aria-label="Font Size">
+                    <option value="8">8</option>
+                    <option value="10">10</option>
+                    <option value="12" selected>12</option>
+                    <option value="14">14</option>
+                    <option value="16">16</option>
+                    <option value="18">18</option>
+                    <option value="20">20</option>
+                    <option value="24">24</option>
+                    <option value="28">28</option>
+                    <option value="32">32</option>
+                    <option value="36">36</option>
+                    <option value="48">48</option>
+                    <option value="64">64</option>
+                    <option value="72">72</option>
+                </select>
+                <button class="prop-btn" id="bold-btn" title="Bold" aria-label="Toggle bold" aria-pressed="false"><i class="fas fa-bold" aria-hidden="true"></i></button>
+                <button class="prop-btn" id="italic-btn" title="Italic" aria-label="Toggle italic" aria-pressed="false"><i class="fas fa-italic" aria-hidden="true"></i></button>
+                <div class="prop-divider" role="separator"></div>
+                <div class="color-picker-wrapper">
+                    <label for="text-color" title="Text Color" aria-label="Text Color"><i class="fas fa-palette" aria-hidden="true"></i></label>
+                    <input type="color" id="text-color" value="#000000" title="Text Color" aria-label="Text Color">
+                </div>
+                <div class="prop-divider" role="separator"></div>
+                <span class="text-edit-hint" aria-live="polite"><i class="fas fa-mouse-pointer" aria-hidden="true"></i> Click existing text to edit it, or click empty area to add new</span>
+            </div>
+
+            <!-- Shape/Annotation Properties -->
+            <div class="prop-group hidden" id="props-shape">
+                <div class="color-picker-wrapper">
+                    <label for="stroke-color">Stroke:</label>
+                    <input type="color" id="stroke-color" value="#b4ff00" title="Stroke Color" aria-label="Stroke Color">
+                </div>
+                <div class="color-picker-wrapper">
+                    <label for="fill-color">Fill:</label>
+                    <input type="color" id="fill-color" value="#09090b" title="Fill Color" aria-label="Fill Color">
+                </div>
+                <div class="prop-field">
+                    <label for="stroke-width">Width:</label>
+                    <input type="range" id="stroke-width" min="1" max="10" value="2" title="Stroke Width" aria-label="Stroke Width" aria-valuemin="1" aria-valuemax="10" aria-valuenow="2">
+                    <span id="stroke-width-val" aria-live="polite">2px</span>
+                </div>
+                <div class="color-picker-wrapper">
+                    <label for="shape-opacity">Opacity:</label>
+                    <input type="range" id="shape-opacity" min="0" max="100" value="100" title="Opacity" aria-label="Shape Opacity" aria-valuemin="0" aria-valuemax="100" aria-valuenow="100">
+                    <span id="opacity-val" aria-live="polite">100%</span>
+                </div>
+            </div>
+
+            <!-- Annotate Properties -->
+            <div class="prop-group hidden" id="props-annotate">
+                <div class="color-picker-wrapper">
+                    <label for="annotate-color">Color:</label>
+                    <input type="color" id="annotate-color" value="#ffe066" title="Annotation Color" aria-label="Annotation Color">
+                </div>
+                <div class="prop-field">
+                    <label for="annotate-size">Size:</label>
+                    <input type="range" id="annotate-size" min="1" max="20" value="3" title="Brush Size" aria-label="Brush Size" aria-valuemin="1" aria-valuemax="20" aria-valuenow="3">
+                    <span id="annotate-size-val" aria-live="polite">3px</span>
+                </div>
+            </div>
+
+            <!-- Whiteout Properties -->
+            <div class="prop-group hidden" id="props-whiteout">
+                <span class="prop-hint"><i class="fas fa-info-circle" aria-hidden="true"></i> Click and drag on the PDF to white out an area</span>
+            </div>
+
+            <!-- Link Properties -->
+            <div class="prop-group hidden" id="props-links">
+                <span class="prop-hint"><i class="fas fa-info-circle" aria-hidden="true"></i> Click on the PDF to place a link, then enter the URL</span>
+            </div>
+        </div>
+
+        <!-- Main Content Area -->
+        <div class="editor-body">
+            <!-- Sidebar / Page Thumbnails -->
+            <aside class="sidebar" id="sidebar" aria-label="Page thumbnails">
+                <div class="sidebar-header">
+                    <h2>Pages</h2>
+                    <button class="icon-btn-sm" id="add-page-btn" title="Add Blank Page" aria-label="Add blank page at end of document">
+                        <i class="fas fa-plus" aria-hidden="true"></i>
+                    </button>
+                </div>
+                <div class="page-thumbnails" id="page-thumbnails" role="list" aria-label="Document pages">
+                    <!-- Thumbnails rendered dynamically -->
+                </div>
+            </aside>
+
+            <!-- PDF Viewer Area -->
+            <main class="viewer-area" id="viewer-area">
+                <!-- Page Controls -->
+                <div class="page-controls" id="page-controls" role="toolbar" aria-label="Page navigation and zoom controls">
+                    <div class="page-nav" aria-label="Current page">
+                        <span class="page-indicator" id="page-indicator" aria-live="polite" aria-atomic="true">1</span>
+                        <span class="page-separator" aria-hidden="true">/</span>
+                        <span class="total-pages" id="total-pages">1</span>
+                    </div>
+                    <div class="zoom-controls" role="group" aria-label="Zoom controls">
+                        <button class="ctrl-btn" id="zoom-out" title="Zoom Out" aria-label="Zoom out"><i class="fas fa-search-minus" aria-hidden="true"></i></button>
+                        <span class="zoom-level" id="zoom-level" aria-live="polite" aria-atomic="true">100%</span>
+                        <button class="ctrl-btn" id="zoom-in" title="Zoom In" aria-label="Zoom in"><i class="fas fa-search-plus" aria-hidden="true"></i></button>
+                        <button class="ctrl-btn" id="zoom-fit" title="Fit to Width" aria-label="Fit page to window width"><i class="fas fa-expand" aria-hidden="true"></i></button>
+                    </div>
+                    <div class="page-actions" role="group" aria-label="Page actions">
+                        <button class="ctrl-btn" id="rotate-left" title="Rotate Left 90°" aria-label="Rotate current page left 90 degrees"><i class="fas fa-undo" aria-hidden="true"></i></button>
+                        <button class="ctrl-btn" id="rotate-right" title="Rotate Right 90°" aria-label="Rotate current page right 90 degrees"><i class="fas fa-redo" aria-hidden="true"></i></button>
+                        <button class="ctrl-btn insert-page-btn" id="insert-page-inline" title="Insert blank page after current" aria-label="Insert a blank page after the current page">
+                            <i class="fas fa-plus-circle" aria-hidden="true"></i> Insert page here
+                        </button>
+                    </div>
+                </div>
+
+                <!-- PDF Canvas Container -->
+                <div class="pdf-container" id="pdf-container" role="document" aria-label="PDF document viewer">
+                    <div class="pdf-page-wrapper" id="pdf-page-wrapper">
+                        <canvas id="pdf-canvas" aria-label="PDF page rendering canvas" role="img"></canvas>
+                        <div class="text-layer" id="text-layer" aria-label="Existing PDF text — click to edit" role="region">
+                            <!-- Existing PDF text items rendered here for editing -->
+                        </div>
+                        <div class="annotation-layer" id="annotation-layer" aria-label="Annotation layer" role="region">
+                            <!-- Editable elements go here -->
+                        </div>
+                    </div>
+                </div>
+            </main>
+            <aside class="ai-sidebar collapsed" id="ai-sidebar" aria-label="Private document assistant">
+                <div class="ai-header">
+                    <div>
+                        <span class="ai-eyebrow"><i class="fas fa-shield-halved" aria-hidden="true"></i> Private &amp; on-device</span>
+                        <h2>Document intelligence</h2>
+                    </div>
+                    <button class="icon-btn-sm" id="close-ai" aria-label="Close assistant"><i class="fas fa-times" aria-hidden="true"></i></button>
+                </div>
+                <div class="engine-status" aria-label="Engine capabilities">
+                    <span class="status-pill" id="status-gpu"><i class="fas fa-circle"></i> GPU checking</span>
+                    <span class="status-pill" id="status-storage"><i class="fas fa-circle"></i> OPFS checking</span>
+                    <span class="status-pill" id="status-memory"><i class="fas fa-circle"></i> Worker checking</span>
+                </div>
+                <div class="ai-actions">
+                    <button class="ai-action" id="ai-summarize"><i class="fas fa-align-left"></i><span><strong>Summarize</strong><small>Find the document’s key points</small></span></button>
+                    <button class="ai-action" id="ai-scan-pii"><i class="fas fa-user-secret"></i><span><strong>Scan sensitive data</strong><small>Find PII before sharing</small></span></button>
+                </div>
+                <div class="ai-messages" id="ai-messages" aria-live="polite">
+                    <div class="ai-message assistant">Your PDF stays on this device. Ask about a clause, name, amount, date, or topic and I’ll cite the relevant pages.</div>
+                </div>
+                <form class="ai-composer" id="ai-form">
+                    <label class="sr-only" for="ai-input">Ask this PDF</label>
+                    <textarea id="ai-input" rows="2" placeholder="Ask this PDF…" required></textarea>
+                    <button type="submit" id="ai-send" aria-label="Send question"><i class="fas fa-arrow-up"></i></button>
+                </form>
+            </aside>
+        </div>
+    </div>
+
+    <!-- Signature Modal -->
+    <div class="modal-overlay hidden" id="signature-modal" role="dialog" aria-modal="true" aria-labelledby="sig-modal-title" aria-hidden="true">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="sig-modal-title">Create Signature</h3>
+                <!-- A11Y-08 FIX: aria-label on close buttons -->
+                <button class="modal-close" id="sig-modal-close" aria-label="Close signature dialog">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="modal-tabs" role="tablist" aria-label="Signature type">
+                <button class="modal-tab active" data-tab="draw" role="tab" aria-selected="true" aria-controls="sig-draw">Draw</button>
+                <button class="modal-tab" data-tab="type" role="tab" aria-selected="false" aria-controls="sig-type">Type</button>
+                <button class="modal-tab" data-tab="upload" role="tab" aria-selected="false" aria-controls="sig-upload">Upload</button>
+            </div>
+            <div class="modal-body">
+                <div class="sig-tab-content active" id="sig-draw" role="tabpanel" aria-labelledby="sig-draw-tab">
+                    <canvas id="sig-canvas" width="500" height="200" role="img" aria-label="Draw your signature here"></canvas>
+                    <div class="sig-actions">
+                        <button class="btn-secondary" id="sig-clear" type="button">Clear</button>
+                    </div>
+                </div>
+                <div class="sig-tab-content" id="sig-type" role="tabpanel" aria-labelledby="sig-type-tab">
+                    <input type="text" id="sig-text-input" class="sig-text-input" placeholder="Type your signature..." aria-label="Type your signature">
+                    <div class="sig-font-options" id="sig-font-options" role="radiogroup" aria-label="Signature font style">
+                        <button class="sig-font active" data-font="'Dancing Script', cursive" style="font-family: 'Dancing Script', cursive;" aria-pressed="true">Signature</button>
+                        <button class="sig-font" data-font="'Great Vibes', cursive" style="font-family: 'Great Vibes', cursive;" aria-pressed="false">Signature</button>
+                        <button class="sig-font" data-font="'Caveat', cursive" style="font-family: 'Caveat', cursive;" aria-pressed="false">Signature</button>
+                    </div>
+                </div>
+                <div class="sig-tab-content" id="sig-upload" role="tabpanel" aria-labelledby="sig-upload-tab">
+                    <div class="sig-upload-zone" id="sig-upload-zone" role="button" tabindex="0" aria-label="Click to upload signature image">
+                        <i class="fas fa-upload" aria-hidden="true"></i>
+                        <p>Upload signature image</p>
+                        <label for="sig-file-input" class="sr-only">Upload signature image file</label>
+                        <input type="file" id="sig-file-input" accept="image/*" aria-label="Upload signature image">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="sig-cancel" type="button">Cancel</button>
+                <button class="btn-primary" id="sig-apply" type="button">Apply Signature</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Link Modal -->
+    <div class="modal-overlay hidden" id="link-modal" role="dialog" aria-modal="true" aria-labelledby="link-modal-title" aria-hidden="true">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 id="link-modal-title">Add Link</h3>
+                <button class="modal-close" id="link-modal-close" aria-label="Close link dialog">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="link-text">Display Text</label>
+                    <input type="text" id="link-text" class="form-input" placeholder="Click here" aria-label="Link display text">
+                </div>
+                <div class="form-group">
+                    <label for="link-url">URL <span class="required" aria-hidden="true">*</span></label>
+                    <input type="url" id="link-url" class="form-input" placeholder="https://example.com" aria-label="Link URL" aria-required="true" autocomplete="url">
+                    <small class="form-hint">Only http:// and https:// links are allowed.</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="link-cancel" type="button">Cancel</button>
+                <button class="btn-primary" id="link-apply" type="button">Add Link</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comment Modal -->
+    <div class="modal-overlay hidden" id="comment-modal" role="dialog" aria-modal="true" aria-labelledby="comment-modal-title" aria-hidden="true">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 id="comment-modal-title">Add Comment</h3>
+                <button class="modal-close" id="comment-modal-close" aria-label="Close comment dialog">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="comment-text">Comment <span class="required" aria-hidden="true">*</span></label>
+                    <textarea id="comment-text" class="form-textarea" placeholder="Type your comment..." aria-label="Comment text" aria-required="true"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="comment-cancel" type="button">Cancel</button>
+                <button class="btn-primary" id="comment-apply" type="button">Add Comment</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Confirm Modal -->
+    <div class="modal-overlay hidden" id="confirm-modal" role="alertdialog" aria-modal="true" aria-labelledby="confirm-modal-title" aria-describedby="confirm-modal-msg" aria-hidden="true">
+        <div class="modal modal-sm">
+            <div class="modal-header">
+                <h3 id="confirm-modal-title">Confirm Action</h3>
+                <button class="modal-close" id="confirm-modal-close" aria-label="Close confirm dialog">
+                    <i class="fas fa-times" aria-hidden="true"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="confirm-modal-msg" style="margin-top: 10px; font-size: 1.1em;"></p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" id="confirm-cancel" type="button">Cancel</button>
+                <button class="btn-primary" id="confirm-apply" type="button">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div class="toast-container" id="toast-container" aria-label="Notifications" aria-live="polite"></div>
+
+    <!-- Hidden file inputs -->
+    <label for="image-upload-input" class="sr-only">Upload an image to insert into the PDF</label>
+    <input type="file" id="image-upload-input" accept="image/*" aria-label="Upload image">
+
+    <!-- Main app script -->
+    <script type="module" src="js/app.js"></script>
+</body>
+</html>

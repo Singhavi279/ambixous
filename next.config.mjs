@@ -1,8 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // PDF Studio is mounted at a directory URL so its relative assets resolve
-  // beneath /pdfstudio/ instead of from the site root.
-  skipTrailingSlashRedirect: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -33,18 +30,13 @@ const nextConfig = {
         destination: "/creator-fellowship/cohort-1",
         permanent: true,
       },
-      {
-        source: "/pdfstudio",
-        destination: "/pdfstudio/",
-        permanent: true,
-      },
     ]
   },
   async rewrites() {
     return [
       {
-        source: "/pdfstudio/:path*",
-        destination: "https://singhavi279.github.io/pdf-studio/:path*",
+        source: "/pdfstudio",
+        destination: "/pdfstudio/index.html",
       },
     ]
   },
