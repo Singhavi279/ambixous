@@ -30,6 +30,41 @@ const nextConfig = {
         destination: "/creator-fellowship/cohort-1",
         permanent: true,
       },
+      {
+        source: "/pdfstudio",
+        destination: "/pdfstudio/",
+        permanent: true,
+      },
+    ]
+  },
+  async rewrites() {
+    return [
+      {
+        source: "/pdfstudio/:path*",
+        destination: "https://singhavi279.github.io/pdf-studio/:path*",
+      },
+    ]
+  },
+  async headers() {
+    return [
+      {
+        source: "/pdfstudio/:path*",
+        headers: [
+          { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
+          { key: "Cross-Origin-Embedder-Policy", value: "credentialless" },
+          { key: "Origin-Agent-Cluster", value: "?1" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          {
+            key: "Referrer-Policy",
+            value: "strict-origin-when-cross-origin",
+          },
+          {
+            key: "Permissions-Policy",
+            value: "camera=(), microphone=(), geolocation=()",
+          },
+        ],
+      },
     ]
   },
 }
