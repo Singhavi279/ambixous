@@ -19,6 +19,7 @@ Registered Address: 1st Floor, A-23, Hardware Paints and Tools Aggarwal Electric
 - [Mentors](https://www.ambixous.in/mentors): Mentor directory with founders, growth leaders, and professionals.
 - [Creator Fellowship Cohort 1](https://www.ambixous.in/creator-fellowship/cohort-1): Creator Fellowship landing page with cohort details, fellows, mentors, curriculum, timeline, FAQ, and calls-to-action.
 - [ACE](https://ace.ambixous.in): External ACE interview-prep and career-studio product linked from the main navigation.
+- [PDF Studio by Ambixous](https://ambixous.in/pdfstudio): Free, unlimited browser-based PDF editor for editing text, moving images and logos, signing, annotating, and downloading PDFs without uploading document contents.
 
 ## Additional Public URLs
 

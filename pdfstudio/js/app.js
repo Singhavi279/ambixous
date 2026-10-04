@@ -135,6 +135,11 @@ const dom = {
     signatureModal: document.getElementById('signature-modal'),
     linkModal: document.getElementById('link-modal'),
     commentModal: document.getElementById('comment-modal'),
+    npsModal: document.getElementById('nps-modal'),
+    npsScale: document.getElementById('nps-scale'),
+    npsReasons: document.getElementById('nps-reasons'),
+    npsStatus: document.getElementById('nps-status'),
+    npsSubmit: document.getElementById('nps-submit'),
     
     sigCanvas: document.getElementById('sig-canvas'),
     imageUploadInput: document.getElementById('image-upload-input'),
@@ -180,6 +185,7 @@ async function init() {
     setupModals();
     setupKeyboard();
     setupSidebar();
+    setupNps();
     selectTool('select');
     setupAssistant();
     updateCapabilityStatus(gpuActive);
@@ -359,13 +365,15 @@ async function renderPage(pageNum) {
         displayContext.drawImage(canvas, 0, 0);
     }
     
-    // Render text layer for editing existing content
-    await renderTextLayer(page, viewport, pageNum);
-    if (revision !== state.renderRevision) return;
-    
-    // Render annotation elements for this page
+    // Render annotations first. Existing-text replacement masks live in the
+    // annotation layer and must be added after this clear-and-rebuild step.
     renderElements(pageNum);
     renderFreehandPaths(pageNum);
+
+    // Render text and its replacement masks last so edited/deleted originals
+    // cannot reappear underneath a newly drawn text layer.
+    await renderTextLayer(page, viewport, pageNum);
+    if (revision !== state.renderRevision) return;
 }
 
 // PERF-01 FIX: parallel thumbnail rendering using Promise.all + IntersectionObserver lazy rendering
@@ -2564,16 +2572,24 @@ function setupKeyboard() {
         // Delete selected element
         if (e.key === 'Delete' || e.key === 'Backspace') {
             const selected = document.querySelector('.edit-element.selected');
+            const selectedText = document.querySelector('.text-layer-item.selected');
             if (selected && document.activeElement.tagName !== 'INPUT' &&
                 !document.activeElement.isContentEditable) {
                 e.preventDefault();
                 removeElement(state.currentPage, selected.dataset.id);
                 showToast('Selected element deleted', 'info');
+            } else if (selectedText && document.activeElement.tagName !== 'INPUT' &&
+                !document.activeElement.isContentEditable) {
+                e.preventDefault();
+                const pageNum = Number(selectedText.dataset.pageNum);
+                const itemIndex = Number(selectedText.dataset.index);
+                const itemData = state.pageTextItems[pageNum]?.find(item => item.index === itemIndex);
+                if (itemData) deleteExistingText(itemData, pageNum);
             }
         }
 
         if (e.key === 'Escape') {
-            document.querySelectorAll('.edit-element.selected').forEach(element => element.classList.remove('selected'));
+            document.querySelectorAll('.edit-element.selected, .text-layer-item.selected').forEach(element => element.classList.remove('selected'));
         }
         
         // Page navigation
@@ -2673,6 +2689,147 @@ function redo() {
     
     renderPage(state.currentPage);
     showToast('Redone', 'info');
+}
+
+// =============================================
+// Download-time NPS
+// =============================================
+const NPS_SUBMITTED_AT_KEY = 'pdfstudio-nps-submitted-at';
+const NPS_DISMISSED_AT_KEY = 'pdfstudio-nps-dismissed-at';
+let selectedNpsScore = null;
+
+function setupNps() {
+    if (!dom.npsModal || !dom.npsScale) return;
+
+    for (let score = 0; score <= 10; score++) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'nps-score';
+        button.textContent = String(score);
+        button.setAttribute('role', 'radio');
+        button.setAttribute('aria-label', `${score} out of 10`);
+        button.setAttribute('aria-checked', 'false');
+        button.addEventListener('click', () => selectNpsScore(score));
+        dom.npsScale.appendChild(button);
+    }
+
+    document.getElementById('nps-close').addEventListener('click', () => closeNps(true));
+    document.getElementById('nps-skip').addEventListener('click', () => closeNps(true));
+    dom.npsSubmit.addEventListener('click', submitNps);
+    dom.npsModal.addEventListener('click', event => {
+        if (event.target === dom.npsModal) closeNps(true);
+    });
+}
+
+function selectNpsScore(score) {
+    selectedNpsScore = score;
+    dom.npsScale.querySelectorAll('.nps-score').forEach((button, index) => {
+        const selected = index === score;
+        button.classList.toggle('selected', selected);
+        button.setAttribute('aria-checked', String(selected));
+    });
+    dom.npsReasons.classList.remove('hidden');
+    dom.npsSubmit.disabled = false;
+}
+
+function shouldPromptForNps() {
+    try {
+        const submittedAt = Number(localStorage.getItem(NPS_SUBMITTED_AT_KEY) || 0);
+        const dismissedAt = Number(localStorage.getItem(NPS_DISMISSED_AT_KEY) || 0);
+        const now = Date.now();
+        return now - submittedAt > 90 * 24 * 60 * 60 * 1000 &&
+            now - dismissedAt > 7 * 24 * 60 * 60 * 1000;
+    } catch {
+        return true;
+    }
+}
+
+function openNpsAfterDownload() {
+    if (!dom.npsModal || !shouldPromptForNps()) return;
+    selectedNpsScore = null;
+    dom.npsScale.querySelectorAll('.nps-score').forEach(button => {
+        button.classList.remove('selected');
+        button.setAttribute('aria-checked', 'false');
+    });
+    dom.npsReasons.classList.add('hidden');
+    dom.npsReasons.querySelectorAll('input').forEach(input => { input.checked = false; });
+    dom.npsSubmit.disabled = true;
+    dom.npsStatus.textContent = '';
+    dom.npsModal.classList.remove('hidden');
+    dom.npsModal.removeAttribute('aria-hidden');
+    trapFocus(dom.npsModal);
+    dom.npsScale.querySelector('.nps-score')?.focus();
+}
+
+function closeNps(markDismissed = false) {
+    if (!dom.npsModal) return;
+    if (markDismissed) {
+        try { localStorage.setItem(NPS_DISMISSED_AT_KEY, String(Date.now())); } catch { /* storage unavailable */ }
+    }
+    releaseFocusTrap(dom.npsModal);
+    dom.npsModal.classList.add('hidden');
+    dom.npsModal.setAttribute('aria-hidden', 'true');
+}
+
+async function submitNps() {
+    if (selectedNpsScore === null) return;
+    dom.npsSubmit.disabled = true;
+    dom.npsStatus.textContent = 'Sending anonymous feedback…';
+
+    const reason = dom.npsReasons.querySelector('input[name="nps-reason"]:checked')?.value || null;
+    const context = getAnonymousEditingContext();
+    const submissionId = typeof crypto.randomUUID === 'function'
+        ? crypto.randomUUID()
+        : `${Date.now()}-${Math.random().toString(36).slice(2)}`;
+
+    try {
+        const response = await fetch('/api/pdfstudio/nps', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                submissionId,
+                score: selectedNpsScore,
+                reason,
+                ...context,
+            }),
+        });
+        if (!response.ok) throw new Error(`Feedback service returned ${response.status}`);
+        try { localStorage.setItem(NPS_SUBMITTED_AT_KEY, String(Date.now())); } catch { /* storage unavailable */ }
+        dom.npsStatus.textContent = 'Thank you — your feedback was saved.';
+        setTimeout(() => closeNps(false), 900);
+    } catch (error) {
+        console.warn('NPS submission failed:', error);
+        dom.npsStatus.textContent = 'Feedback could not be saved. Please try again.';
+        dom.npsSubmit.disabled = false;
+    }
+}
+
+function getAnonymousEditingContext() {
+    const featureSet = new Set();
+    let editCount = 0;
+
+    for (const elements of Object.values(state.elements)) {
+        for (const element of elements) {
+            editCount++;
+            const type = element.type === 'object' ? 'object-capture' : element.type;
+            if (type) featureSet.add(type);
+        }
+    }
+    for (const paths of Object.values(state.freehandPaths)) {
+        if (paths.length) featureSet.add('freehand');
+        editCount += paths.length;
+    }
+    for (const changes of Object.values(state.modifiedText)) {
+        const count = Object.keys(changes).length;
+        if (count) featureSet.add('existing-text');
+        editCount += count;
+    }
+
+    return {
+        pageCount: state.totalPages || null,
+        editCount,
+        featuresUsed: [...featureSet],
+    };
 }
 
 // =============================================
@@ -2912,8 +3069,10 @@ async function savePDF() {
                     
                     const font = await getFont(fontEnum);
                     
-                    // Measure original text width for whiteout
-                    const origWidth = font.widthOfTextAtSize(mod.originalText, fontSize);
+                    // Use the width extracted from the original PDF whenever possible.
+                    // Measuring with a substitute font can leave parts of the source text visible.
+                    const measuredWidth = font.widthOfTextAtSize(mod.originalText, fontSize);
+                    const origWidth = Math.max(Number(mod.originalWidth) || measuredWidth, 1);
                     
                     const origX = mod.origPdfX !== undefined ? mod.origPdfX : mod.pdfX;
                     const origY = mod.origPdfY !== undefined ? mod.origPdfY : mod.pdfY;
@@ -2931,15 +3090,17 @@ async function savePDF() {
                         color: bgColor,
                     });
                     
-                    // Draw modified text at same position
-                    const textColor = mod.color ? hexToRgb(mod.color) : PDFLib.rgb(0, 0, 0);
-                    page.drawText(mod.newText, {
-                        x: x,
-                        y: y,
-                        size: fontSize,
-                        font,
-                        color: textColor,
-                    });
+                    // Deleted text stops after the destructive cover operation.
+                    if (!mod.deleted && mod.newText) {
+                        const textColor = mod.color ? hexToRgb(mod.color) : PDFLib.rgb(0, 0, 0);
+                        page.drawText(mod.newText, {
+                            x: x,
+                            y: y,
+                            size: fontSize,
+                            font,
+                            color: textColor,
+                        });
+                    }
                 } catch (modErr) {
                     console.warn('Failed to embed modified text:', modErr);
                 }
@@ -2968,6 +3129,8 @@ async function savePDF() {
         state.dirty = false;
         hideLoading();
         showToast('PDF saved successfully!', 'success');
+        // Feedback is requested only after the browser has started the PDF download.
+        setTimeout(openNpsAfterDownload, 450);
     } catch (err) {
         hideLoading();
         showToast('Failed to save PDF: ' + err.message, 'error');
@@ -3168,18 +3331,22 @@ async function renderTextLayer(page, viewport, pageNum) {
             origPdfX: pdfX,
             origPdfY: pdfY,
             pdfFontSize,
+            originalWidth: item.width || (item.maxX - item.minX),
             modified: false,
+            deleted: false,
         };
         
         // Check if this item was previously modified
         if (state.modifiedText[pageNum] && state.modifiedText[pageNum][index]) {
             const mod = state.modifiedText[pageNum][index];
-            itemData.currentText = mod.newText;
+            itemData.currentText = mod.deleted ? itemData.originalText : mod.newText;
             itemData.pdfX = mod.pdfX;
             itemData.pdfY = mod.pdfY;
             itemData.origPdfX = mod.origPdfX !== undefined ? mod.origPdfX : pdfX;
             itemData.origPdfY = mod.origPdfY !== undefined ? mod.origPdfY : pdfY;
+            itemData.originalWidth = mod.originalWidth || itemData.originalWidth;
             itemData.modified = true;
+            itemData.deleted = Boolean(mod.deleted);
             itemData.color = mod.color || '#000000';
             
             // Recompute screen position from PDF offsets
@@ -3193,7 +3360,7 @@ async function renderTextLayer(page, viewport, pageNum) {
         
         // Create the text span element
         const span = document.createElement('span');
-        span.className = 'text-layer-item' + (itemData.modified ? ' modified' : '');
+        span.className = 'text-layer-item' + (itemData.modified ? ' modified' : '') + (itemData.deleted ? ' deleted' : '');
         span.textContent = itemData.currentText;
         span.dataset.index = index;
         span.dataset.pageNum = pageNum;
@@ -3221,6 +3388,7 @@ async function renderTextLayer(page, viewport, pageNum) {
         
         // Double-click to edit existing text
         span.addEventListener('dblclick', (e) => {
+            if (itemData.deleted) return;
             e.stopPropagation();
             e.preventDefault();
             startEditingText(span, itemData, pageNum);
@@ -3232,6 +3400,10 @@ async function renderTextLayer(page, viewport, pageNum) {
                 e.stopPropagation();
                 e.preventDefault();
                 startEditingText(span, itemData, pageNum);
+            } else if (state.activeTool === 'select') {
+                e.stopPropagation();
+                document.querySelectorAll('.edit-element.selected, .text-layer-item.selected').forEach(element => element.classList.remove('selected'));
+                span.classList.add('selected');
             }
         });
         
@@ -3286,7 +3458,10 @@ async function renderTextLayer(page, viewport, pageNum) {
             let startX, startY, origLeft, origTop, startPdfX, startPdfY;
             
             const onStart = (e) => {
-                if (span.classList.contains('editing') || state.activeTool === 'text') return;
+                if (span.classList.contains('editing') || itemData.deleted || state.activeTool === 'text') return;
+
+                document.querySelectorAll('.edit-element.selected, .text-layer-item.selected').forEach(element => element.classList.remove('selected'));
+                span.classList.add('selected');
                 
                 isDragging = true;
                 
@@ -3362,6 +3537,7 @@ async function renderTextLayer(page, viewport, pageNum) {
                         origPdfX: itemData.origPdfX,
                         origPdfY: itemData.origPdfY,
                         pdfFontSize: itemData.pdfFontSize,
+                        originalWidth: itemData.originalWidth,
                         bgColor: itemData.bgColor,
                         color: itemData.color,
                     };
@@ -3418,6 +3594,70 @@ function sampleForegroundColor(x, y, width, height, background = { r: 255, g: 25
         console.warn('Could not sample original text color:', error);
     }
     return '#000000';
+}
+
+function deleteExistingText(itemData, pageNum) {
+    const displayWidth = Math.max(2, (itemData.originalWidth || itemData.fontSize * 3) * state.zoom * 1.5);
+    if (!itemData.bgColor) {
+        itemData.bgColor = sampleBackgroundColor(
+            itemData.screenX,
+            itemData.screenY,
+            displayWidth,
+            itemData.fontSize,
+        );
+    }
+
+    if (!state.modifiedText[pageNum]) state.modifiedText[pageNum] = {};
+    state.modifiedText[pageNum][itemData.index] = {
+        originalText: itemData.originalText,
+        newText: '',
+        deleted: true,
+        transform: itemData.transform,
+        fontName: itemData.fontName,
+        pdfX: itemData.pdfX,
+        pdfY: itemData.pdfY,
+        origPdfX: itemData.origPdfX,
+        origPdfY: itemData.origPdfY,
+        pdfFontSize: itemData.pdfFontSize,
+        originalWidth: itemData.originalWidth,
+        bgColor: itemData.bgColor,
+        color: itemData.color || '#000000',
+    };
+
+    saveHistory();
+    renderPage(pageNum).catch(error => console.warn('Could not refresh deleted text:', error));
+    showToast('Existing text deleted — the original area will be removed on download', 'success');
+}
+
+function sampleBackgroundColor(x, y, width, height) {
+    try {
+        const canvas = state.rasterCanvas;
+        const context = canvas.getContext('2d', { willReadFrequently: true });
+        const candidates = [
+            [x - 3, y + height / 2],
+            [x + width + 3, y + height / 2],
+            [x + width / 2, y - 3],
+            [x + width / 2, y + height + 3],
+        ];
+        const samples = candidates
+            .filter(([sampleX, sampleY]) => sampleX >= 0 && sampleY >= 0 && sampleX < canvas.width && sampleY < canvas.height)
+            .map(([sampleX, sampleY]) => context.getImageData(Math.floor(sampleX), Math.floor(sampleY), 1, 1).data)
+            .filter(pixel => pixel[3] > 0);
+        if (samples.length) {
+            const total = samples.reduce((result, pixel) => {
+                result.r += pixel[0]; result.g += pixel[1]; result.b += pixel[2];
+                return result;
+            }, { r: 0, g: 0, b: 0 });
+            return {
+                r: Math.round(total.r / samples.length),
+                g: Math.round(total.g / samples.length),
+                b: Math.round(total.b / samples.length),
+            };
+        }
+    } catch (error) {
+        console.warn('Could not sample text background:', error);
+    }
+    return { r: 255, g: 255, b: 255 };
 }
 
 function startEditingText(span, itemData, pageNum) {
@@ -3489,11 +3729,20 @@ function finishEditingText(span, itemData, pageNum) {
     }
     
     const newText = span.textContent.trim();
+
+    if (!newText) {
+        deleteExistingText(itemData, pageNum);
+        return;
+    }
     
-    if (newText && newText !== itemData.originalText) {
+    if (newText !== itemData.originalText) {
         // Text was modified
         itemData.currentText = newText;
         itemData.modified = true;
+        if (!itemData.bgColor) {
+            const displayWidth = Math.max(2, (itemData.originalWidth || itemData.fontSize * 3) * state.zoom * 1.5);
+            itemData.bgColor = sampleBackgroundColor(itemData.screenX, itemData.screenY, displayWidth, itemData.fontSize);
+        }
         span.classList.add('modified');
         span.textContent = newText;
         
@@ -3509,14 +3758,16 @@ function finishEditingText(span, itemData, pageNum) {
             origPdfX: itemData.origPdfX,
             origPdfY: itemData.origPdfY,
             pdfFontSize: itemData.pdfFontSize,
+            originalWidth: itemData.originalWidth,
             bgColor: itemData.bgColor,
             color: itemData.color || '#000000',
         };
         
         saveHistory();
-        showToast('Text modified — will be applied on save', 'success');
-    } else if (!newText || newText === itemData.originalText) {
-        // Reverted or empty → remove modification
+        renderPage(pageNum).catch(error => console.warn('Could not refresh edited text:', error));
+        showToast('Text replaced — the original area will be removed on download', 'success');
+    } else {
+        // Reverted to the original text → remove modification
         span.textContent = itemData.originalText;
         itemData.currentText = itemData.originalText;
         itemData.modified = false;

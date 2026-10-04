@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     },
 }
 
-const LAST_UPDATED = "10 June 2026"
+const LAST_UPDATED = "4 October 2026"
 
 export default function PrivacyPolicyPage() {
     return (
@@ -78,6 +78,16 @@ export default function PrivacyPolicyPage() {
                         hosting infrastructure we may automatically collect IP address,
                         browser type, device information, pages viewed, referring URLs, and
                         similar diagnostic data.
+                    </li>
+                    <li>
+                        <strong>PDF Studio documents &amp; feedback.</strong> PDF files opened
+                        in PDF Studio are processed locally in your browser and are not
+                        uploaded to Ambixous. Only after a successful PDF download, we may
+                        invite you to submit an optional anonymous recommendation score and
+                        a predefined reason. That feedback record may include the time,
+                        document page count, number of edits, and broad feature categories;
+                        it does not include PDF content, filenames, IP addresses, free-text
+                        comments, or browser identifiers.
                     </li>
                     <li>
                         <strong>Cookies &amp; similar technologies.</strong> See the
