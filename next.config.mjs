@@ -1,5 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // PDF Studio is mounted at a directory URL so its relative assets resolve
+  // beneath /pdfstudio/ instead of from the site root.
+  skipTrailingSlashRedirect: true,
   eslint: {
     ignoreDuringBuilds: true,
   },
