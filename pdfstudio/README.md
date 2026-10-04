@@ -44,3 +44,13 @@ npm run build
 
 PDF contents remain in the browser. The application does not upload opened
 documents to an application server.
+
+## Ambixous integration
+
+The Ambixous repository builds this source into `public/pdfstudio/` before
+running Next.js. The production route is `https://ambixous.in/pdfstudio`.
+
+Anonymous NPS responses are requested only after a successful PDF download and
+stored in `data/pdfstudionps.json` on the `pdfstudio-nps-data` branch. Responses
+contain the score, selected reason, timestamp, page/edit counts, and feature
+categories. PDF contents, IP addresses, and browser identifiers are never saved.
