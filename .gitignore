@@ -18,6 +18,7 @@
 # production
 /build
 /dist
+/public/pdfstudio/
 
 # debug
 npm-debug.log*
