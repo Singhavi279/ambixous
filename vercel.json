@@ -4,5 +4,8 @@
     "deploymentEnabled": {
       "pdfstudio-nps-data": false
     }
-  }
+  },
+  "regions": [
+    "bom1"
+  ]
 }
