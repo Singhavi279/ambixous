@@ -29,7 +29,7 @@ export async function GET() {
   return NextResponse.json(
     {
       ready: isNpsStorageConfigured(),
-      storage: isNpsStorageConfigured() ? "github-json" : "local-json",
+      storage: isNpsStorageConfigured() ? "turso" : "local-sqlite",
       privacy: "anonymous-no-network-or-device-identifiers",
     },
     { headers: { "Cache-Control": "no-store" } },

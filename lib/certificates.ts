@@ -1,5 +1,4 @@
-import * as fs from "fs"
-import * as path from "path"
+import { getDb } from "@/lib/db"
 
 export interface Certificate {
     id: string
@@ -13,102 +12,58 @@ export interface Certificate {
     created_at?: string
 }
 
-interface CertificatesData {
-    certificates: Certificate[]
-}
-
-const DATA_PATH = path.join(process.cwd(), "data", "certificates.json")
-
-const GITHUB_TOKEN = process.env.GITHUB_TOKEN
-const GITHUB_REPO = process.env.GITHUB_REPO
-const GITHUB_BRANCH = process.env.GITHUB_BRANCH || "main"
-const GITHUB_FILE_PATH = "data/certificates.json"
-
-async function readData(): Promise<{ data: CertificatesData; sha: string }> {
-    if (GITHUB_TOKEN && GITHUB_REPO) {
-        const res = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}?ref=${GITHUB_BRANCH}`,
-            {
-                headers: {
-                    Authorization: `Bearer ${GITHUB_TOKEN}`,
-                    Accept: "application/vnd.github+json",
-                },
-                cache: "no-store",
-            }
-        )
-        if (!res.ok) throw new Error(`GitHub API read failed: ${res.status}`)
-        const json = await res.json()
-        const content = Buffer.from(json.content, "base64").toString("utf-8")
-        return { data: JSON.parse(content) as CertificatesData, sha: json.sha }
+function rowToCertificate(row: Record<string, unknown>): Certificate {
+    return {
+        id: String(row.id),
+        candidate_name: String(row.candidate_name),
+        designation: String(row.designation),
+        domain: String(row.domain),
+        tenure_start: String(row.tenure_start ?? ""),
+        tenure_end: String(row.tenure_end ?? ""),
+        issued_at: String(row.issued_at),
+        created_by: String(row.created_by),
+        created_at: String(row.created_at),
     }
-    // Local dev fallback
-    const raw = fs.readFileSync(DATA_PATH, "utf-8")
-    return { data: JSON.parse(raw) as CertificatesData, sha: "" }
-}
-
-async function writeData(data: CertificatesData, sha: string, commitMessage: string): Promise<void> {
-    if (GITHUB_TOKEN && GITHUB_REPO) {
-        const content = Buffer.from(JSON.stringify(data, null, 2)).toString("base64")
-        const res = await fetch(
-            `https://api.github.com/repos/${GITHUB_REPO}/contents/${GITHUB_FILE_PATH}`,
-            {
-                method: "PUT",
-                headers: {
-                    Authorization: `Bearer ${GITHUB_TOKEN}`,
-                    Accept: "application/vnd.github+json",
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    message: commitMessage,
-                    content,
-                    sha,
-                    branch: GITHUB_BRANCH,
-                }),
-            }
-        )
-        if (!res.ok) {
-            const err = await res.json()
-            throw new Error(`GitHub API write failed: ${err.message}`)
-        }
-        return
-    }
-    // Local dev fallback
-    fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2), "utf-8")
 }
 
 export async function getAllCertificates(): Promise<Certificate[]> {
-    const { data } = await readData()
-    return data.certificates.sort((a, b) => {
-        const dateA = a.created_at ? new Date(a.created_at).getTime() : 0
-        const dateB = b.created_at ? new Date(b.created_at).getTime() : 0
-        return dateB - dateA
-    })
+    const db = await getDb()
+    const result = await db.execute("SELECT * FROM certificates ORDER BY created_at DESC")
+    return result.rows.map((r) => rowToCertificate(r as unknown as Record<string, unknown>))
 }
 
 export async function getCertificateById(id: string): Promise<Certificate | null> {
-    const { data } = await readData()
-    return data.certificates.find((c) => c.id === id) || null
+    const db = await getDb()
+    const result = await db.execute({ sql: "SELECT * FROM certificates WHERE id = ?", args: [id] })
+    return result.rows[0] ? rowToCertificate(result.rows[0] as unknown as Record<string, unknown>) : null
 }
 
 export async function saveCertificate(certificate: Certificate): Promise<{ success: boolean; error?: string }> {
-    const { data, sha } = await readData()
-
-    if (data.certificates.some((c) => c.id === certificate.id)) {
+    const db = await getDb()
+    const result = await db.execute({
+        sql: `INSERT OR IGNORE INTO certificates
+            (id, candidate_name, designation, domain, tenure_start, tenure_end, issued_at, created_by, created_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+        args: [
+            certificate.id,
+            certificate.candidate_name,
+            certificate.designation,
+            certificate.domain,
+            certificate.tenure_start,
+            certificate.tenure_end,
+            certificate.issued_at,
+            certificate.created_by,
+            certificate.created_at || new Date().toISOString(),
+        ],
+    })
+    if (result.rowsAffected === 0) {
         return { success: false, error: "Certificate ID already exists" }
     }
-
-    data.certificates.push({
-        ...certificate,
-        created_at: certificate.created_at || new Date().toISOString(),
-    })
-
-    await writeData(data, sha, `Add certificate ${certificate.id}`)
     return { success: true }
 }
 
 export async function isDuplicateId(id: string): Promise<boolean> {
-    const { data } = await readData()
-    return data.certificates.some((c) => c.id === id)
+    return (await getCertificateById(id)) !== null
 }
 
 export async function generateCertificateId(): Promise<string> {
@@ -118,19 +73,17 @@ export async function generateCertificateId(): Promise<string> {
     const year = String(now.getFullYear()).slice(-2)
     const prefix = `AMBX${month}${year}`
 
-    const { data } = await readData()
+    const db = await getDb()
+    const result = await db.execute({
+        sql: "SELECT id FROM certificates WHERE id LIKE ?",
+        args: [`${prefix}%`],
+    })
 
-    const matching = data.certificates
-        .filter((c) => c.id.startsWith(prefix))
-        .map((c) => {
-            const match = c.id.match(/^AMBX[A-Z]{3}\d{2}(\d{4})$/)
-            return match ? parseInt(match[1]) : 0
-        })
+    const maxNum = result.rows
+        .map((r) => String(r.id).match(/^AMBX[A-Z]{3}\d{2}(\d{4})$/))
+        .reduce((max, m) => (m ? Math.max(max, parseInt(m[1])) : max), 0)
 
-    const maxNum = matching.length > 0 ? Math.max(...matching) : 0
-    const nextNum = maxNum + 1
-
-    return `${prefix}${String(nextNum).padStart(4, "0")}`
+    return `${prefix}${String(maxNum + 1).padStart(4, "0")}`
 }
 
 export function formatDate(dateStr: string | Date): string {
