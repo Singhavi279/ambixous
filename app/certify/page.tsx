@@ -4,6 +4,7 @@ import { useSession, signOut } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react"
 import { CertificateForm } from "@/components/certify/certificate-form"
+import { IssuedCertificates } from "@/components/certify/issued-certificates"
 import { CertificatePreview } from "@/components/certify/certificate-preview"
 import { LogOut, Shield } from "lucide-react"
 
@@ -33,6 +34,7 @@ export default function CertifyPage() {
     const [isSaving, setIsSaving] = useState(false)
     const [saveError, setSaveError] = useState<string | null>(null)
     const [saveSuccess, setSaveSuccess] = useState(false)
+    const [listRefreshKey, setListRefreshKey] = useState(0)
 
     useEffect(() => {
         if (status === "unauthenticated") {
@@ -81,6 +83,7 @@ export default function CertifyPage() {
                 }
             } else {
                 setSaveSuccess(true)
+                setListRefreshKey((k) => k + 1)
                 setTimeout(() => {
                     setFormData({
                         id: "",
@@ -175,6 +178,8 @@ export default function CertifyPage() {
                         </div>
                     </div>
                 </div>
+
+                <IssuedCertificates refreshKey={listRefreshKey} />
             </main>
         </div>
     )
