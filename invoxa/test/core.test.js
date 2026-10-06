@@ -184,3 +184,11 @@ test('UPI QR is only added when chosen on the invoice', async () => {
   assert.equal((await L.loadInvoice(db, on)).show_upi, 1);
   assert.equal((await L.loadInvoice(db, off)).show_upi, 0);
 });
+
+test('PDF stays on one page even with several items and the UPI QR', async () => {
+  const { db, c } = await fresh();
+  const items = [1, 2, 3].map((i) => ({ ...item(), description: `Service ${i}`, details: 'Monthly professional fees for comprehensive profile management, content strategy and network curation services.' }));
+  const id = await L.createInvoice(db, { customer_id: c, signer: 'avnish', show_upi: true, items, period_start: '2026-09-01', period_end: '2026-10-30' }, { issue: true });
+  const pdf = await invoicePdf(await L.loadInvoice(db, id), await L.getSettings(db));
+  assert.equal((pdf.toString('latin1').match(/\/Type \/Page\b(?!s)/g) || []).length, 1);
+});

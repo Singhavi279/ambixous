@@ -59,16 +59,23 @@ const rupeesInWords = (paise) => {
 };
 
 // Builds an A4 invoice PDF and resolves with a Buffer.
-function invoicePdf(inv, s) {
+// Draws the invoice scaled by k (<1 shrinks everything) and reports how many pages it took.
+function render(inv, s, k) {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: 0, info: { Title: `Invoice ${inv.number || 'Draft'}`, Author: s.business_name } });
     const chunks = [];
     doc.on('data', (c) => chunks.push(c));
-    doc.on('end', () => resolve(Buffer.concat(chunks)));
+    let pages = 1;
+    doc.on('pageAdded', () => { pages++; });
+    doc.on('end', () => resolve({ buf: Buffer.concat(chunks), pages }));
     doc.on('error', reject);
     for (const [k, v] of Object.entries(F)) doc.registerFont(k, v);
 
-    const PW = doc.page.width, PH = doc.page.height;
+    const PW = doc.page.width, PH = doc.page.height / k;
+    if (k !== 1) {
+      doc.translate(PW * (1 - k) / 2, 0); doc.scale(k);
+      doc.page.margins.bottom = -(PH - doc.page.height); // the scaled page is taller in our units; stop PDFKit adding pages by itself
+    }
     const L = 42, R = PW - 42, W = R - L;
 
     const t = (str, x, y, o = {}) => {
@@ -144,7 +151,7 @@ function invoicePdf(inv, s) {
     y = Math.max(by, top - 4 + mh + 4) + 16;
 
     // ---------------- items table ----------------
-    const cols = [{ k: 'n', w: 28 }, { k: 'd', w: 216 }, { k: 'p', w: 74 }, { k: 'q', w: 38 }, { k: 'r', w: 70 }, { k: 'a', w: W - 28 - 216 - 74 - 38 - 70 }];
+    const cols = [{ k: 'n', w: 28 }, { k: 'd', w: 200 }, { k: 'p', w: 92 }, { k: 'q', w: 38 }, { k: 'r', w: 68 }, { k: 'a', w: W - 28 - 200 - 92 - 38 - 68 }];
     let cx = L; for (const c of cols) { c.x = cx; cx += c.w; }
     const colOf = (k) => cols.find((c) => c.k === k);
     const header = () => {
@@ -168,8 +175,9 @@ function invoicePdf(inv, s) {
       if (it.details) t(it.details, colOf('d').x + 9, cy + titleH + 3, { size: 8.8, color: TEXT, width: dw, gap: 2 });
       if (hasPeriod) {
         const pw = colOf('p').w - 12;
-        t(monthLabel(inv.period_start, inv.period_end), colOf('p').x + 6, cy, { bold: true, size: 9, width: pw, align: 'center' });
-        t(`(${dayMon(inv.period_start)} – ${dayMon(inv.period_end)})`, colOf('p').x + 6, cy + 13, { size: 7.8, color: GREY, width: pw, align: 'center' });
+        const ml = monthLabel(inv.period_start, inv.period_end);
+        t(ml, colOf('p').x + 6, cy, { bold: true, size: 8.8, width: pw, align: 'center' });
+        t(`(${dayMon(inv.period_start)} – ${dayMon(inv.period_end)})`, colOf('p').x + 6, cy + h(ml, pw, { bold: true, size: 8.8 }) + 2, { size: 7.8, color: GREY, width: pw, align: 'center' });
       } else t('—', colOf('p').x, cy, { size: 9.5, color: GREY, width: colOf('p').w, align: 'center' });
       t(String(it.qty), colOf('q').x, cy, { size: 9.5, width: colOf('q').w, align: 'center' });
       if (it.unit) t(it.unit, colOf('q').x, cy + 13, { size: 7.8, color: GREY, width: colOf('q').w, align: 'center' });
@@ -297,6 +305,15 @@ function invoicePdf(inv, s) {
 
     doc.end();
   });
+}
+
+// Always aim for a single page: shrink gently until the whole invoice fits.
+async function invoicePdf(inv, s) {
+  for (let k = 1; k >= 0.7; k -= 0.05) {
+    const r = await render(inv, s, k);
+    if (r.pages === 1) return r.buf;
+  }
+  return (await render(inv, s, 1)).buf;
 }
 
 module.exports = { invoicePdf };
