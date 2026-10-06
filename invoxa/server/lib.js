@@ -8,7 +8,8 @@ const DEFAULT_SETTINGS = {
   business_pan: '',
   business_llpin: '',
   business_gstin: '',
-  signatory: 'Authorized Signatory',
+  business_website: 'www.ambixous.in',
+  business_tagline: 'Building Creators. Building Brands.',
   gst_enabled: false,
   gst_rate: 18,
   gst_note: 'GST not charged — supplier is currently not registered under GST.',
@@ -16,7 +17,12 @@ const DEFAULT_SETTINGS = {
   invoice_pad: 3,
   default_terms_days: 10,
   payment_details: '',
-  invoice_footer: 'Thank you for your business.',
+  invoice_thanks: 'We truly appreciate your trust and look forward to continuing our work together.',
+  invoice_terms:
+    'Payment is due within {terms_days} calendar days from the invoice date.\n' +
+    'Late payments may attract an interest of 1.5% per month.\n' +
+    'This invoice does not include any physical goods.\n' +
+    'For any queries, please contact us at {business_email} or {business_phone}.',
   smtp_host: '',
   smtp_port: 587,
   smtp_user: '',
@@ -33,6 +39,17 @@ const DEFAULT_SETTINGS = {
   reminder_body:
     'Hi {customer_name},\n\nThis is a friendly reminder that invoice {invoice_number} for {amount} {when_long}.\n' +
     'The invoice is attached again for your convenience.\n\n{payment_details}\n\nIf you have already paid, please ignore this message.\n\nThank you,\n{business_name}',
+};
+
+// ---------- signers (signature images are the same ones used for certificates) ----------
+const SIGNERS = {
+  avnish: { name: 'Avnish Singh', title: 'Co-Founder', file: 'signature-avnish.png' },
+  riti: { name: 'Riti Gupta', title: 'Co-Founder', file: 'signature-riti.png' },
+};
+const checkSigner = (v) => {
+  if (v === undefined || v === null || v === '') return '';
+  if (!SIGNERS[v]) throw new UserError('Choose who signs this invoice.');
+  return v;
 };
 
 // ---------- settings ----------
@@ -158,6 +175,7 @@ function normaliseItems(rawItems) {
   return items.map((i, idx) => ({
     service_id: i.service_id || null,
     description: String(i.description).trim(),
+    details: String(i.details || '').trim(),
     activity: i.activity || '',
     qty: i.qty === undefined || i.qty === '' ? 1 : i.qty,
     unit: i.unit || '',
@@ -179,13 +197,13 @@ async function writeInvoiceBody(db, invoiceId, data, settings) {
   const termsDays = daysBetween(issue, due);
 
   await db.prepare(`UPDATE invoices SET customer_id=?, issue_date=?, terms_days=?, due_date=?, reference=?, period_start=?, period_end=?,
-      subtotal=?, discount=?, tax_rate=?, tax=?, total=?, notes=?, recurring_id=COALESCE(?, recurring_id) WHERE id=?`)
+      subtotal=?, discount=?, tax_rate=?, tax=?, total=?, notes=?, signer=?, recurring_id=COALESCE(?, recurring_id) WHERE id=?`)
     .run(data.customer_id, issue, termsDays, due, data.reference || '', data.period_start || null, data.period_end || null,
-      totals.subtotal, totals.discount, gst, totals.tax, totals.total, data.notes || '', data.recurring_id || null, invoiceId);
+      totals.subtotal, totals.discount, gst, totals.tax, totals.total, data.notes || '', checkSigner(data.signer), data.recurring_id || null, invoiceId);
   await db.prepare('DELETE FROM invoice_items WHERE invoice_id = ?').run(invoiceId);
-  const insSql = (`INSERT INTO invoice_items(invoice_id, position, service_id, description, activity, qty, unit, rate, amount)
-      VALUES(?,?,?,?,?,?,?,?,?)`);
-  for (const l of totals.lines) await db.prepare(insSql).run(invoiceId, l.position, l.service_id, l.description, l.activity, l.qty, l.unit, l.rate, l.amount);
+  const insSql = (`INSERT INTO invoice_items(invoice_id, position, service_id, description, details, activity, qty, unit, rate, amount)
+      VALUES(?,?,?,?,?,?,?,?,?,?)`);
+  for (const l of totals.lines) await db.prepare(insSql).run(invoiceId, l.position, l.service_id, l.description, l.details, l.activity, l.qty, l.unit, l.rate, l.amount);
   return totals;
 }
 
@@ -193,6 +211,7 @@ async function issueInvoiceTx(db, id, settings, issueDateOverride) {
   const inv = await db.prepare('SELECT * FROM invoices WHERE id = ?').get(id);
   if (!inv) throw new UserError('Invoice not found.', 404);
   if (inv.status !== 'draft') throw new UserError('This invoice has already been issued.');
+  if (!inv.signer) throw new UserError('Choose who signs this invoice before creating it.');
   if (issueDateOverride && issueDateOverride !== inv.issue_date) {
     await db.prepare('UPDATE invoices SET issue_date=?, due_date=? WHERE id=?').run(issueDateOverride, addDays(issueDateOverride, inv.terms_days), id);
   }
@@ -324,6 +343,7 @@ async function validateRecurring(db, d) {
   computeTotals(items); // throws on bad numbers
   const every = Number(d.every_months);
   if (![1, 3, 6, 12].includes(every)) throw new UserError('Choose how often to repeat.');
+  if (!SIGNERS[d.signer]) throw new UserError('Choose who signs these invoices.');
   const day = Number(d.day_of_month);
   if (!Number.isInteger(day) || day < 0 || day > 31) throw new UserError('Choose a day of the month.');
   parseDate(d.start_date);
@@ -336,10 +356,10 @@ async function saveRecurring(db, d, id = null) {
   const settings = await getSettings(db);
   const fields = [d.customer_id, JSON.stringify(items), every, day, d.start_date, d.end_date || null,
     Number.isInteger(+d.terms_days) ? +d.terms_days : settings.default_terms_days, d.reference || '',
-    ['previous', 'this', 'next'].includes(d.period_mode) ? d.period_mode : 'this', d.auto_send ? 1 : 0, d.notes || ''];
+    ['previous', 'this', 'next'].includes(d.period_mode) ? d.period_mode : 'this', d.auto_send ? 1 : 0, d.notes || '', d.signer];
   if (id) {
     await db.prepare(`UPDATE recurring SET customer_id=?, items=?, every_months=?, day_of_month=?, start_date=?, end_date=?, terms_days=?,
-        reference=?, period_mode=?, auto_send=?, notes=? WHERE id=?`).run(...fields, id);
+        reference=?, period_mode=?, auto_send=?, notes=?, signer=? WHERE id=?`).run(...fields, id);
     const cur = await db.prepare('SELECT * FROM recurring WHERE id=?').get(id);
     // Re-aim the next run only if nothing has been generated yet.
     if (!cur.last_run) await db.prepare('UPDATE recurring SET next_run=? WHERE id=?').run(firstRunDate(d.start_date, every, day), id);
@@ -348,7 +368,7 @@ async function saveRecurring(db, d, id = null) {
     return id;
   }
   const r = await db.prepare(`INSERT INTO recurring(customer_id, items, every_months, day_of_month, start_date, end_date, terms_days,
-      reference, period_mode, auto_send, notes, next_run) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)`)
+      reference, period_mode, auto_send, notes, signer, next_run) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`)
     .run(...fields, firstRunDate(d.start_date, every, day));
   await audit(db, 'recurring.created', 'recurring', r.lastInsertRowid);
   return r.lastInsertRowid;
@@ -368,7 +388,7 @@ async function generateRecurringInvoice(db, rec, now = today(), { issueToday = f
     const id = await createInvoice(db, {
       customer_id: rec.customer_id, items, issue_date: issueDate, terms_days: rec.terms_days,
       reference: fillReference(rec.reference, items, period), period_start: period.start, period_end: period.end,
-      recurring_id: rec.id,
+      recurring_id: rec.id, signer: rec.signer,
     }, { issue: true });
     const nxt = nextRunAfter(runDate, rec.every_months, rec.day_of_month);
     const finished = rec.end_date && nxt > rec.end_date;
@@ -380,7 +400,7 @@ async function generateRecurringInvoice(db, rec, now = today(), { issueToday = f
 }
 
 module.exports = {
-  actor, DEFAULT_SETTINGS, getSettings, saveSettings, UserError,
+  SIGNERS, checkSigner, actor, DEFAULT_SETTINGS, getSettings, saveSettings, UserError,
   today, addDays, daysBetween, parseDate, prettyDate, periodLabel, financialYear,
   toPaise, formatINR, computeTotals, nextInvoiceNumber, audit,
   createInvoice, updateDraft, issueInvoice, addPayment, voidInvoice, loadInvoice, paidAmount, displayStatus,

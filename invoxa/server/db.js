@@ -182,8 +182,16 @@ async function open(url) {
   await client.execute('PRAGMA foreign_keys = ON');
   await client.executeMultiple(SCHEMA);
   await client.execute("UPDATE users SET role='super_admin' WHERE role='admin'");
-  const col = await client.execute("SELECT 1 FROM pragma_table_info('audit') WHERE name='by_user'");
-  if (!col.rows.length) await client.execute('ALTER TABLE audit ADD COLUMN by_user TEXT');
+  // Columns added after the first release (checked one by one so reruns are harmless).
+  for (const [table, column, ddl] of [
+    ['audit', 'by_user', 'TEXT'],
+    ['invoice_items', 'details', "TEXT DEFAULT ''"],
+    ['invoices', 'signer', "TEXT DEFAULT ''"],
+    ['recurring', 'signer', "TEXT DEFAULT ''"],
+  ]) {
+    const has = await client.execute({ sql: 'SELECT 1 FROM pragma_table_info(?) WHERE name = ?', args: [table, column] });
+    if (!has.rows.length) await client.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${ddl}`);
+  }
   return db;
 }
 
