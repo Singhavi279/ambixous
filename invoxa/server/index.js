@@ -168,6 +168,10 @@ function createApp(db) {
     if (patch.smtp_pass === '********') delete patch.smtp_pass;
     for (const k of ['invoice_pad', 'default_terms_days', 'smtp_port', 'gst_rate']) if (k in patch) patch[k] = Number(patch[k]);
     if ('invoice_prefix' in patch) patch.invoice_prefix = need(patch.invoice_prefix, 'Invoice prefix cannot be empty.').replace(/[^A-Za-z0-9-]/g, '');
+    if ('upi_id' in patch) {
+      patch.upi_id = String(patch.upi_id || '').trim();
+      if (patch.upi_id && !/^[\w.\-]{2,256}@[A-Za-z][A-Za-z0-9.\-]{1,64}$/.test(patch.upi_id)) throw new L.UserError('That UPI ID doesn\'t look right. It should look like name@bank.');
+    }
     if ('business_name' in patch) need(patch.business_name, 'Please enter your business name.');
     await L.saveSettings(db, patch);
     await L.audit(db, 'settings.updated', 'settings', 0, Object.keys(patch).filter((k) => !k.startsWith('smtp')).join(','));

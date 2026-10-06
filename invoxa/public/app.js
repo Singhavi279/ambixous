@@ -166,6 +166,10 @@ async function pageInvoices(m, q) {
 }
 
 // Who signs the invoice (the signature image is added to the PDF). Chosen every time, never assumed.
+function upiToggle(s, on) {
+  if (!s.upi_id) return '';
+  return `<label class="check" style="margin-top:14px"><input type="checkbox" id="showUpi" ${on ? 'checked' : ''}> Add UPI QR code &amp; UPI ID (${esc(s.upi_id)}) on this invoice</label>`;
+}
 function signerPicker(signers, current) {
   return `<div class="field"><label>Authorised signatory</label>
     <select id="signer"><option value="">Choose who signs…</option>${signers.map((x) => `<option value="${esc(x.key)}" ${x.key === current ? 'selected' : ''}>${esc(x.name)} — ${esc(x.title)}</option>`).join('')}</select>
@@ -245,7 +249,7 @@ function itemsEditor(host, services, initial) {
 async function pageInvoiceForm(editId, q = {}) {
   const [customers, services, signers, s, existing] = await Promise.all([api('/customers'), api('/services'), api('/signers'), loadSettings(), editId ? api(`/invoices/${editId}`) : null]);
   if (existing && existing.status !== 'draft') { location.hash = `#/invoice/${editId}`; return; }
-  const inv = existing || { customer_id: +q.customer || '', issue_date: todayStr(), terms_days: s.default_terms_days, items: [], discount: 0, reference: '', notes: '', signer: '' };
+  const inv = existing || { customer_id: +q.customer || '', issue_date: todayStr(), terms_days: s.default_terms_days, items: [], discount: 0, reference: '', notes: '', signer: '', show_upi: 0 };
   const gstRate = s.gst_enabled ? Number(s.gst_rate) : 0;
 
   view(`
@@ -272,7 +276,7 @@ async function pageInvoiceForm(editId, q = {}) {
             <div class="field"><label>Note for the customer</label><textarea id="notes" placeholder="Shown at the bottom of the invoice">${esc(inv.notes)}</textarea></div>
           </details>
         </div>
-        <div class="card"><h2>4 · Who signs it?</h2>${signerPicker(signers, inv.signer)}</div>
+        <div class="card"><h2>4 · Who signs it?</h2>${signerPicker(signers, inv.signer)}${upiToggle(s, inv.show_upi)}</div>
       </div>
       <div style="position:sticky;top:20px"><div class="card"><h2>Summary</h2><div class="sumbox" id="sum"></div>
         <div style="display:grid;gap:10px;margin-top:16px">
@@ -308,7 +312,7 @@ async function pageInvoiceForm(editId, q = {}) {
   const submit = (action) => async (e) => busy(e.currentTarget, async () => {
     const body = {
       action, customer_id: +$('#customer').value, items: editor.get(), issue_date: $('#issue').value, terms_days: parseInt($('#terms').value, 10),
-      reference: $('#ref').value, period_start: $('#pstart').value || null, period_end: $('#pend').value || null, discount: toPaise(discEl.value), notes: $('#notes').value, signer: $('#signer').value,
+      reference: $('#ref').value, period_start: $('#pstart').value || null, period_end: $('#pend').value || null, discount: toPaise(discEl.value), notes: $('#notes').value, signer: $('#signer').value, show_upi: $('#showUpi').checked,
     };
     if (!body.customer_id) throw new Error('Please choose who this invoice is for.');
     if (action !== 'draft' && !body.signer) throw new Error('Please choose who signs this invoice.');
@@ -518,7 +522,7 @@ async function pageRecurringForm(editId, q = {}) {
           <div class="field"><label>The invoice covers</label><select id="pmode"><option value="this" ${r.period_mode === 'this' ? 'selected' : ''}>The month of the invoice date</option><option value="next" ${r.period_mode === 'next' ? 'selected' : ''}>The month after (billed in advance)</option><option value="previous" ${r.period_mode === 'previous' ? 'selected' : ''}>The month before (billed in arrears)</option></select></div>
         </div>
         <div class="field"><label>Reference on invoice</label><input id="ref" value="${esc(r.reference)}" placeholder="{service} – {period}"><div class="hint">Leave blank for the default, e.g. “LinkedIn Management – October 2026”. You can use {service}, {period}, {month}, {year}.</div></div>
-        ${signerPicker(signers, r.signer)}
+        ${signerPicker(signers, r.signer)}${upiToggle(s, r.show_upi)}
         <label class="check"><input type="checkbox" id="auto" ${r.auto_send ? 'checked' : ''}> Email the invoice to the customer automatically</label>
         <div class="hint small muted" style="margin:6px 0 0 26px" id="autoHint"></div>
       </div>
@@ -544,7 +548,7 @@ async function pageRecurringForm(editId, q = {}) {
 
   $('#save').onclick = (e) => busy(e.currentTarget, async () => {
     const body = { customer_id: +$('#customer').value, items: editor.get(), every_months: +$('#every').value, day_of_month: +$('#day').value, start_date: $('#start').value,
-      end_date: $('#end').value || null, terms_days: parseInt($('#terms').value, 10), period_mode: $('#pmode').value, reference: $('#ref').value, auto_send: $('#auto').checked, signer: $('#signer').value };
+      end_date: $('#end').value || null, terms_days: parseInt($('#terms').value, 10), period_mode: $('#pmode').value, reference: $('#ref').value, auto_send: $('#auto').checked, signer: $('#signer').value, show_upi: $('#showUpi').checked };
     if (!body.signer) throw new Error('Please choose who signs these invoices.');
     await api(ex ? `/recurring/${editId}` : '/recurring', { method: ex ? 'PUT' : 'POST', body });
     toast('Repeat billing saved.', 'good'); location.hash = '#/recurring';
@@ -586,6 +590,7 @@ async function pageSettings(m, q) {
     business: () => `<h2>Your business</h2><p class="muted">These appear at the top of every invoice.</p>
       ${field('business_name', 'Business name')}${field('business_address', 'Address', { area: true })}
       <div class="cols">${field('business_email', 'Email')}${field('business_phone', 'Phone')}${field('business_pan', 'PAN', { hint: 'Optional' })}${field('business_llpin', 'LLPIN / registration no.', { hint: 'Optional' })}</div>
+      ${field('upi_id', 'UPI ID', { ph: 'e.g. ambixous@okhdfcbank', hint: 'Not shown automatically. You choose "Add UPI QR code" on each invoice. The QR image is the saved Ambixous one; if you change the UPI ID here, replace the QR too.' })}
       ${field('payment_details', 'How customers should pay you', { area: true, ph: 'e.g. UPI: name@bank\nAccount: ..., IFSC: ...', hint: 'Shown on invoices and in emails. Type your real details only.' })}
       <div class="cols">${field('business_website', 'Website (invoice footer)')}${field('business_tagline', 'Tagline (invoice footer)')}</div>
       ${field('invoice_thanks', 'Thank-you message', { area: true, hint: 'Printed next to the signature.' })}

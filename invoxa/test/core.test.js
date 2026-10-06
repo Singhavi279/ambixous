@@ -171,3 +171,16 @@ test('repeat billing needs a signer and carries it onto generated invoices', asy
   assert.equal((await L.loadInvoice(db, r[0].invoiceId)).signer, 'riti');
   assert.ok(rid);
 });
+
+test('UPI QR is only added when chosen on the invoice', async () => {
+  const { db, c } = await fresh();
+  const on = await L.createInvoice(db, { customer_id: c, signer: 'avnish', items: [item()], show_upi: true }, { issue: true });
+  const off = await L.createInvoice(db, { customer_id: c, signer: 'avnish', items: [item()] }, { issue: true });
+  const s = await L.getSettings(db);
+  const pOn = await invoicePdf(await L.loadInvoice(db, on), s);
+  const pOff = await invoicePdf(await L.loadInvoice(db, off), s);
+  assert.equal(pOn.slice(0, 4).toString(), '%PDF');
+  assert.ok(pOn.length > pOff.length + 5000, 'QR image should be embedded only when show_upi is set');
+  assert.equal((await L.loadInvoice(db, on)).show_upi, 1);
+  assert.equal((await L.loadInvoice(db, off)).show_upi, 0);
+});

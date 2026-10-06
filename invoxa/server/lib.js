@@ -17,6 +17,7 @@ const DEFAULT_SETTINGS = {
   invoice_pad: 3,
   default_terms_days: 10,
   payment_details: '',
+  upi_id: 'ambixousinnovations@idfcbank',
   invoice_thanks: 'We truly appreciate your trust and look forward to continuing our work together.',
   invoice_terms:
     'Payment is due within {terms_days} calendar days from the invoice date.\n' +
@@ -197,9 +198,9 @@ async function writeInvoiceBody(db, invoiceId, data, settings) {
   const termsDays = daysBetween(issue, due);
 
   await db.prepare(`UPDATE invoices SET customer_id=?, issue_date=?, terms_days=?, due_date=?, reference=?, period_start=?, period_end=?,
-      subtotal=?, discount=?, tax_rate=?, tax=?, total=?, notes=?, signer=?, recurring_id=COALESCE(?, recurring_id) WHERE id=?`)
+      subtotal=?, discount=?, tax_rate=?, tax=?, total=?, notes=?, signer=?, show_upi=?, recurring_id=COALESCE(?, recurring_id) WHERE id=?`)
     .run(data.customer_id, issue, termsDays, due, data.reference || '', data.period_start || null, data.period_end || null,
-      totals.subtotal, totals.discount, gst, totals.tax, totals.total, data.notes || '', checkSigner(data.signer), data.recurring_id || null, invoiceId);
+      totals.subtotal, totals.discount, gst, totals.tax, totals.total, data.notes || '', checkSigner(data.signer), data.show_upi ? 1 : 0, data.recurring_id || null, invoiceId);
   await db.prepare('DELETE FROM invoice_items WHERE invoice_id = ?').run(invoiceId);
   const insSql = (`INSERT INTO invoice_items(invoice_id, position, service_id, description, details, activity, qty, unit, rate, amount)
       VALUES(?,?,?,?,?,?,?,?,?,?)`);
@@ -356,10 +357,10 @@ async function saveRecurring(db, d, id = null) {
   const settings = await getSettings(db);
   const fields = [d.customer_id, JSON.stringify(items), every, day, d.start_date, d.end_date || null,
     Number.isInteger(+d.terms_days) ? +d.terms_days : settings.default_terms_days, d.reference || '',
-    ['previous', 'this', 'next'].includes(d.period_mode) ? d.period_mode : 'this', d.auto_send ? 1 : 0, d.notes || '', d.signer];
+    ['previous', 'this', 'next'].includes(d.period_mode) ? d.period_mode : 'this', d.auto_send ? 1 : 0, d.notes || '', d.signer, d.show_upi ? 1 : 0];
   if (id) {
     await db.prepare(`UPDATE recurring SET customer_id=?, items=?, every_months=?, day_of_month=?, start_date=?, end_date=?, terms_days=?,
-        reference=?, period_mode=?, auto_send=?, notes=?, signer=? WHERE id=?`).run(...fields, id);
+        reference=?, period_mode=?, auto_send=?, notes=?, signer=?, show_upi=? WHERE id=?`).run(...fields, id);
     const cur = await db.prepare('SELECT * FROM recurring WHERE id=?').get(id);
     // Re-aim the next run only if nothing has been generated yet.
     if (!cur.last_run) await db.prepare('UPDATE recurring SET next_run=? WHERE id=?').run(firstRunDate(d.start_date, every, day), id);
@@ -368,7 +369,7 @@ async function saveRecurring(db, d, id = null) {
     return id;
   }
   const r = await db.prepare(`INSERT INTO recurring(customer_id, items, every_months, day_of_month, start_date, end_date, terms_days,
-      reference, period_mode, auto_send, notes, signer, next_run) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?)`)
+      reference, period_mode, auto_send, notes, signer, show_upi, next_run) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)`)
     .run(...fields, firstRunDate(d.start_date, every, day));
   await audit(db, 'recurring.created', 'recurring', r.lastInsertRowid);
   return r.lastInsertRowid;
@@ -388,7 +389,7 @@ async function generateRecurringInvoice(db, rec, now = today(), { issueToday = f
     const id = await createInvoice(db, {
       customer_id: rec.customer_id, items, issue_date: issueDate, terms_days: rec.terms_days,
       reference: fillReference(rec.reference, items, period), period_start: period.start, period_end: period.end,
-      recurring_id: rec.id, signer: rec.signer,
+      recurring_id: rec.id, signer: rec.signer, show_upi: rec.show_upi,
     }, { issue: true });
     const nxt = nextRunAfter(runDate, rec.every_months, rec.day_of_month);
     const finished = rec.end_date && nxt > rec.end_date;

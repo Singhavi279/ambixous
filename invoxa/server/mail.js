@@ -31,7 +31,7 @@ function templateVars(inv, s, extra = {}) {
     due_date: L.prettyDate(inv.due_date),
     reference: inv.reference || 'our services',
     business_name: s.business_name,
-    payment_details: s.payment_details ? `Payment details:\n${s.payment_details}\n` : '',
+    payment_details: (s.payment_details || (inv.show_upi && s.upi_id)) ? `Payment details:\n${inv.show_upi && s.upi_id ? `UPI ID: ${s.upi_id}\n` : ''}${s.payment_details || ''}\n` : '',
     ...extra,
   };
 }

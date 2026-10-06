@@ -188,6 +188,8 @@ async function open(url) {
     ['invoice_items', 'details', "TEXT DEFAULT ''"],
     ['invoices', 'signer', "TEXT DEFAULT ''"],
     ['recurring', 'signer', "TEXT DEFAULT ''"],
+    ['invoices', 'show_upi', 'INTEGER DEFAULT 0'],
+    ['recurring', 'show_upi', 'INTEGER DEFAULT 0'],
   ]) {
     const has = await client.execute({ sql: 'SELECT 1 FROM pragma_table_info(?) WHERE name = ?', args: [table, column] });
     if (!has.rows.length) await client.execute(`ALTER TABLE ${table} ADD COLUMN ${column} ${ddl}`);

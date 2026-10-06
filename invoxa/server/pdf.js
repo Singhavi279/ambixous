@@ -184,13 +184,13 @@ function invoicePdf(inv, s) {
     y += 18;
 
     // ---------------- payment details (left) + totals (right) ----------------
-    if (y > PH - 330) { doc.addPage(); y = 50; }
+    if (y > PH - (inv.show_upi && s.upi_id ? 440 : 330)) { doc.addPage(); y = 50; }
     const lx = L, lwid = 262, tx = 322, twid = R - tx;
     let ly = y, ty = y;
 
     if (s.payment_details) {
       t('Payment Details', lx, ly, { bold: true, size: 12, color: NAVY }); ly += 20;
-      const rows = String(s.payment_details).split('\n').map((l) => l.trim()).filter(Boolean).map((l) => {
+      const rows = String(s.payment_details || '').split('\n').map((l) => l.trim()).filter(Boolean).map((l) => {
         const m = l.match(/^([^:]{1,30}):\s*(.+)$/);
         return m ? { k: m[1], v: m[2] } : { v: l };
       });
@@ -205,6 +205,20 @@ function invoicePdf(inv, s) {
         py += Math.max(14, h(r.v, r.k ? valW : lwid - 28, { size: 9 }) + 3);
       }
       ly += ph;
+    }
+
+    // optional UPI QR card (only when chosen on the invoice)
+    const qr = inv.show_upi && s.upi_id && asset('upi-qr.png');
+    if (qr) {
+      if (s.payment_details) ly += 10; else { t('Payment Details', lx, ly, { bold: true, size: 12, color: NAVY }); ly += 20; }
+      const qh = 112;
+      box(lx, ly, lwid, qh);
+      doc.image(qr, lx + 12, ly + 12, { fit: [88, 88] });
+      t('Scan & Pay', lx + 114, ly + 24, { bold: true, size: 11, color: NAVY });
+      t('Pay by any UPI app', lx + 114, ly + 41, { size: 8.6, color: GREY, width: lwid - 126 });
+      t('UPI ID', lx + 114, ly + 62, { size: 8.2, color: GREY });
+      t(s.upi_id, lx + 114, ly + 74, { bold: true, size: 7.8, width: lwid - 118 });
+      ly += qh;
     }
 
     // totals card
