@@ -8,6 +8,7 @@ try {
   }
 } catch { /* no .env file – fine */ }
 const express = require('express');
+const { rateLimit } = require('express-rate-limit');
 const path = require('path');
 const { open } = require('./db');
 const L = require('./lib');
@@ -23,20 +24,13 @@ function createApp(db) {
   // Make sure the owners' accounts exist before the first request is handled (once per server start).
   const seeded = (G.enabled() || process.env.SUPER_ADMIN_EMAILS) ? A.seedSuperAdmins(db, G.superAdminEmails()) : Promise.resolve();
   seeded.catch(() => {});
-  // Basic per-IP rate limits (in memory, so per server instance): generous for the app, strict for sign-in.
-  const limiter = (max, windowMs) => {
-    const hits = new Map();
-    return (req, res, next) => {
-      const now = Date.now(), key = req.ip || 'unknown';
-      if (hits.size > 5000) for (const [k, v] of hits) if (v.reset < now) hits.delete(k);
-      let h = hits.get(key);
-      if (!h || h.reset < now) { h = { n: 0, reset: now + windowMs }; hits.set(key, h); }
-      if (++h.n > max) return res.status(429).json({ error: 'Too many requests. Please wait a minute and try again.' });
-      next();
-    };
-  };
-  app.use('/api/auth', limiter(30, 60000));
-  app.use('/api', limiter(600, 60000));
+  // Per-IP rate limits (in memory, so per server instance): generous for the app, strict for sign-in.
+  const limit = (max) => rateLimit({
+    windowMs: 60 * 1000, limit: max, standardHeaders: true, legacyHeaders: false,
+    message: { error: 'Too many requests. Please wait a minute and try again.' },
+  });
+  const authLimiter = limit(30);
+  app.use('/api', limit(600));
   app.use(express.json({ limit: '1mb' }));
   app.use(express.static(path.join(__dirname, '..', 'public')));
   app.use('/api', (req, res, next) => { seeded.then(() => next(), next); });
@@ -69,13 +63,13 @@ function createApp(db) {
   }));
   // Only people already on the team (or the permanent super admins) get in.
   const loginError = (res, msg) => res.redirect(`${G.basePath()}/?login_error=${encodeURIComponent(msg)}`);
-  app.get('/api/auth/google', (req, res) => {
+  app.get('/api/auth/google', authLimiter, (req, res) => {
     if (!G.enabled()) return loginError(res, 'Google sign-in is not set up on this server.');
     const state = G.newState();
     A.setCookie(res, state, 'gstate', 600);
     res.redirect(G.authUrl(state));
   });
-  app.get('/api/auth/google/callback', async (req, res) => {
+  app.get('/api/auth/google/callback', authLimiter, async (req, res) => {
     try {
       const saved = A.cookieOf(req, 'gstate');
       A.setCookie(res, null, 'gstate');
