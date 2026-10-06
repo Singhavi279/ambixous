@@ -43,7 +43,7 @@ async function handle(request: NextRequest): Promise<Response> {
   const url = new URL(request.url)
   const target = `http://127.0.0.1:${port}${url.pathname.replace(/^\/invoxa/, "")}${url.search}`
   const headers = new Headers()
-  for (const name of ["cookie", "content-type", "authorization", "accept"]) {
+  for (const name of ["cookie", "content-type", "authorization", "accept", "x-forwarded-for"]) {
     const value = request.headers.get(name)
     if (value) headers.set(name, value)
   }

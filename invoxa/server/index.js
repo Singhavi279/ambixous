@@ -23,6 +23,20 @@ function createApp(db) {
   // Make sure the owners' accounts exist before the first request is handled (once per server start).
   const seeded = (G.enabled() || process.env.SUPER_ADMIN_EMAILS) ? A.seedSuperAdmins(db, G.superAdminEmails()) : Promise.resolve();
   seeded.catch(() => {});
+  // Basic per-IP rate limits (in memory, so per server instance): generous for the app, strict for sign-in.
+  const limiter = (max, windowMs) => {
+    const hits = new Map();
+    return (req, res, next) => {
+      const now = Date.now(), key = req.ip || 'unknown';
+      if (hits.size > 5000) for (const [k, v] of hits) if (v.reset < now) hits.delete(k);
+      let h = hits.get(key);
+      if (!h || h.reset < now) { h = { n: 0, reset: now + windowMs }; hits.set(key, h); }
+      if (++h.n > max) return res.status(429).json({ error: 'Too many requests. Please wait a minute and try again.' });
+      next();
+    };
+  };
+  app.use('/api/auth', limiter(30, 60000));
+  app.use('/api', limiter(600, 60000));
   app.use(express.json({ limit: '1mb' }));
   app.use(express.static(path.join(__dirname, '..', 'public')));
   app.use('/api', (req, res, next) => { seeded.then(() => next(), next); });
@@ -39,7 +53,14 @@ function createApp(db) {
   const need = (v, msg) => { if (!String(v ?? '').trim()) throw new L.UserError(msg); return String(v).trim(); };
 
   // ---------- sign in (Google only, like ambixous.in) ----------
-  const emailOk = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+  // Plain string checks (no backtracking regex) on a length-capped value.
+  const emailOk = (e) => {
+    if (typeof e !== 'string' || e.length > 254 || /\s/.test(e)) return false;
+    const parts = e.split('@');
+    if (parts.length !== 2 || !parts[0] || !parts[1]) return false;
+    const domain = parts[1];
+    return domain.includes('.') && !domain.startsWith('.') && !domain.endsWith('.') && !domain.includes('..');
+  };
   const startSession = async (res, user) => A.setCookie(res, await A.createSession(db, user.id));
   const me = (u) => u && { id: u.id, name: u.name, email: u.email, role: u.role };
 
@@ -161,7 +182,7 @@ function createApp(db) {
   }));
   const customerFields = (b) => [need(b.name, 'Please enter the customer\'s name.'), (b.email || '').trim(), (b.phone || '').trim(),
     (b.address || '').trim(), (b.gstin || '').trim(), (b.notes || '').trim()];
-  const checkEmail = (e) => { if (e && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e)) throw new L.UserError('That email address does not look right.'); };
+  const checkEmail = (e) => { if (e && !emailOk(e)) throw new L.UserError('That email address does not look right.'); };
   app.post('/api/customers', wrap(async (req, res) => {
     const f = customerFields(req.body); checkEmail(f[1]);
     const r = await db.prepare('INSERT INTO customers(name,email,phone,address,gstin,notes) VALUES(?,?,?,?,?,?)').run(...f);
