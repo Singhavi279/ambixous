@@ -168,11 +168,18 @@ async function pageInvoices(m, q) {
 // Who signs the invoice (the signature image is added to the PDF). Chosen every time, never assumed.
 function signerPicker(signers, current) {
   return `<div class="field"><label>Authorised signatory</label>
-    <select id="signer"><option value="">Choose who signs…</option>${signers.map((x) => `<option value="${x.key}" ${x.key === current ? 'selected' : ''}>${esc(x.name)} — ${esc(x.title)}</option>`).join('')}</select>
+    <select id="signer"><option value="">Choose who signs…</option>${signers.map((x) => `<option value="${esc(x.key)}" ${x.key === current ? 'selected' : ''}>${esc(x.name)} — ${esc(x.title)}</option>`).join('')}</select>
     <div id="signerPrev" style="margin-top:10px;min-height:56px"></div></div>`;
 }
 function bindSignerPreview() {
-  const draw = () => { const v = $('#signer').value; $('#signerPrev').innerHTML = v ? `<img src="${BASE}/api/signers/${v}/image" alt="Signature" style="max-height:56px;max-width:160px">` : ''; };
+  const draw = () => {
+    const box = $('#signerPrev'); box.textContent = '';
+    const v = $('#signer').value; if (!v) return;
+    const img = document.createElement('img');
+    img.src = `${BASE}/api/signers/${encodeURIComponent(v)}/image`; img.alt = 'Signature';
+    img.style.cssText = 'max-height:56px;max-width:160px';
+    box.append(img);
+  };
   $('#signer').addEventListener('input', draw); draw();
 }
 
