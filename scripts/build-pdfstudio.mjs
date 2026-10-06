@@ -38,3 +38,18 @@ function replaceRequired(content, search, replacement) {
 
   return content.replace(search, replacement)
 }
+
+// ---- Invoxa (invoicing app at /invoxa): copy its static files, pointing links at the sub-path ----
+const invoxaSource = path.join(projectRoot, "invoxa", "public")
+const invoxaOutput = path.join(projectRoot, "public", "invoxa")
+
+fs.rmSync(invoxaOutput, { recursive: true, force: true })
+fs.cpSync(invoxaSource, invoxaOutput, { recursive: true })
+
+const invoxaIndex = path.join(invoxaOutput, "index.html")
+let invoxaHtml = fs.readFileSync(invoxaIndex, "utf8")
+invoxaHtml = replaceRequired(invoxaHtml, 'href="style.css"', 'href="/invoxa/style.css"')
+invoxaHtml = replaceRequired(invoxaHtml, 'src="app.js"', 'src="/invoxa/app.js"')
+fs.writeFileSync(invoxaIndex, invoxaHtml)
+
+console.log(`Invoxa built in ${invoxaOutput}`)

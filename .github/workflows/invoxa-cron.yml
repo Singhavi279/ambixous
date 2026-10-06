@@ -1,0 +1,19 @@
+name: Invoxa scheduler
+
+# Creates due repeat invoices and sends payment reminders by calling Invoxa once an hour.
+on:
+  schedule:
+    - cron: "17 * * * *"
+  workflow_dispatch:
+
+jobs:
+  tick:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call /invoxa/api/cron/tick
+        env:
+          CRON_SECRET: ${{ secrets.INVOXA_CRON_SECRET }}
+        run: |
+          curl --fail-with-body --silent --show-error --max-time 60 --retry 2 \
+            -X POST -H "Authorization: Bearer $CRON_SECRET" \
+            https://ambixous.in/invoxa/api/cron/tick

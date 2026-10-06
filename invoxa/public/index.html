@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Invoxa</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%232f5bea'/><path d='M10 9h12v2H10zm0 5h12v2H10zm0 5h7v2h-7z' fill='white'/></svg>">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <a class="brand" href="#/"><span class="logo">₹</span><span id="brandName">Invoxa</span></a>
+      <a class="btn primary big new" href="#/invoice/new">+ New invoice</a>
+      <nav id="nav">
+        <a href="#/" data-p="home"><i>🏠</i><span>Home</span></a>
+        <a href="#/invoices" data-p="invoices"><i>🧾</i><span>Invoices</span></a>
+        <a href="#/customers" data-p="customers"><i>👥</i><span>Customers</span></a>
+        <a href="#/services" data-p="services"><i>🛠️</i><span>My services</span></a>
+        <a href="#/recurring" data-p="recurring"><i>🔁</i><span>Repeat billing</span></a>
+        <a href="#/reports" data-p="reports"><i>📊</i><span>Reports</span></a>
+        <a href="#/settings" data-p="settings"><i>⚙️</i><span>Settings</span></a>
+      </nav>
+      <div class="acct" id="acct"></div>
+    </aside>
+    <main id="main"></main>
+  </div>
+  <div id="auth" hidden></div>
+  <div id="modal" class="modal-wrap" hidden></div>
+  <div id="toasts"></div>
+  <script src="app.js"></script>
+</body>
+</html>
