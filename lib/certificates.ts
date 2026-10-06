@@ -62,10 +62,6 @@ export async function saveCertificate(certificate: Certificate): Promise<{ succe
     return { success: true }
 }
 
-export async function isDuplicateId(id: string): Promise<boolean> {
-    return (await getCertificateById(id)) !== null
-}
-
 export async function generateCertificateId(): Promise<string> {
     const now = new Date()
     const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"]
@@ -84,19 +80,4 @@ export async function generateCertificateId(): Promise<string> {
         .reduce((max, m) => (m ? Math.max(max, parseInt(m[1])) : max), 0)
 
     return `${prefix}${String(maxNum + 1).padStart(4, "0")}`
-}
-
-export function formatDate(dateStr: string | Date): string {
-    const d =
-        typeof dateStr === "string"
-            ? (() => {
-                  const [y, m, day] = dateStr.split("-")
-                  return new Date(+y, +m - 1, +day)
-              })()
-            : dateStr
-    return d.toLocaleDateString("en-US", {
-        month: "long",
-        day: "numeric",
-        year: "numeric",
-    })
 }

@@ -10,10 +10,11 @@ npm test
 ```
 
 ## Hosting (all free tiers)
-- **Vercel** serves the app (`public/` + one serverless function at `api/index.js`, region Mumbai).
-- **Turso** is the database (`TURSO_DATABASE_URL`, `TURSO_AUTH_TOKEN`). Without them the app uses the local file above.
-- **GitHub Actions** (`.github/workflows/cron.yml`) calls `/api/cron/tick` every hour with `CRON_SECRET`. That creates due repeat invoices and sends payment reminders, and catches up anything missed.
-- Copy `.env.example` to see every setting. On Vercel they are environment variables.
+Invoxa lives inside the ambixous.in repository and is served at **https://ambixous.in/invoxa**.
+- **Vercel** (the Ambixous project): the UI in `invoxa/public` is copied to `public/invoxa` at build; the API runs from `app/invoxa/api/[[...path]]/route.ts`, which starts this Express app.
+- **Turso** is the database (`INVOXA_DATABASE_URL`, `INVOXA_AUTH_TOKEN`). Without them the app uses the local file above.
+- **GitHub Actions** (`.github/workflows/invoxa-cron.yml` at the repo root) calls `/invoxa/api/cron/tick` every hour with `CRON_SECRET`. That creates due repeat invoices and sends payment reminders, and catches up anything missed.
+- Run the tests from the repo root with `npm run test:invoxa`.
 
 ## Users & roles
 Sign-in is **Google only**, exactly like ambixous.in. Only people already on the team can get in; a random Google account is refused.
@@ -23,8 +24,8 @@ Add people under **Settings → Team** with their Google email.
 
 ### Google sign-in setup
 1. Google Cloud Console → your OAuth client → **Authorized redirect URIs**, add
-   `https://invoxa.ambixous.in/api/auth/google/callback` (and `http://localhost:3100/api/auth/google/callback` to test locally).
-2. Set `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` (and `APP_URL`) in Vercel, or in `.env` locally.
+   `https://ambixous.in/invoxa/api/auth/google/callback` (and `http://localhost:3100/api/auth/google/callback` to test locally).
+2. The same `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` as the website are used (set in Vercel, or in `invoxa/.env` locally).
 
 ## First 5 minutes
 1. **Settings → Business**: your name, address, how customers pay you.

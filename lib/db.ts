@@ -1,11 +1,17 @@
 import { createClient, type Client } from "@libsql/client"
+import * as fs from "node:fs"
 import * as path from "node:path"
 
 // Production: Turso (TURSO_DATABASE_URL + TURSO_AUTH_TOKEN).
 // Local dev without env vars: a SQLite file at data/local.db (gitignored).
-const url =
-  process.env.TURSO_DATABASE_URL ||
-  (process.env.VERCEL ? "" : `file:${path.join(process.cwd(), "data", "local.db")}`)
+function resolveUrl(): string {
+  if (process.env.TURSO_DATABASE_URL) return process.env.TURSO_DATABASE_URL
+  if (process.env.VERCEL) return ""
+  fs.mkdirSync(path.join(process.cwd(), "data"), { recursive: true })
+  return `file:${path.join(process.cwd(), "data", "local.db")}`
+}
+
+const url = resolveUrl()
 
 let client: Client | null = null
 let ready: Promise<void> | null = null
