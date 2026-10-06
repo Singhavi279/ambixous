@@ -1,5 +1,10 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  // Invoxa's API (Express + PDFKit) reads its own data files, so keep these out of the bundle.
+  serverExternalPackages: ["express", "pdfkit", "@libsql/client", "nodemailer"],
+  outputFileTracingIncludes: {
+    "/invoxa/**/*": ["./node_modules/@fontsource/noto-sans/files/*.woff", "./node_modules/pdfkit/js/**/*"],
+  },
   eslint: {
     ignoreDuringBuilds: true,
   },
@@ -38,10 +43,22 @@ const nextConfig = {
         source: "/pdfstudio",
         destination: "/pdfstudio/index.html",
       },
+      {
+        source: "/invoxa",
+        destination: "/invoxa/index.html",
+      },
     ]
   },
   async headers() {
     return [
+      {
+        source: "/invoxa/:path*",
+        headers: [
+          { key: "X-Robots-Tag", value: "noindex, nofollow" },
+          { key: "X-Frame-Options", value: "SAMEORIGIN" },
+          { key: "X-Content-Type-Options", value: "nosniff" },
+        ],
+      },
       {
         source: "/pdfstudio/:path*",
         headers: [

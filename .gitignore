@@ -19,6 +19,7 @@
 /build
 /dist
 /public/pdfstudio/
+/public/invoxa/
 
 # debug
 npm-debug.log*
@@ -68,3 +69,7 @@ Thumbs.db
 # local sqlite dev db
 /data/local.db*
 .env*
+
+# invoxa local data / secrets
+/invoxa/data/
+/invoxa/.env

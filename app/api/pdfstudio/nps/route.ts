@@ -63,8 +63,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Origin not allowed" }, { status: 403 })
     }
 
-    const featuresUsed = Array.isArray(body.featuresUsed)
-      ? [...new Set(body.featuresUsed.map(String).filter((item: string) => ALLOWED_FEATURES.has(item)))].slice(0, 12)
+    const featuresUsed: string[] = Array.isArray(body.featuresUsed)
+      ? [...new Set<string>((body.featuresUsed as unknown[]).map(String).filter((item) => ALLOWED_FEATURES.has(item)))].slice(0, 12)
       : []
 
     const entry: PdfStudioNpsResponse = {
