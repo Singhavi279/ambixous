@@ -3,7 +3,7 @@ const nextConfig = {
   // Invoxa's API (Express + PDFKit) reads its own data files, so keep these out of the bundle.
   serverExternalPackages: ["express", "pdfkit", "@libsql/client", "nodemailer"],
   outputFileTracingIncludes: {
-    "/invoxa/**/*": ["./node_modules/@fontsource/noto-sans/files/*.woff", "./node_modules/pdfkit/js/**/*"],
+    "/invoxa/**/*": ["./node_modules/@fontsource/noto-sans/files/*.woff", "./node_modules/@fontsource/dancing-script/files/*.woff", "./node_modules/pdfkit/js/**/*", "./invoxa/server/assets/*"],
   },
   eslint: {
     ignoreDuringBuilds: true,

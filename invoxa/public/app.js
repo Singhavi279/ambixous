@@ -165,6 +165,17 @@ async function pageInvoices(m, q) {
   draw();
 }
 
+// Who signs the invoice (the signature image is added to the PDF). Chosen every time, never assumed.
+function signerPicker(signers, current) {
+  return `<div class="field"><label>Authorised signatory</label>
+    <select id="signer"><option value="">Choose who signs…</option>${signers.map((x) => `<option value="${x.key}" ${x.key === current ? 'selected' : ''}>${esc(x.name)} — ${esc(x.title)}</option>`).join('')}</select>
+    <div id="signerPrev" style="margin-top:10px;min-height:56px"></div></div>`;
+}
+function bindSignerPreview() {
+  const draw = () => { const v = $('#signer').value; $('#signerPrev').innerHTML = v ? `<img src="${BASE}/api/signers/${v}/image" alt="Signature" style="max-height:56px;max-width:160px">` : ''; };
+  $('#signer').addEventListener('input', draw); draw();
+}
+
 // =====================================================================
 // ITEMS EDITOR (shared by invoice + repeat billing)
 // =====================================================================
@@ -176,7 +187,8 @@ function itemsEditor(host, services, initial) {
       <div class="items">
         <div class="item item-head hide-m"><span>What are you charging for?</span><span>Qty</span><span>Price (₹)</span><span class="right">Amount</span><span></span></div>
         ${rows.map((r, i) => `<div class="item" data-i="${i}">
-          <div class="desc"><input data-f="description" placeholder="e.g. LinkedIn management – October" value="${esc(r.description)}" list="svc-list"></div>
+          <div class="desc"><input data-f="description" placeholder="e.g. LinkedIn management – October" value="${esc(r.description)}" list="svc-list">
+            <textarea data-f="details" placeholder="Extra text shown under the title on the invoice (optional)" style="margin-top:6px;min-height:46px;font-size:13px">${esc(r.details || '')}</textarea></div>
           <div><input data-f="qty" type="number" min="0" step="any" value="${r.qty ?? 1}" aria-label="Quantity"></div>
           <div class="money-in"><span>₹</span><input data-f="rate" type="number" min="0" step="any" value="${rupeesStr(r.rate)}" placeholder="0" aria-label="Price"></div>
           <div class="amt">${inr(Math.round((r.qty ?? 1) * (r.rate || 0)))}</div>
@@ -189,12 +201,13 @@ function itemsEditor(host, services, initial) {
       </div>`;
     $$('.item[data-i]', host).forEach((el) => {
       const i = +el.dataset.i;
-      $$('input', el).forEach((inp) => inp.addEventListener('input', () => {
+      $$('input, textarea', el).forEach((inp) => inp.addEventListener('input', () => {
         const f = inp.dataset.f;
         rows[i][f] = f === 'rate' ? toPaise(inp.value) : f === 'qty' ? (inp.value === '' ? '' : parseFloat(inp.value)) : inp.value;
+        if (f === 'details') return onChange();
         if (f === 'description') { // picked a saved service from the suggestion list? fill the rest in.
           const svc = services.find((s) => s.name === inp.value);
-          if (svc && !rows[i].rate) { Object.assign(rows[i], { service_id: svc.id, rate: svc.price, unit: svc.unit, activity: svc.activity }); draw(); return; }
+          if (svc && !rows[i].rate) { Object.assign(rows[i], { service_id: svc.id, rate: svc.price, unit: svc.unit, activity: svc.activity, details: svc.description || '' }); draw(); return; }
         }
         el.querySelector('.amt').textContent = inr(Math.round((Number(rows[i].qty) || 0) * (rows[i].rate || 0)));
         onChange();
@@ -206,7 +219,7 @@ function itemsEditor(host, services, initial) {
     if (sel) sel.onchange = () => {
       const s = services.find((x) => x.id === +sel.value); if (!s) return;
       const blank = rows.length === 1 && !rows[0].description && !rows[0].rate;
-      const row = { service_id: s.id, description: s.description || s.name, qty: 1, unit: s.unit, rate: s.price, activity: s.activity };
+      const row = { service_id: s.id, description: s.name, details: s.description || '', qty: 1, unit: s.unit, rate: s.price, activity: s.activity };
       if (blank) rows[0] = row; else rows.push(row);
       draw(); onChange();
     };
@@ -223,9 +236,9 @@ function itemsEditor(host, services, initial) {
 // INVOICE FORM
 // =====================================================================
 async function pageInvoiceForm(editId, q = {}) {
-  const [customers, services, s, existing] = await Promise.all([api('/customers'), api('/services'), loadSettings(), editId ? api(`/invoices/${editId}`) : null]);
+  const [customers, services, signers, s, existing] = await Promise.all([api('/customers'), api('/services'), api('/signers'), loadSettings(), editId ? api(`/invoices/${editId}`) : null]);
   if (existing && existing.status !== 'draft') { location.hash = `#/invoice/${editId}`; return; }
-  const inv = existing || { customer_id: +q.customer || '', issue_date: todayStr(), terms_days: s.default_terms_days, items: [], discount: 0, reference: '', notes: '' };
+  const inv = existing || { customer_id: +q.customer || '', issue_date: todayStr(), terms_days: s.default_terms_days, items: [], discount: 0, reference: '', notes: '', signer: '' };
   const gstRate = s.gst_enabled ? Number(s.gst_rate) : 0;
 
   view(`
@@ -252,6 +265,7 @@ async function pageInvoiceForm(editId, q = {}) {
             <div class="field"><label>Note for the customer</label><textarea id="notes" placeholder="Shown at the bottom of the invoice">${esc(inv.notes)}</textarea></div>
           </details>
         </div>
+        <div class="card"><h2>4 · Who signs it?</h2>${signerPicker(signers, inv.signer)}</div>
       </div>
       <div style="position:sticky;top:20px"><div class="card"><h2>Summary</h2><div class="sumbox" id="sum"></div>
         <div style="display:grid;gap:10px;margin-top:16px">
@@ -263,6 +277,7 @@ async function pageInvoiceForm(editId, q = {}) {
     </div>`);
   if (innerWidth < 900) $('#formgrid').style.gridTemplateColumns = '1fr';
 
+  bindSignerPreview();
   const editor = itemsEditor($('#items'), services, inv.items || []);
   const discEl = $('#disc');
   const refresh = () => {
@@ -286,9 +301,10 @@ async function pageInvoiceForm(editId, q = {}) {
   const submit = (action) => async (e) => busy(e.currentTarget, async () => {
     const body = {
       action, customer_id: +$('#customer').value, items: editor.get(), issue_date: $('#issue').value, terms_days: parseInt($('#terms').value, 10),
-      reference: $('#ref').value, period_start: $('#pstart').value || null, period_end: $('#pend').value || null, discount: toPaise(discEl.value), notes: $('#notes').value,
+      reference: $('#ref').value, period_start: $('#pstart').value || null, period_end: $('#pend').value || null, discount: toPaise(discEl.value), notes: $('#notes').value, signer: $('#signer').value,
     };
     if (!body.customer_id) throw new Error('Please choose who this invoice is for.');
+    if (action !== 'draft' && !body.signer) throw new Error('Please choose who signs this invoice.');
     if (action === 'send' && !customers.find((c) => c.id === body.customer_id)?.email) throw new Error('This customer has no email address. Add one (Customers page), or use "Create invoice" and download the PDF.');
     const r = await api(existing ? `/invoices/${editId}` : '/invoices', { method: existing ? 'PUT' : 'POST', body });
     if (r.email) toast(r.email.message, r.email.ok ? 'good' : 'bad'); else toast(action === 'draft' ? 'Draft saved.' : 'Invoice created.', 'good');
@@ -473,8 +489,8 @@ async function pageRecurring() {
 }
 
 async function pageRecurringForm(editId, q = {}) {
-  const [customers, services, s, ex] = await Promise.all([api('/customers'), api('/services'), loadSettings(), editId ? api('/recurring').then((l) => l.find((x) => x.id === editId)) : null]);
-  const r = ex || { customer_id: +q.customer || '', items: [], every_months: 1, day_of_month: 30, start_date: todayStr(), end_date: '', terms_days: s.default_terms_days, reference: '', period_mode: 'this', auto_send: 1 };
+  const [customers, services, signers, s, ex] = await Promise.all([api('/customers'), api('/services'), api('/signers'), loadSettings(), editId ? api('/recurring').then((l) => l.find((x) => x.id === editId)) : null]);
+  const r = ex || { customer_id: +q.customer || '', items: [], every_months: 1, day_of_month: 30, start_date: todayStr(), end_date: '', terms_days: s.default_terms_days, reference: '', period_mode: 'this', auto_send: 1, signer: '' };
   const dayOpts = [...Array.from({ length: 31 }, (_, i) => i + 1), 0].map((d) => `<option value="${d}" ${d === r.day_of_month ? 'selected' : ''}>${d === 0 ? 'Last day of the month' : ordinal(d)}</option>`).join('');
   view(`<div class="page-head"><div><a href="#/recurring" class="small">← Repeat billing</a><h1 style="margin-top:6px">${ex ? 'Edit repeat billing' : 'Set up repeat billing'}</h1></div></div>
     <div class="grid" style="max-width:820px">
@@ -495,6 +511,7 @@ async function pageRecurringForm(editId, q = {}) {
           <div class="field"><label>The invoice covers</label><select id="pmode"><option value="this" ${r.period_mode === 'this' ? 'selected' : ''}>The month of the invoice date</option><option value="next" ${r.period_mode === 'next' ? 'selected' : ''}>The month after (billed in advance)</option><option value="previous" ${r.period_mode === 'previous' ? 'selected' : ''}>The month before (billed in arrears)</option></select></div>
         </div>
         <div class="field"><label>Reference on invoice</label><input id="ref" value="${esc(r.reference)}" placeholder="{service} – {period}"><div class="hint">Leave blank for the default, e.g. “LinkedIn Management – October 2026”. You can use {service}, {period}, {month}, {year}.</div></div>
+        ${signerPicker(signers, r.signer)}
         <label class="check"><input type="checkbox" id="auto" ${r.auto_send ? 'checked' : ''}> Email the invoice to the customer automatically</label>
         <div class="hint small muted" style="margin:6px 0 0 26px" id="autoHint"></div>
       </div>
@@ -502,6 +519,7 @@ async function pageRecurringForm(editId, q = {}) {
         ${ex ? '<button class="btn danger" id="del" style="margin-left:auto">Delete schedule</button>' : ''}</div>
     </div>`);
 
+  bindSignerPreview();
   const editor = itemsEditor($('#items'), services, r.items);
   const firstRun = () => {
     const start = $('#start').value; if (!start) return ''; const day = +$('#day').value, every = +$('#every').value;
@@ -519,7 +537,8 @@ async function pageRecurringForm(editId, q = {}) {
 
   $('#save').onclick = (e) => busy(e.currentTarget, async () => {
     const body = { customer_id: +$('#customer').value, items: editor.get(), every_months: +$('#every').value, day_of_month: +$('#day').value, start_date: $('#start').value,
-      end_date: $('#end').value || null, terms_days: parseInt($('#terms').value, 10), period_mode: $('#pmode').value, reference: $('#ref').value, auto_send: $('#auto').checked };
+      end_date: $('#end').value || null, terms_days: parseInt($('#terms').value, 10), period_mode: $('#pmode').value, reference: $('#ref').value, auto_send: $('#auto').checked, signer: $('#signer').value };
+    if (!body.signer) throw new Error('Please choose who signs these invoices.');
     await api(ex ? `/recurring/${editId}` : '/recurring', { method: ex ? 'PUT' : 'POST', body });
     toast('Repeat billing saved.', 'good'); location.hash = '#/recurring';
   });
@@ -561,7 +580,9 @@ async function pageSettings(m, q) {
       ${field('business_name', 'Business name')}${field('business_address', 'Address', { area: true })}
       <div class="cols">${field('business_email', 'Email')}${field('business_phone', 'Phone')}${field('business_pan', 'PAN', { hint: 'Optional' })}${field('business_llpin', 'LLPIN / registration no.', { hint: 'Optional' })}</div>
       ${field('payment_details', 'How customers should pay you', { area: true, ph: 'e.g. UPI: name@bank\nAccount: ..., IFSC: ...', hint: 'Shown on invoices and in emails. Type your real details only.' })}
-      ${field('signatory', 'Name under signature line', { hint: 'We never add a fake signature or stamp.' })}${field('invoice_footer', 'Footer message')}`,
+      <div class="cols">${field('business_website', 'Website (invoice footer)')}${field('business_tagline', 'Tagline (invoice footer)')}</div>
+      ${field('invoice_thanks', 'Thank-you message', { area: true, hint: 'Printed next to the signature.' })}
+      ${field('invoice_terms', 'Terms & conditions', { area: true, hint: 'One point per line. You can use {terms_days}, {business_email} and {business_phone}. The signature is chosen on each invoice.' })}`,
     invoicing: () => `<h2>Invoice numbers &amp; payment time</h2>
       <div class="cols">${field('invoice_prefix', 'Invoice prefix', { hint: 'Letters/numbers only.' })}${field('invoice_pad', 'Number length', { type: 'number', hint: '3 → 001, 002…' })}${field('default_terms_days', 'Usual payment time (days)', { type: 'number' })}</div>
       <div class="sentence" id="numEx"></div>

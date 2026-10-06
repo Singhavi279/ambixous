@@ -149,6 +149,17 @@ function createApp(db) {
     res.json({ ok: true });
   }));
 
+  // ---------- signers ----------
+  app.get('/api/signers', wrap(async (req, res) => res.json(Object.entries(L.SIGNERS).map(([key, v]) => ({ key, name: v.name, title: v.title })))));
+  app.get('/api/signers/:key/image', wrap(async (req, res) => {
+    const signer = L.SIGNERS[req.params.key];
+    if (!signer) throw new L.UserError('Not found', 404);
+    const file = [path.join(process.cwd(), 'invoxa', 'server', 'assets'), path.join(process.cwd(), 'server', 'assets'), path.join(__dirname, 'assets')]
+      .map((d) => path.join(d, signer.file)).find((p) => fs.existsSync(p));
+    if (!file) throw new L.UserError('Not found', 404);
+    res.set({ 'Content-Type': 'image/png', 'Cache-Control': 'private, max-age=86400' }).send(fs.readFileSync(file));
+  }));
+
   // ---------- settings ----------
   const publicSettings = (s) => ({ ...s, smtp_pass: s.smtp_pass ? '********' : '' });
   app.get('/api/settings', wrap(async (req, res) => res.json(req.user.role === 'super_admin' ? publicSettings(await L.getSettings(db)) : { business_name: (await L.getSettings(db)).business_name })));

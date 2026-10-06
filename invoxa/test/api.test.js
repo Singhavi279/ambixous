@@ -26,12 +26,12 @@ test('invoicing flow over HTTP: customers, invoices, payments, repeat billing, r
   assert.equal((await call('GET', '/services')).body.length, 1);
 
   const item = { description: 'LinkedIn Management', qty: 1, rate: 2000000, activity: 'Advertising' };
-  const draft = await call('POST', '/invoices', { customer_id: cust.body.id, items: [item], action: 'draft' });
+  const draft = await call('POST', '/invoices', { customer_id: cust.body.id, signer: 'riti', items: [item], action: 'draft' });
   assert.equal(draft.status, 200);
-  assert.equal((await call('PUT', `/invoices/${draft.body.id}`, { customer_id: cust.body.id, items: [item], action: 'draft', notes: 'edited' })).status, 200);
+  assert.equal((await call('PUT', `/invoices/${draft.body.id}`, { customer_id: cust.body.id, signer: 'riti', items: [item], action: 'draft', notes: 'edited' })).status, 200);
   assert.equal((await call('DELETE', `/invoices/${draft.body.id}`)).status, 200);
 
-  const sent = await call('POST', '/invoices', { customer_id: cust.body.id, items: [item], action: 'send', issue_date: '2026-10-05' });
+  const sent = await call('POST', '/invoices', { customer_id: cust.body.id, signer: 'riti', items: [item], action: 'send', issue_date: '2026-10-05' });
   assert.equal(sent.status, 200);
   assert.equal(sent.body.email.ok, false); // mail not configured: reported honestly
   const inv = await call('GET', `/invoices/${sent.body.id}`);
@@ -45,7 +45,7 @@ test('invoicing flow over HTTP: customers, invoices, payments, repeat billing, r
   const list = await call('GET', '/invoices?status=open');
   assert.equal(list.body.length, 1); assert.equal(list.body[0].paid, 500000);
 
-  const rec = await call('POST', '/recurring', { customer_id: cust.body.id, items: [item], every_months: 1, day_of_month: 30, start_date: '2026-10-01', auto_send: false });
+  const rec = await call('POST', '/recurring', { customer_id: cust.body.id, signer: 'riti', items: [item], every_months: 1, day_of_month: 30, start_date: '2026-10-01', auto_send: false });
   assert.equal(rec.status, 200);
   assert.equal((await call('GET', '/recurring')).body[0].customer_name, 'Rohan Mehta');
   const ran = await call('POST', `/recurring/${rec.body.id}/run-now`);
