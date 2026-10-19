@@ -9,13 +9,17 @@
     "dev": "next dev",
     "lint": "next lint",
     "start": "next start",
-    "test:invoxa": "node --test invoxa/test/"
+    "test:invoxa": "node --test invoxa/test/",
+    "test:pdfstudio": "node --test pdfstudio/test/",
+    "pdfstudio": "node scripts/serve-pdfstudio.mjs"
   },
   "overrides": {
     "nodemailer": "^10.0.6",
     "postcss": "^8.5.29"
   },
   "dependencies": {
+    "@cantoo/fontkit": "2.0.12",
+    "@cantoo/pdf-lib": "2.11.1",
     "@fontsource/dancing-script": "^5.3.0",
     "@fontsource/noto-sans": "^5.3.0",
     "@libsql/client": "^0.18.0",
@@ -33,6 +37,7 @@
     "next-auth": "^4.24.15",
     "nodemailer": "^10.0.6",
     "pdf-lib": "^1.17.1",
+    "pdfjs-dist": "4.9.155",
     "pdfkit": "^0.20.2",
     "qrcode.react": "^4.2.0",
     "react": "^19",
@@ -47,6 +52,7 @@
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "playwright-core": "1.64.1",
     "postcss": "^8.5.29",
     "tailwindcss": "^3.4.17",
     "typescript": "^5"

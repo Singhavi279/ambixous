@@ -12,7 +12,7 @@
     <meta name="googlebot" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
     <!-- A11Y-09 / SEC-05: Content Security Policy + referrer -->
     <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; font-src https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self' https://cdn.jsdelivr.net; worker-src 'self' blob:;">
+          content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' https://cdnjs.cloudflare.com https://fonts.googleapis.com 'unsafe-inline'; font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com data:; img-src 'self' data: blob:; connect-src 'self'; worker-src 'self' blob:;">
     <meta name="referrer" content="strict-origin-when-cross-origin">
     <link rel="canonical" href="https://ambixous.in/pdfstudio">
     <link rel="alternate" hreflang="en-IN" href="https://ambixous.in/pdfstudio">
@@ -42,10 +42,11 @@
     <!-- LIB-03 FIX: Font Awesome 6.7.2 (latest) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css">
 
-    <!-- LIB-01 FIX: PDF.js v4.9.155 via jsDelivr (ES module, loaded in app.js) -->
-    <!-- LIB-02 FIX: @cantoo/pdf-lib v2.11.1 (active maintained fork of pdf-lib) -->
-    <script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@4.9.155/legacy/build/pdf.min.mjs" type="module" id="pdfjs-script"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@cantoo/pdf-lib@2.11.1/dist/pdf-lib.min.js"></script>
+    <!-- Libraries are served from vendor/ (copied from node_modules at build time): PDF.js 4.9.155,
+         @cantoo/pdf-lib 2.11.1 and @cantoo/fontkit 2.0.12. See scripts/pdfstudio-vendor.mjs. -->
+    <script src="vendor/pdf.min.mjs" type="module" id="pdfjs-script"></script>
+    <script src="vendor/pdf-lib.min.js"></script>
+    <script src="vendor/fontkit.umd.min.js"></script>
 
     <link rel="stylesheet" href="css/styles.css">
     <script type="application/ld+json">
@@ -159,6 +160,8 @@
                     <span>Add Links</span>
                 </div>
             </div>
+            <h2 class="features-title tools-title">More free PDF tools</h2>
+            <div class="features-grid tools-grid" id="landing-tools" aria-label="PDF tools"></div>
         </div>
         <section class="landing-seo" aria-labelledby="why-pdfstudio-title">
             <div>
@@ -267,6 +270,10 @@
                 </div>
             </nav>
             <div class="toolbar-right">
+                <button class="tool-btn" id="open-tools" type="button" title="PDF tools: merge, split, organize pages, protect, watermark and more" aria-label="Open PDF tools">
+                    <i class="fas fa-toolbox" aria-hidden="true"></i>
+                    <span>Tools</span>
+                </button>
                 <button class="save-btn" id="save-btn" title="Download edited PDF (Ctrl+S)" aria-label="Save and download the edited PDF">
                     <i class="fas fa-download" aria-hidden="true"></i>
                     <span>Save &amp; Download</span>
@@ -387,6 +394,10 @@
 
             <!-- Whiteout Properties -->
             <div class="prop-group hidden" id="props-whiteout">
+                <div class="prop-segment hidden" id="whiteout-mode" role="group" aria-label="Cover style">
+                    <button class="prop-btn active" type="button" data-mode="white" aria-pressed="true" title="Cover with white and erase the text underneath"><i class="fas fa-eraser" aria-hidden="true"></i> Whiteout</button>
+                    <button class="prop-btn" type="button" data-mode="redact" aria-pressed="false" title="Black out and permanently remove the text and images underneath"><i class="fas fa-user-secret" aria-hidden="true"></i> Redact</button>
+                </div>
                 <span class="prop-hint"><i class="fas fa-info-circle" aria-hidden="true"></i> Click and drag on the PDF to white out an area</span>
             </div>
 
@@ -443,8 +454,8 @@
                 <div class="pdf-container" id="pdf-container" role="document" aria-label="PDF document viewer">
                     <div class="pdf-page-wrapper" id="pdf-page-wrapper">
                         <canvas id="pdf-canvas" aria-label="PDF page rendering canvas" role="img"></canvas>
-                        <div class="text-layer" id="text-layer" aria-label="Existing PDF text — click to edit" role="region">
-                            <!-- Existing PDF text items rendered here for editing -->
+                        <div class="text-layer" id="text-layer" aria-label="Existing PDF text and images — click to edit" role="region">
+                            <!-- Existing text lines and images become editable objects here -->
                         </div>
                         <div class="annotation-layer" id="annotation-layer" aria-label="Annotation layer" role="region">
                             <!-- Editable elements go here -->

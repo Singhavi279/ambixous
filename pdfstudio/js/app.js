@@ -1,24 +1,13 @@
 /* =============================================
    PDF Studio — Professional PDF Editor v3.0
    ============================================= */
-import { WebGPURenderer } from './webgpu-renderer.js';
+import { openPdfDocument } from './pdfjs-config.js';
 import { opfsStore } from './opfs-store.js';
-
-// LIB-01 FIX: Configure PDF.js v4.9.155 worker (jsDelivr, ES module aware)
-// pdfjsLib is loaded via <script type="module"> in index.html but also exposed globally
-const PDFJS_VERSION = '4.9.155';
-if (typeof pdfjsLib !== 'undefined') {
-    pdfjsLib.GlobalWorkerOptions.workerSrc =
-        `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/legacy/build/pdf.worker.min.mjs`;
-} else {
-    // Fallback: wait for module to load then configure
-    window.addEventListener('load', () => {
-        if (typeof pdfjsLib !== 'undefined') {
-            pdfjsLib.GlobalWorkerOptions.workerSrc =
-                `https://cdn.jsdelivr.net/npm/pdfjs-dist@${PDFJS_VERSION}/legacy/build/pdf.worker.min.mjs`;
-        }
-    });
-}
+import { createObjectEditor } from './object-editor.js';
+import { createToolsUI, TOOL_CARDS } from './tools-ui.js';
+import { drawPageElements } from './elements-export.js';
+import { CSS_FAMILY, familyKeyFor } from './pdf-fonts.js';
+import { flattenPages } from './pdf-tools.js';
 
 // =============================================
 // App State
@@ -33,6 +22,7 @@ const state = {
     activeAnnotateMode: 'highlight',
     activeShapeMode: 'rectangle',
     activeFormMode: 'text-field',
+    whiteoutMode: 'white',   // 'white' paints over; 'redact' paints black and removes what is underneath
     
     // History for undo/redo
     history: [],
@@ -81,8 +71,8 @@ const state = {
     pageRotations: {},  // pageNum -> degrees
     
     // Existing text editing
-    modifiedText: {},     // pageNum -> { index -> { originalText, newText, transform, fontName, ... } }
-    pageTextItems: {},    // pageNum -> array of extracted text item data
+    modifiedText: {},     // pageNum -> { runId -> edited / moved / deleted line of existing text }
+    modifiedImages: {},   // pageNum -> { imageId -> moved / resized / deleted existing image }
     assets: new Map(),
     assetIdsBySource: new Map(),
     assetSequence: 0,
@@ -92,6 +82,7 @@ const state = {
     renderTask: null,
     thumbnailObserver: null,
     rasterCanvas: null,
+    editSerial: 0,   // bumps on every change to the document or its edits (invalidates cached exports)
 };
 
 // =============================================
@@ -140,14 +131,29 @@ const dom = {
     imageUploadInput: document.getElementById('image-upload-input'),
 };
 
+// Existing text and images on the page (click to edit, drag to move, Delete to remove).
+const objectEditor = createObjectEditor({ state, dom, showToast, saveHistory });
+
+// Document tools (merge, split, organize, convert, protect, watermark, ...).
+let exportCache = null;
+const toolsUI = createToolsUI({
+    hasOpenDocument: () => Boolean(state.pdf && state.pdfBytes) && !dom.editorScreen.classList.contains('hidden'),
+    getCurrentPdf: async () => {
+        // Exporting is slow, so reuse the result until something about the document changes.
+        if (!exportCache || exportCache.serial !== state.editSerial) {
+            const serial = state.editSerial;
+            exportCache = { serial, bytes: await exportPdfBytes() };
+        }
+        return { name: state.fileName || 'document.pdf', bytes: exportCache.bytes };
+    },
+    openInEditor: async (bytes, name) => loadPDF(new File([bytes], name, { type: 'application/pdf' })),
+});
+
 // =============================================
 // Initialize
 // =============================================
 async function init() {
-    // WebGPU progressively enhances presentation; Canvas 2D remains a reliable fallback.
-    state.gpuRenderer = new WebGPURenderer(dom.pdfCanvas);
-    const gpuActive = await state.gpuRenderer.init();
-    state.rasterCanvas = gpuActive ? document.createElement('canvas') : dom.pdfCanvas;
+    state.rasterCanvas = dom.pdfCanvas;
 
     setupFileUpload();
     setupToolbar();
@@ -159,7 +165,26 @@ async function init() {
     setupKeyboard();
     setupSidebar();
     setupNps();
+    setupToolsEntryPoints();
     selectTool('select');
+}
+
+// =============================================
+// Document tools entry points
+// =============================================
+function setupToolsEntryPoints() {
+    document.getElementById('open-tools')?.addEventListener('click', () => toolsUI.open('organize'));
+    const grid = document.getElementById('landing-tools');
+    if (!grid) return;
+    for (const [id, icon, label] of TOOL_CARDS) {
+        const card = document.createElement('button');
+        card.type = 'button';
+        card.className = 'feature-card tool-card';
+        card.innerHTML = `<i class="fas ${icon}" aria-hidden="true"></i><span></span>`;
+        card.querySelector('span').textContent = label;
+        card.addEventListener('click', () => toolsUI.open(id));
+        grid.append(card);
+    }
 }
 
 // =============================================
@@ -225,8 +250,9 @@ async function loadPDF(file, { persist = true } = {}) {
         const arrayBuffer = await file.arrayBuffer();
         if (loadRevision !== state.loadRevision) return;
         const pdfBytes = new Uint8Array(arrayBuffer);
+        state.fileName = file.name || 'document.pdf';
         
-        const loadingTask = pdfjsLib.getDocument({ data: pdfBytes.slice() });
+        const loadingTask = openPdfDocument({ data: pdfBytes.slice() });
         state.loadingTask = loadingTask;
         const pdf = await loadingTask.promise;
         if (loadRevision !== state.loadRevision) {
@@ -243,9 +269,10 @@ async function loadPDF(file, { persist = true } = {}) {
         state.history = [];
         state.historyIndex = -1;
         state.dirty = false;
+        state.editSerial++;
         state.pageRotations = {};
         state.modifiedText = {};
-        state.pageTextItems = {};
+        state.modifiedImages = {};
         state.assets.clear();
         state.assetIdsBySource.clear();
         state.assetSequence = 0;
@@ -277,12 +304,18 @@ async function loadPDF(file, { persist = true } = {}) {
 // =============================================
 // PDF Rendering
 // =============================================
+
+/** The rotation a page is shown at: its own /Rotate from the file plus any turn made in the editor. */
+function displayRotation(page, pageNum) {
+    return (((page.rotate || 0) + (state.pageRotations[pageNum] || 0)) % 360 + 360) % 360;
+}
+
 async function renderPage(pageNum) {
     if (!state.pdf) return;
     const revision = ++state.renderRevision;
     const page = await state.pdf.getPage(pageNum);
     if (revision !== state.renderRevision) return;
-    const rotation = (state.pageRotations[pageNum] || 0);
+    const rotation = displayRotation(page, pageNum);
     const viewport = page.getViewport({ scale: state.zoom * 1.5, rotation });
     
     // Render into a detached canvas so rapid page/zoom changes never contend for
@@ -308,24 +341,19 @@ async function renderPage(pageNum) {
     }
     if (revision !== state.renderRevision) return;
     state.rasterCanvas = canvas;
-    if (state.gpuRenderer?.isInitialized) {
-        await state.gpuRenderer.renderSource(canvas);
-    } else {
-        dom.pdfCanvas.width = canvas.width;
-        dom.pdfCanvas.height = canvas.height;
-        const displayContext = dom.pdfCanvas.getContext('2d');
-        displayContext.clearRect(0, 0, canvas.width, canvas.height);
-        displayContext.drawImage(canvas, 0, 0);
-    }
+    dom.pdfCanvas.width = canvas.width;
+    dom.pdfCanvas.height = canvas.height;
+    const displayContext = dom.pdfCanvas.getContext('2d');
+    displayContext.clearRect(0, 0, canvas.width, canvas.height);
+    displayContext.drawImage(canvas, 0, 0);
     
     // Render annotations first. Existing-text replacement masks live in the
     // annotation layer and must be added after this clear-and-rebuild step.
     renderElements(pageNum);
     renderFreehandPaths(pageNum);
 
-    // Render text and its replacement masks last so edited/deleted originals
-    // cannot reappear underneath a newly drawn text layer.
-    await renderTextLayer(page, viewport, pageNum);
+    // Existing text and images become editable objects beneath the annotation layer.
+    await objectEditor.render({ page, viewport, pageNum });
     if (revision !== state.renderRevision) return;
 }
 
@@ -391,7 +419,7 @@ async function renderThumbnails() {
             try {
                 if (sourcePdf !== state.pdf) return;
                 const page = await sourcePdf.getPage(pageNum);
-                const rotation = (state.pageRotations[pageNum] || 0);
+                const rotation = displayRotation(page, pageNum);
                 const viewport = page.getViewport({ scale: thumbScale, rotation });
                 canvas.width = Math.ceil(viewport.width);
                 canvas.height = Math.ceil(viewport.height);
@@ -508,10 +536,15 @@ function selectTool(tool) {
         layer.classList.add('text-mode');
     }
     
-    // Toggle text layer interactivity - only when Text tool is selected
+    // Existing text and images are directly editable in the Select and Text tools. The
+    // annotation layer steps aside there so clicks reach them; other tools draw on it.
+    const objectMode = tool === 'select' || tool === 'text';
+    layer.classList.toggle('passthrough', objectMode);
     if (dom.textLayer) {
-        dom.textLayer.classList.toggle('interactive', tool === 'text');
+        dom.textLayer.classList.toggle('interactive', objectMode);
+        dom.textLayer.classList.toggle('text-mode', tool === 'text');
     }
+    if (!objectMode) objectEditor.deselect();
     
     // Show relevant properties
     showProperties(tool);
@@ -524,6 +557,7 @@ function selectTool(tool) {
 }
 
 function showProperties(tool) {
+    document.getElementById('whiteout-mode')?.classList.toggle('hidden', tool !== 'whiteout');
     // Hide all prop groups
     [dom.propsText, dom.propsShape, dom.propsAnnotate, dom.propsWhiteout, dom.propsLinks].forEach(p => {
         p.classList.add('hidden');
@@ -532,7 +566,7 @@ function showProperties(tool) {
     switch (tool) {
         case 'select':
             dom.propsWhiteout.classList.remove('hidden');
-            dom.propsWhiteout.querySelector('.prop-hint').innerHTML = '<i class="fas fa-mouse-pointer" aria-hidden="true"></i> Drag around a flattened logo or graphic to make it movable';
+            dom.propsWhiteout.querySelector('.prop-hint').innerHTML = '<i class="fas fa-mouse-pointer" aria-hidden="true"></i> Click any text to edit it. Drag text, images and shapes to move them. Press Delete to remove.';
             break;
         case 'text':
             dom.propsText.classList.remove('hidden');
@@ -545,7 +579,9 @@ function showProperties(tool) {
             break;
         case 'whiteout':
             dom.propsWhiteout.classList.remove('hidden');
-            dom.propsWhiteout.querySelector('.prop-hint').innerHTML = '<i class="fas fa-info-circle" aria-hidden="true"></i> Click and drag on the PDF to white out an area';
+            dom.propsWhiteout.querySelector('.prop-hint').innerHTML = state.whiteoutMode === 'redact'
+                ? '<i class="fas fa-user-secret" aria-hidden="true"></i> Drag over anything to black it out. The text and images underneath are removed for good.'
+                : '<i class="fas fa-info-circle" aria-hidden="true"></i> Drag over anything to cover it. Text underneath is erased from the file.';
             break;
         case 'object-capture':
             dom.propsWhiteout.classList.remove('hidden');
@@ -697,6 +733,18 @@ function setupProperties() {
         document.getElementById('opacity-val').textContent = e.target.value + '%';
     });
     
+    // Whiteout / redact
+    document.querySelectorAll('#whiteout-mode [data-mode]').forEach(button => {
+        button.addEventListener('click', () => {
+            state.whiteoutMode = button.dataset.mode;
+            document.querySelectorAll('#whiteout-mode [data-mode]').forEach(other => {
+                other.classList.toggle('active', other === button);
+                other.setAttribute('aria-pressed', String(other === button));
+            });
+            showProperties('whiteout');
+        });
+    });
+    
     // Annotate properties
     document.getElementById('annotate-color').addEventListener('input', (e) => {
         state.annotateProps.color = e.target.value;
@@ -711,6 +759,23 @@ function setupProperties() {
 // =============================================
 // Page Controls
 // =============================================
+/** Elements are stored in screen pixels at the current zoom, so a zoom change rescales them. */
+function scaleEditorGeometry(elementsByPage, pathsByPage, ratio) {
+    Object.values(elementsByPage).forEach(list => {
+        list.forEach(el => {
+            for (const key of ['x', 'y', 'width', 'height', 'x1', 'y1', 'x2', 'y2', 'fontSize']) {
+                if (el[key] !== undefined) el[key] *= ratio;
+            }
+        });
+    });
+    Object.values(pathsByPage).forEach(list => {
+        list.forEach(path => {
+            path.size *= ratio;
+            path.points.forEach(point => { point.x *= ratio; point.y *= ratio; });
+        });
+    });
+}
+
 function setZoom(newZoom) {
     newZoom = Math.min(4, Math.max(0.25, Number(newZoom)));
     if (!Number.isFinite(newZoom)) return;
@@ -719,29 +784,7 @@ function setZoom(newZoom) {
     state.zoom = newZoom;
     
     // Scale all elements so they stay aligned to the PDF
-    Object.keys(state.elements).forEach(pageNum => {
-        state.elements[pageNum].forEach(el => {
-            if (el.x !== undefined) el.x *= ratio;
-            if (el.y !== undefined) el.y *= ratio;
-            if (el.width !== undefined) el.width *= ratio;
-            if (el.height !== undefined) el.height *= ratio;
-            if (el.x1 !== undefined) el.x1 *= ratio;
-            if (el.y1 !== undefined) el.y1 *= ratio;
-            if (el.x2 !== undefined) el.x2 *= ratio;
-            if (el.y2 !== undefined) el.y2 *= ratio;
-            if (el.fontSize !== undefined) el.fontSize *= ratio;
-        });
-    });
-    
-    Object.keys(state.freehandPaths).forEach(pageNum => {
-        state.freehandPaths[pageNum].forEach(path => {
-            path.size *= ratio;
-            path.points.forEach(pt => {
-                pt.x *= ratio;
-                pt.y *= ratio;
-            });
-        });
-    });
+    scaleEditorGeometry(state.elements, state.freehandPaths, ratio);
     
     renderPage(state.currentPage);
     updatePageControls();
@@ -783,7 +826,7 @@ function setupPageControls() {
         // Fit to container width
         if (!state.pdf) return;
         state.pdf.getPage(state.currentPage).then(page => {
-            const viewport = page.getViewport({ scale: 1 });
+            const viewport = page.getViewport({ scale: 1, rotation: displayRotation(page, state.currentPage) });
             const containerWidth = dom.pdfContainer.clientWidth - 48;
             setZoom(containerWidth / (viewport.width * 1.5));
         });
@@ -791,6 +834,7 @@ function setupPageControls() {
     
     document.getElementById('rotate-left').addEventListener('click', () => {
         const page = state.currentPage;
+        state.editSerial++;
         state.pageRotations[page] = ((state.pageRotations[page] || 0) - 90) % 360;
         renderPage(page);
         renderThumbnails();
@@ -799,6 +843,7 @@ function setupPageControls() {
     
     document.getElementById('rotate-right').addEventListener('click', () => {
         const page = state.currentPage;
+        state.editSerial++;
         state.pageRotations[page] = ((state.pageRotations[page] || 0) + 90) % 360;
         renderPage(page);
         renderThumbnails();
@@ -846,7 +891,7 @@ async function insertBlankPage(afterPage) {
         const modifiedBytes = await pdfDoc.save();
         state.pdfBytes = new Uint8Array(modifiedBytes);
         
-        const pdf = await pdfjsLib.getDocument({ data: state.pdfBytes.slice() }).promise;
+        const pdf = await openPdfDocument({ data: state.pdfBytes.slice() }).promise;
         const previousPdf = state.pdf;
         state.pdf = pdf;
         state.totalPages = pdf.numPages;
@@ -856,13 +901,15 @@ async function insertBlankPage(afterPage) {
         // BUG-05 FIX: shift all element/text page keys > afterPage up by 1
         state.elements     = remapPageKeys(state.elements, afterPage, +1);
         state.modifiedText = remapPageKeys(state.modifiedText, afterPage, +1);
+        state.modifiedImages = remapPageKeys(state.modifiedImages, afterPage, +1);
         state.freehandPaths = remapPageKeys(state.freehandPaths, afterPage, +1);
         state.pageRotations = remapPageKeys(state.pageRotations, afterPage, +1);
+        resetHistory();
         
         goToPage(afterPage + 1);
         await renderThumbnails();
         updatePageControls();
-        showToast('Blank page inserted', 'success');
+        showToast('Blank page inserted (undo history starts fresh after page changes)', 'success');
     } catch (err) {
         showToast('Failed to insert page: ' + err.message, 'error');
     }
@@ -884,7 +931,7 @@ async function deletePage(pageNum) {
         const modifiedBytes = await pdfDoc.save();
         state.pdfBytes = new Uint8Array(modifiedBytes);
         
-        const pdf = await pdfjsLib.getDocument({ data: state.pdfBytes.slice() }).promise;
+        const pdf = await openPdfDocument({ data: state.pdfBytes.slice() }).promise;
         const previousPdf = state.pdf;
         state.pdf = pdf;
         state.totalPages = pdf.numPages;
@@ -894,8 +941,10 @@ async function deletePage(pageNum) {
         // BUG-04 FIX: remap all page-keyed state dictionaries
         state.elements      = remapPageKeys(state.elements, pageNum, 0);
         state.modifiedText  = remapPageKeys(state.modifiedText, pageNum, 0);
+        state.modifiedImages = remapPageKeys(state.modifiedImages, pageNum, 0);
         state.freehandPaths = remapPageKeys(state.freehandPaths, pageNum, 0);
         state.pageRotations = remapPageKeys(state.pageRotations, pageNum, 0);
+        resetHistory();
         
         if (state.currentPage > state.totalPages) {
             state.currentPage = state.totalPages;
@@ -904,7 +953,7 @@ async function deletePage(pageNum) {
         await renderPage(state.currentPage);
         await renderThumbnails();
         updatePageControls();
-        showToast(`Page ${pageNum} deleted`, 'success');
+        showToast(`Page ${pageNum} deleted (undo history starts fresh after page changes)`, 'success');
     } catch (err) {
         showToast('Failed to delete page: ' + err.message, 'error');
     }
@@ -949,6 +998,17 @@ function setupAnnotationLayer() {
     layer.addEventListener('touchend',    onLayerTouchEnd,    { passive: false });
     layer.addEventListener('touchcancel', onLayerTouchEnd,    { passive: false });
 
+    // In the Select and Text tools the text layer (below this one) receives empty-space input.
+    const objectLayer = dom.textLayer;
+    objectLayer.addEventListener('mousedown', onLayerMouseDown);
+    objectLayer.addEventListener('mousemove', onLayerMouseMove);
+    objectLayer.addEventListener('mouseup', onLayerMouseUp);
+    objectLayer.addEventListener('click', onLayerClick);
+    objectLayer.addEventListener('touchstart',  onLayerTouchStart,  { passive: false });
+    objectLayer.addEventListener('touchmove',   onLayerTouchMove,   { passive: false });
+    objectLayer.addEventListener('touchend',    onLayerTouchEnd,    { passive: false });
+    objectLayer.addEventListener('touchcancel', onLayerTouchEnd,    { passive: false });
+
     // Place dropped image files at the exact drop point on the current page.
     dom.pdfPageWrapper.addEventListener('dragover', event => {
         const hasImage = [...event.dataTransfer.items].some(item => item.kind === 'file' && item.type.startsWith('image/'));
@@ -974,8 +1034,10 @@ function setupAnnotationLayer() {
     });
 }
 
+const isPageSurface = target => target === dom.annotationLayer || target === dom.textLayer;
+
 function onLayerClick(e) {
-    if (e.target !== dom.annotationLayer) return;
+    if (!isPageSurface(e.target)) return;
     
     const rect = dom.annotationLayer.getBoundingClientRect();
     const x = e.clientX - rect.left;
@@ -1000,7 +1062,7 @@ function onLayerClick(e) {
 }
 
 function onLayerMouseDown(e) {
-    if (e.target !== dom.annotationLayer) return;
+    if (!isPageSurface(e.target)) return;
 
     // Clicking or beginning a new marquee on empty page space clears selection.
     document.querySelectorAll('.edit-element.selected').forEach(element => element.classList.remove('selected'));
@@ -1009,13 +1071,13 @@ function onLayerMouseDown(e) {
     const x = e.clientX - rect.left;
     const y = e.clientY - rect.top;
     
-    if (['select', 'whiteout', 'shapes', 'object-capture'].includes(state.activeTool) ||
+    if (['whiteout', 'shapes', 'object-capture'].includes(state.activeTool) ||
         (state.activeTool === 'annotate' && ['highlight', 'underline', 'strikethrough'].includes(state.activeAnnotateMode))) {
         state.isDrawing = true;
         state.drawStart = { x, y };
         
         // Create preview element
-        if (state.activeTool === 'select' || state.activeTool === 'object-capture') {
+        if (state.activeTool === 'object-capture') {
             createDrawPreview('object-capture', x, y);
         } else if (state.activeTool === 'whiteout') {
             createDrawPreview('whiteout', x, y);
@@ -1059,16 +1121,16 @@ function getLayerCoords(clientX, clientY) {
 }
 
 function onLayerTouchStart(e) {
-    if (e.touches.length !== 1) return;
+    if (e.touches.length !== 1 || !isPageSurface(e.target)) return;
     e.preventDefault();
     const { x, y } = getLayerCoords(e.touches[0].clientX, e.touches[0].clientY);
     // Simulate mousedown
     const synth = { clientX: e.touches[0].clientX, clientY: e.touches[0].clientY, target: e.target, preventDefault: () => {} };
-    if (['select', 'whiteout', 'shapes', 'object-capture'].includes(state.activeTool) ||
+    if (['whiteout', 'shapes', 'object-capture'].includes(state.activeTool) ||
         (state.activeTool === 'annotate' && ['highlight', 'underline', 'strikethrough'].includes(state.activeAnnotateMode))) {
         state.isDrawing = true;
         state.drawStart = { x, y };
-        if (state.activeTool === 'select' || state.activeTool === 'object-capture') createDrawPreview('object-capture', x, y);
+        if (state.activeTool === 'object-capture') createDrawPreview('object-capture', x, y);
         else if (state.activeTool === 'whiteout') createDrawPreview('whiteout', x, y);
         else if (state.activeTool === 'shapes') createDrawPreview(state.activeShapeMode, x, y);
         else createDrawPreview(state.activeAnnotateMode, x, y);
@@ -1076,15 +1138,15 @@ function onLayerTouchStart(e) {
 }
 
 function onLayerTouchMove(e) {
-    if (e.touches.length !== 1) return;
+    if (e.touches.length !== 1 || !state.isDrawing) return;
     e.preventDefault();
     const { x, y } = getLayerCoords(e.touches[0].clientX, e.touches[0].clientY);
     if (state.isDrawing && state.drawStart) updateDrawPreview(x, y);
 }
 
 function onLayerTouchEnd(e) {
-    e.preventDefault();
     if (!state.isDrawing || !state.drawStart) return;
+    e.preventDefault();
     const touch = e.changedTouches[0];
     const { x, y } = getLayerCoords(touch.clientX, touch.clientY);
     state.isDrawing = false;
@@ -1243,7 +1305,8 @@ function finalizeDrawing(x1, y1, x2, y2) {
         addElement(page, {
             type: 'whiteout',
             x: left, y: top,
-            width, height
+            width, height,
+            ...(state.whiteoutMode === 'redact' ? { color: '#000000', redact: true } : {})
         });
     } else if (state.activeTool === 'object-capture' || state.activeTool === 'select') {
         captureExistingObject(left, top, width, height);
@@ -1336,18 +1399,19 @@ function createDomElement(data) {
             textEl.className = 'edit-text';
             textEl.contentEditable = true;
             textEl.textContent = data.text || 'Type here...';
-            textEl.style.fontFamily = data.fontFamily || 'Helvetica';
+            textEl.style.fontFamily = CSS_FAMILY[familyKeyFor(data.fontFamily)];
             textEl.style.fontSize = (data.fontSize || 12) + 'px';
             textEl.style.fontWeight = data.bold ? 'bold' : 'normal';
             textEl.style.fontStyle = data.italic ? 'italic' : 'normal';
             textEl.style.color = data.color || '#000000';
             
+            // innerText keeps line breaks, which the saved PDF reproduces.
             textEl.addEventListener('input', () => {
-                data.text = textEl.textContent;
+                data.text = textEl.innerText.replace(/\n$/, '');
             });
             
             textEl.addEventListener('blur', () => {
-                data.text = textEl.textContent;
+                data.text = textEl.innerText.replace(/\n$/, '');
                 saveHistory();
             });
             
@@ -1825,7 +1889,25 @@ function resolveAssetSource(element) {
     return element.assetId ? state.assets.get(element.assetId) : element.src;
 }
 
-function addImageToPage(src, dropX = 50, dropY = 50, centerOnPoint = false) {
+// PDF can embed PNG and JPEG directly; anything else the browser can show (WebP, GIF, SVG, ...) is converted.
+async function toEmbeddableDataUrl(source) {
+    if (/^data:image\/(png|jpe?g)[;,]/i.test(source)) return source;
+    const image = await new Promise((resolve, reject) => {
+        const loaded = new Image();
+        loaded.onload = () => resolve(loaded);
+        loaded.onerror = reject;
+        loaded.src = source;
+    });
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalWidth || 400;
+    canvas.height = image.naturalHeight || 300;
+    canvas.getContext('2d').drawImage(image, 0, 0, canvas.width, canvas.height);
+    return canvas.toDataURL('image/png');
+}
+
+async function addImageToPage(src, dropX = 50, dropY = 50, centerOnPoint = false) {
+    try { src = await toEmbeddableDataUrl(src); }
+    catch { showToast('That image could not be read', 'error'); return; }
     const img = new Image();
     img.onload = () => {
         const maxWidth = 300;
@@ -2265,7 +2347,9 @@ function setupModals() {
     document.querySelectorAll('.modal-overlay').forEach(overlay => {
         overlay.addEventListener('click', (e) => {
             if (e.target === overlay) {
-                overlay.classList.add('hidden');
+                // The confirmation dialog must settle its promise; closing it silently would leave a stale answer.
+                if (overlay.id === 'confirm-modal') document.getElementById('confirm-cancel').click();
+                else overlay.classList.add('hidden');
             }
         });
     });
@@ -2383,34 +2467,29 @@ function setupKeyboard() {
             savePDF();
         }
         
+        // Existing text / images own Delete, Escape, Enter and the arrow keys while selected.
+        if (objectEditor.handleKeyDown(e)) return;
+
         // Delete selected element
         if (e.key === 'Delete' || e.key === 'Backspace') {
             const selected = document.querySelector('.edit-element.selected');
-            const selectedText = document.querySelector('.text-layer-item.selected');
             if (selected && document.activeElement.tagName !== 'INPUT' &&
                 !document.activeElement.isContentEditable) {
                 e.preventDefault();
                 removeElement(state.currentPage, selected.dataset.id);
                 showToast('Selected element deleted', 'info');
-            } else if (selectedText && document.activeElement.tagName !== 'INPUT' &&
-                !document.activeElement.isContentEditable) {
-                e.preventDefault();
-                const pageNum = Number(selectedText.dataset.pageNum);
-                const itemIndex = Number(selectedText.dataset.index);
-                const itemData = state.pageTextItems[pageNum]?.find(item => item.index === itemIndex);
-                if (itemData) deleteExistingText(itemData, pageNum);
             }
         }
 
         if (e.key === 'Escape') {
-            document.querySelectorAll('.edit-element.selected, .text-layer-item.selected').forEach(element => element.classList.remove('selected'));
+            document.querySelectorAll('.edit-element.selected').forEach(element => element.classList.remove('selected'));
         }
         
         // Page navigation
-        if (e.key === 'ArrowLeft' && !e.target.isContentEditable) {
+        if (e.key === 'ArrowLeft' && !e.target.isContentEditable && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
             goToPage(state.currentPage - 1);
         }
-        if (e.key === 'ArrowRight' && !e.target.isContentEditable) {
+        if (e.key === 'ArrowRight' && !e.target.isContentEditable && e.target.tagName !== 'INPUT' && e.target.tagName !== 'SELECT') {
             goToPage(state.currentPage + 1);
         }
     });
@@ -2454,10 +2533,13 @@ function cloneEditorData(value) {
 }
 
 function saveHistory(markDirty = true) {
+    state.editSerial++;
     const snapshot = {
+        zoom: state.zoom,
         elements: cloneEditorData(state.elements),
         freehandPaths: cloneEditorData(state.freehandPaths),
-        modifiedText: cloneEditorData(state.modifiedText)
+        modifiedText: cloneEditorData(state.modifiedText),
+        modifiedImages: cloneEditorData(state.modifiedImages)
     };
     
     // Remove future states if we're in the middle of history
@@ -2473,6 +2555,24 @@ function saveHistory(markDirty = true) {
     }
 }
 
+/** Restores a snapshot, converting its screen-pixel geometry from the zoom it was taken at to the current zoom. */
+function restoreSnapshot(snapshot) {
+    state.editSerial++;
+    state.elements = cloneEditorData(snapshot.elements);
+    state.freehandPaths = cloneEditorData(snapshot.freehandPaths);
+    state.modifiedText = cloneEditorData(snapshot.modifiedText || {});
+    state.modifiedImages = cloneEditorData(snapshot.modifiedImages || {});
+    const ratio = state.zoom / (snapshot.zoom || state.zoom);
+    if (ratio !== 1) scaleEditorGeometry(state.elements, state.freehandPaths, ratio);
+}
+
+/** Page insertion and deletion rewrite the document, so earlier snapshots no longer match it. */
+function resetHistory() {
+    state.history = [];
+    state.historyIndex = -1;
+    saveHistory(false);
+}
+
 function undo() {
     if (state.historyIndex <= 0) {
         showToast('Nothing to undo', 'info');
@@ -2480,10 +2580,7 @@ function undo() {
     }
     
     state.historyIndex--;
-    const snapshot = state.history[state.historyIndex];
-    state.elements = cloneEditorData(snapshot.elements);
-    state.freehandPaths = cloneEditorData(snapshot.freehandPaths);
-    state.modifiedText = cloneEditorData(snapshot.modifiedText || {});
+    restoreSnapshot(state.history[state.historyIndex]);
     
     renderPage(state.currentPage);
     showToast('Undone', 'info');
@@ -2496,10 +2593,7 @@ function redo() {
     }
     
     state.historyIndex++;
-    const snapshot = state.history[state.historyIndex];
-    state.elements = cloneEditorData(snapshot.elements);
-    state.freehandPaths = cloneEditorData(snapshot.freehandPaths);
-    state.modifiedText = cloneEditorData(snapshot.modifiedText || {});
+    restoreSnapshot(state.history[state.historyIndex]);
     
     renderPage(state.currentPage);
     showToast('Redone', 'info');
@@ -2638,6 +2732,11 @@ function getAnonymousEditingContext() {
         if (count) featureSet.add('existing-text');
         editCount += count;
     }
+    for (const changes of Object.values(state.modifiedImages)) {
+        const count = Object.keys(changes).length;
+        if (count) featureSet.add('existing-image');
+        editCount += count;
+    }
 
     return {
         pageCount: state.totalPages || null,
@@ -2649,6 +2748,101 @@ function getAnonymousEditingContext() {
 // =============================================
 // Save PDF
 // =============================================
+/** Builds the edited PDF with every pending change applied and returns its bytes. */
+async function exportPdfBytes() {
+    // Remove the original text and move or delete existing images first, so everything
+    // drawn afterwards sits on top of a clean page. The result is re-read and checked; any
+    // line that did not come out exactly right is retried in a more cautious mode.
+    const levels = new Map();
+    const load = () => PDFLib.PDFDocument.load(state.pdfBytes);
+
+    // Dry runs on scratch copies check that every edited line comes out exactly right. (They are
+    // separate documents because saving freezes an embedded font's glyphs.)
+    if (Object.keys(state.modifiedText).length) {
+        for (let attempt = 0; attempt < 2; attempt++) {
+            const scratch = await load();
+            const trial = await objectEditor.applyContentEdits(scratch, { fontkit: window.fontkit, levels });
+            await objectEditor.drawEditedText(scratch, trial);
+            const failed = await objectEditor.verifyEdits(scratch, trial);
+            if (!failed.length) break;
+            failed.forEach(key => levels.set(key, Math.min(2, (levels.get(key) || 0) + 1)));
+        }
+    }
+
+    // Whiteout / redaction boxes, converted to page space, so the content under them can be erased.
+    const regions = new Map();
+    for (const [pageKey, list] of Object.entries(state.elements)) {
+        const boxes = list.filter(element => element.type === 'whiteout');
+        if (!boxes.length) continue;
+        const pageNum = Number(pageKey);
+        const pdfjsPage = await state.pdf.getPage(pageNum);
+        const viewport = pdfjsPage.getViewport({ scale: state.zoom * 1.5, rotation: displayRotation(pdfjsPage, pageNum) });
+        regions.set(pageNum, boxes.map(element => {
+            const [x1, y1] = viewport.convertToPdfPoint(element.x, element.y);
+            const [x2, y2] = viewport.convertToPdfPoint(element.x + element.width, element.y + element.height);
+            return { rect: { x0: Math.min(x1, x2), y0: Math.min(y1, y2), x1: Math.max(x1, x2), y1: Math.max(y1, y2) }, mode: element.redact ? 'touch' : 'center' };
+        }));
+    }
+
+    const pdfDoc = await load();
+    const editPlan = await objectEditor.applyContentEdits(pdfDoc, { fontkit: window.fontkit, levels, regions });
+    await objectEditor.drawEditedText(pdfDoc, editPlan);
+    const pages = pdfDoc.getPages();
+    const imageCache = new Map();
+    const getImage = source => {
+        if (!imageCache.has(source)) {
+            imageCache.set(source, source.includes('image/png') || source.includes('data:image/png')
+                ? pdfDoc.embedPng(source)
+                : pdfDoc.embedJpg(source).catch(() => pdfDoc.embedPng(source)));
+        }
+        return imageCache.get(source);
+    };
+
+    // Everything the user placed on a page (text, signatures, images, shapes, links, comments, fields, drawing).
+    const editedPageNumbers = new Set([...Object.keys(state.elements), ...Object.keys(state.freehandPaths)].map(Number));
+    for (const pageNum of [...editedPageNumbers].sort((a, b) => a - b)) {
+        if (pageNum < 1 || pageNum > pages.length) continue;
+        const elements = state.elements[pageNum] || [];
+        const paths = state.freehandPaths[pageNum] || [];
+        if (!elements.length && !paths.length) continue;
+        const pdfjsPage = await state.pdf.getPage(pageNum);
+        const viewport = pdfjsPage.getViewport({ scale: state.zoom * 1.5, rotation: displayRotation(pdfjsPage, pageNum) });
+        const warnings = await drawPageElements({
+            PDFLib, pdfDoc, embedder: editPlan.embedder, page: pages[pageNum - 1], viewport, elements, freehandPaths: paths,
+            resolveAssetSource, embedImage: getImage, sanitizeUrl,
+        });
+        warnings.forEach(message => editPlan.warnings.push(`Page ${pageNum}: ${message}`));
+    }
+    
+    editPlan.warnings.forEach(message => showToast(message, 'info'));
+    if (editPlan.covered) {
+        showToast(`${editPlan.covered} edited line${editPlan.covered > 1 ? 's were' : ' was'} covered rather than removed, so the original text may still be inside the file.`, 'info');
+    }
+    
+    // Apply rotations
+    for (const [pageNumStr, rotation] of Object.entries(state.pageRotations)) {
+        const pageNum = parseInt(pageNumStr);
+        if (pageNum >= 1 && pageNum <= pages.length && rotation !== 0) {
+            const page = pages[pageNum - 1];
+            page.setRotation(PDFLib.degrees((((page.getRotation().angle + rotation) % 360) + 360) % 360));
+        }
+    }
+    
+    const output = await pdfDoc.save();
+    // If anything under a box could not be removed from the page content, turn that page into a picture
+    // so the covered text cannot be recovered.
+    if (editPlan.blockedPages.size) {
+        const redacted = [...editPlan.blockedPages].filter(pageNum => (regions.get(pageNum) || []).some(region => region.mode === 'touch'));
+        const plain = [...editPlan.blockedPages].filter(pageNum => !redacted.includes(pageNum));
+        if (plain.length) showToast(`Text under a whiteout box on page ${plain.map(n => n).join(', ')} could not be erased, only covered.`, 'info');
+        if (redacted.length) {
+            showToast(`Page${redacted.length > 1 ? 's' : ''} ${redacted.join(', ')} flattened to a picture so redacted content cannot be recovered.`, 'info');
+            return flattenPages(PDFLib, output, redacted.map(n => n - 1));
+        }
+    }
+    return output;
+}
+
 async function savePDF() {
     if (!state.pdfBytes) {
         showToast('No PDF loaded', 'error');
@@ -2658,278 +2852,7 @@ async function savePDF() {
     showLoading('Generating PDF...');
     
     try {
-        const pdfDoc = await PDFLib.PDFDocument.load(state.pdfBytes);
-        const pages = pdfDoc.getPages();
-        const fontCache = new Map();
-        const imageCache = new Map();
-        const getFont = async fontName => {
-            if (!fontCache.has(fontName)) fontCache.set(fontName, pdfDoc.embedFont(fontName));
-            return fontCache.get(fontName);
-        };
-        const getImage = async source => {
-            if (!imageCache.has(source)) {
-                const embedded = source.includes('image/png') || source.includes('data:image/png')
-                    ? pdfDoc.embedPng(source)
-                    : pdfDoc.embedJpg(source).catch(() => pdfDoc.embedPng(source));
-                imageCache.set(source, embedded);
-            }
-            return imageCache.get(source);
-        };
-        const displayScale = state.zoom * 1.5;
-        const scaleX = 1 / displayScale;
-        const scaleY = 1 / displayScale;
-        const helveticaFont = await getFont(PDFLib.StandardFonts.Helvetica);
-        
-        const editedPageNumbers = new Set([
-            ...Object.keys(state.elements),
-            ...Object.keys(state.freehandPaths)
-        ].map(Number));
-
-        // Process each page's elements and freehand paths.
-        for (const pageNum of [...editedPageNumbers].sort((a, b) => a - b)) {
-            if (pageNum < 1 || pageNum > pages.length) continue;
-            const elements = state.elements[pageNum] || [];
-            const page = pages[pageNum - 1];
-            const { width: pWidth, height: pHeight } = page.getSize();
-            
-            for (const el of elements) {
-                try {
-                    if (el.type === 'text' && el.text) {
-                        // BUG-02 FIX: correct formula — divide by zoom*scale only
-                        const fontSize = Math.max(6, (el.fontSize || 12) / (state.zoom * 1.5));
-                        
-                        page.drawText(el.text, {
-                            x: el.x * scaleX,
-                            y: pHeight - (el.y * scaleY) - (fontSize * scaleY),
-                            size: fontSize,
-                            font: helveticaFont,
-                            color: hexToRgb(el.color || '#000000'),
-                        });
-                    }
-                    
-                    if (el.type === 'whiteout') {
-                        page.drawRectangle({
-                            x: el.x * scaleX,
-                            y: pHeight - (el.y * scaleY) - (el.height * scaleY),
-                            width: el.width * scaleX,
-                            height: el.height * scaleY,
-                            color: el.color ? hexToRgb(el.color) : PDFLib.rgb(1, 1, 1),
-                        });
-                    }
-                    
-                    if (el.type === 'shape') {
-                        const strokeColor = hexToRgb(el.strokeColor);
-                        const fillColor = hexToRgb(el.fillColor);
-                        const opacity = (el.opacity || 100) / 100;
-                        
-                        if (el.shapeType === 'rectangle') {
-                            const x = Math.min(el.x1, el.x2) * scaleX;
-                            const y = pHeight - Math.max(el.y1, el.y2) * scaleY;
-                            const w = Math.abs(el.x2 - el.x1) * scaleX;
-                            const h = Math.abs(el.y2 - el.y1) * scaleY;
-                            
-                            page.drawRectangle({
-                                x, y, width: w, height: h,
-                                borderColor: strokeColor,
-                                color: fillColor,
-                                borderWidth: el.strokeWidth || 2,
-                                opacity,
-                            });
-                        }
-                        
-                        if (el.shapeType === 'circle') {
-                            const cx = ((el.x1 + el.x2) / 2) * scaleX;
-                            const cy = pHeight - ((el.y1 + el.y2) / 2) * scaleY;
-                            const rx = (Math.abs(el.x2 - el.x1) / 2) * scaleX;
-                            const ry = (Math.abs(el.y2 - el.y1) / 2) * scaleY;
-                            
-                            page.drawEllipse({
-                                x: cx, y: cy,
-                                xScale: rx, yScale: ry,
-                                borderColor: strokeColor,
-                                color: fillColor,
-                                borderWidth: el.strokeWidth || 2,
-                                opacity,
-                            });
-                        }
-                        
-                        if (el.shapeType === 'line' || el.shapeType === 'arrow') {
-                            page.drawLine({
-                                start: { x: el.x1 * scaleX, y: pHeight - el.y1 * scaleY },
-                                end: { x: el.x2 * scaleX, y: pHeight - el.y2 * scaleY },
-                                thickness: el.strokeWidth || 2,
-                                color: strokeColor,
-                                opacity,
-                            });
-                        }
-                    }
-                    
-                    if (el.type === 'annotation') {
-                        const color = hexToRgb(el.color);
-                        
-                        if (el.annotationType === 'highlight') {
-                            page.drawRectangle({
-                                x: el.x * scaleX,
-                                y: pHeight - (el.y * scaleY) - (el.height * scaleY),
-                                width: el.width * scaleX,
-                                height: el.height * scaleY,
-                                color,
-                                opacity: 0.35,
-                            });
-                        } else if (el.annotationType === 'underline') {
-                            page.drawLine({
-                                start: { x: el.x * scaleX, y: pHeight - (el.y + el.height) * scaleY },
-                                end: { x: (el.x + el.width) * scaleX, y: pHeight - (el.y + el.height) * scaleY },
-                                thickness: 2,
-                                color,
-                            });
-                        } else if (el.annotationType === 'strikethrough') {
-                            const midY = pHeight - (el.y + el.height / 2) * scaleY;
-                            page.drawLine({
-                                start: { x: el.x * scaleX, y: midY },
-                                end: { x: (el.x + el.width) * scaleX, y: midY },
-                                thickness: 2,
-                                color,
-                            });
-                        }
-                    }
-                    
-                    if (el.type === 'image' || (el.type === 'signature' && (el.sigType === 'drawn' || el.sigType === 'uploaded'))) {
-                        const source = resolveAssetSource(el);
-                        if (source) {
-                            const image = await getImage(source);
-                            
-                            const imgWidth = (el.width || 200) * scaleX;
-                            const imgHeight = el.height
-                                ? el.height * scaleY
-                                : (image.height / image.width * imgWidth);
-                            
-                            page.drawImage(image, {
-                                x: el.x * scaleX,
-                                y: pHeight - el.y * scaleY - imgHeight,
-                                width: imgWidth,
-                                height: imgHeight,
-                            });
-                        }
-                    }
-                    
-                    if (el.type === 'signature' && el.sigType === 'typed') {
-                        page.drawText(el.text || '', {
-                            x: el.x * scaleX,
-                            y: pHeight - el.y * scaleY - 30,
-                            size: 28 * scaleX,
-                            font: helveticaFont,
-                            color: PDFLib.rgb(0, 0, 0),
-                        });
-                    }
-                } catch (elErr) {
-                    console.warn('Failed to embed element:', elErr);
-                }
-            }
-            
-            // Draw freehand paths
-            const paths = state.freehandPaths[pageNum] || [];
-            for (const path of paths) {
-                if (path.points.length < 2) continue;
-                const color = hexToRgb(path.color);
-                
-                for (let i = 0; i < path.points.length - 1; i++) {
-                    page.drawLine({
-                        start: {
-                            x: path.points[i].x * scaleX,
-                            y: pHeight - path.points[i].y * scaleY
-                        },
-                        end: {
-                            x: path.points[i + 1].x * scaleX,
-                            y: pHeight - path.points[i + 1].y * scaleY
-                        },
-                        thickness: path.size * scaleX,
-                        color,
-                    });
-                }
-            }
-        }
-        
-        // Process modified existing text (whiteout original + draw new)
-        for (const [pageNumStr, modifications] of Object.entries(state.modifiedText)) {
-            const pageNum = parseInt(pageNumStr);
-            if (pageNum < 1 || pageNum > pages.length) continue;
-            
-            const page = pages[pageNum - 1];
-            const { width: pWidth, height: pHeight } = page.getSize();
-            
-            for (const [indexStr, mod] of Object.entries(modifications)) {
-                try {
-                    const fontSize = Math.abs(mod.pdfFontSize) || 12;
-                    const x = mod.pdfX;
-                    const y = mod.pdfY;
-                    
-                    // Determine font for measuring
-                    let fontEnum = PDFLib.StandardFonts.Helvetica;
-                    if (mod.fontName) {
-                        const fn = mod.fontName.toLowerCase();
-                        if (fn.includes('bold') && fn.includes('italic')) fontEnum = PDFLib.StandardFonts.HelveticaBoldOblique;
-                        else if (fn.includes('bold')) fontEnum = PDFLib.StandardFonts.HelveticaBold;
-                        else if (fn.includes('italic') || fn.includes('oblique')) fontEnum = PDFLib.StandardFonts.HelveticaOblique;
-                        else if (fn.includes('times') || fn.includes('serif')) {
-                            if (fn.includes('bold')) fontEnum = PDFLib.StandardFonts.TimesRomanBold;
-                            else fontEnum = PDFLib.StandardFonts.TimesRoman;
-                        }
-                        else if (fn.includes('courier') || fn.includes('mono')) {
-                            if (fn.includes('bold')) fontEnum = PDFLib.StandardFonts.CourierBold;
-                            else fontEnum = PDFLib.StandardFonts.Courier;
-                        }
-                    }
-                    
-                    const font = await getFont(fontEnum);
-                    
-                    // Use the width extracted from the original PDF whenever possible.
-                    // Measuring with a substitute font can leave parts of the source text visible.
-                    const measuredWidth = font.widthOfTextAtSize(mod.originalText, fontSize);
-                    const origWidth = Math.max(Number(mod.originalWidth) || measuredWidth, 1);
-                    
-                    const origX = mod.origPdfX !== undefined ? mod.origPdfX : mod.pdfX;
-                    const origY = mod.origPdfY !== undefined ? mod.origPdfY : mod.pdfY;
-                    
-                    const bgColor = mod.bgColor 
-                        ? PDFLib.rgb(mod.bgColor.r / 255, mod.bgColor.g / 255, mod.bgColor.b / 255) 
-                        : PDFLib.rgb(1, 1, 1);
-                        
-                    // Whiteout original text area with padding
-                    page.drawRectangle({
-                        x: origX - 1,
-                        y: origY - fontSize * 0.25,
-                        width: origWidth + 4,
-                        height: fontSize * 1.3,
-                        color: bgColor,
-                    });
-                    
-                    // Deleted text stops after the destructive cover operation.
-                    if (!mod.deleted && mod.newText) {
-                        const textColor = mod.color ? hexToRgb(mod.color) : PDFLib.rgb(0, 0, 0);
-                        page.drawText(mod.newText, {
-                            x: x,
-                            y: y,
-                            size: fontSize,
-                            font,
-                            color: textColor,
-                        });
-                    }
-                } catch (modErr) {
-                    console.warn('Failed to embed modified text:', modErr);
-                }
-            }
-        }
-        
-        // Apply rotations
-        for (const [pageNumStr, rotation] of Object.entries(state.pageRotations)) {
-            const pageNum = parseInt(pageNumStr);
-            if (pageNum >= 1 && pageNum <= pages.length && rotation !== 0) {
-                pages[pageNum - 1].setRotation(PDFLib.degrees(rotation));
-            }
-        }
-        
-        const savedBytes = await pdfDoc.save();
+        const savedBytes = await exportPdfBytes();
         
         // Download
         const blob = new Blob([savedBytes], { type: 'application/pdf' });
@@ -2950,19 +2873,6 @@ async function savePDF() {
         showToast('Failed to save PDF: ' + err.message, 'error');
         console.error(err);
     }
-}
-
-function hexToRgb(hex) {
-    if (!hex || typeof hex !== 'string') return PDFLib.rgb(0, 0, 0);
-    const clean = hex.replace('#', '').padEnd(6, '0');
-    const r = parseInt(clean.slice(0, 2), 16) / 255;
-    const g = parseInt(clean.slice(2, 4), 16) / 255;
-    const b = parseInt(clean.slice(4, 6), 16) / 255;
-    return PDFLib.rgb(
-        isNaN(r) ? 0 : r,
-        isNaN(g) ? 0 : g,
-        isNaN(b) ? 0 : b
-    );
 }
 
 // SEC-02 FIX: URL sanitizer — block javascript:, data:, vbscript: and other dangerous protocols
@@ -3037,590 +2947,6 @@ function hideLoading() {
 // =============================================
 // Text Layer - Edit Existing PDF Content
 // =============================================
-async function renderTextLayer(page, viewport, pageNum) {
-    const textLayerDiv = dom.textLayer;
-    if (!textLayerDiv) return;
-    
-    textLayerDiv.innerHTML = '';
-    state.pageTextItems[pageNum] = [];
-    
-    // Toggle interactive class based on active tool
-    textLayerDiv.classList.toggle('interactive', state.activeTool === 'text');
-    
-    let textContent;
-    try {
-        textContent = await page.getTextContent();
-    } catch (err) {
-        console.warn('Could not extract text content:', err);
-        return;
-    }
-    
-    const groupedItems = [];
-    let currentGroup = null;
-    
-    // Sort items by Y (top to bottom) and then X (left to right) to ensure correct reading order
-    const sortedItems = textContent.items
-        .map((item, originalIndex) => ({ item, originalIndex }))
-        .filter(x => x.item.str && x.item.str.trim() !== '')
-        .sort((a, b) => {
-            const yDiff = b.item.transform[5] - a.item.transform[5];
-            if (Math.abs(yDiff) > 2) return yDiff;
-            return a.item.transform[4] - b.item.transform[4];
-        });
-        
-    sortedItems.forEach(({ item, originalIndex }) => {
-        const pdfX = item.transform[4];
-        const pdfY = item.transform[5];
-        const fontSize = Math.abs(item.transform[0]) || Math.abs(item.transform[3]) || 12;
-        const itemWidth = (item.width && item.width > 0) ? item.width : (item.str.length * fontSize * 0.5);
-        
-        if (!currentGroup) {
-            currentGroup = {
-                ...item,
-                str: item.str,
-                minX: pdfX,
-                maxX: pdfX + itemWidth,
-                originalIndex: originalIndex
-            };
-            return;
-        }
-        
-        const yDiff = Math.abs(pdfY - currentGroup.transform[5]);
-        const xGap = pdfX - currentGroup.maxX;
-        
-        // Group if on same line and close to each other
-        if (yDiff < fontSize * 0.3 && xGap < fontSize * 2 && xGap > -fontSize * 2) {
-            if (xGap > fontSize * 0.35) { // increased threshold to prevent spaces between kerning letters
-                currentGroup.str += ' ' + item.str;
-            } else {
-                currentGroup.str += item.str;
-            }
-            currentGroup.maxX = Math.max(currentGroup.maxX, pdfX + itemWidth);
-            currentGroup.width = currentGroup.maxX - currentGroup.minX;
-        } else {
-            groupedItems.push(currentGroup);
-            currentGroup = {
-                ...item,
-                str: item.str,
-                minX: pdfX,
-                maxX: pdfX + itemWidth,
-                width: itemWidth,
-                originalIndex: originalIndex
-            };
-        }
-    });
-    if (currentGroup) groupedItems.push(currentGroup);
-    
-    groupedItems.forEach((item) => {
-        const index = item.originalIndex;
-        if (!item.str || !item.str.trim()) return;
-        
-        // Transform item coordinates from PDF space to screen/canvas space
-        const tx = pdfjsLib.Util.transform(viewport.transform, item.transform);
-        
-        // Font height in screen pixels
-        const fontHeight = Math.hypot(tx[0], tx[1]);
-        
-        // Screen position (tx[4] = x, tx[5] = baseline y)
-        const screenX = tx[4];
-        const screenY = tx[5] - fontHeight; // top of text
-        
-        // PDF coordinates for saving
-        const pdfFontSize = Math.abs(item.transform[0]) || Math.abs(item.transform[3]) || 12;
-        const pdfX = item.transform[4];
-        const pdfY = item.transform[5];
-        
-        // Store item data
-        const itemData = {
-            index,
-            originalText: item.str,
-            currentText: item.str,
-            transform: [...item.transform],
-            fontName: item.fontName,
-            screenX,
-            screenY,
-            fontSize: fontHeight,
-            pdfX,
-            pdfY,
-            origPdfX: pdfX,
-            origPdfY: pdfY,
-            pdfFontSize,
-            originalWidth: item.width || (item.maxX - item.minX),
-            modified: false,
-            deleted: false,
-        };
-        
-        // Check if this item was previously modified
-        if (state.modifiedText[pageNum] && state.modifiedText[pageNum][index]) {
-            const mod = state.modifiedText[pageNum][index];
-            itemData.currentText = mod.deleted ? itemData.originalText : mod.newText;
-            itemData.pdfX = mod.pdfX;
-            itemData.pdfY = mod.pdfY;
-            itemData.origPdfX = mod.origPdfX !== undefined ? mod.origPdfX : pdfX;
-            itemData.origPdfY = mod.origPdfY !== undefined ? mod.origPdfY : pdfY;
-            itemData.originalWidth = mod.originalWidth || itemData.originalWidth;
-            itemData.modified = true;
-            itemData.deleted = Boolean(mod.deleted);
-            itemData.color = mod.color || '#000000';
-            
-            // Recompute screen position from PDF offsets
-            const diffX = itemData.pdfX - pdfX;
-            const diffY = itemData.pdfY - pdfY;
-            itemData.screenX = screenX + (diffX * viewport.scale);
-            itemData.screenY = screenY - (diffY * viewport.scale); // Screen Y goes down
-        }
-        
-        state.pageTextItems[pageNum].push(itemData);
-        
-        // Create the text span element
-        const span = document.createElement('span');
-        span.className = 'text-layer-item' + (itemData.modified ? ' modified' : '') + (itemData.deleted ? ' deleted' : '');
-        span.textContent = itemData.currentText;
-        span.dataset.index = index;
-        span.dataset.pageNum = pageNum;
-        
-        // Position and style
-        span.style.left = itemData.screenX + 'px';
-        span.style.top = itemData.screenY + 'px';
-        span.style.fontSize = fontHeight + 'px';
-        span.style.fontFamily = mapPdfFont(itemData.fontName);
-        if (itemData.color) span.style.setProperty('--moved-text-color', itemData.color);
-        if (itemData.fontName && itemData.fontName.toLowerCase().includes('bold')) {
-            span.style.fontWeight = 'bold';
-        }
-        if (itemData.fontName && (itemData.fontName.toLowerCase().includes('italic') || itemData.fontName.toLowerCase().includes('oblique'))) {
-            span.style.fontStyle = 'italic';
-        }
-        
-        // Handle scaleX for text width matching
-        if (item.width && fontHeight > 0) {
-            const scaledWidth = item.width * viewport.scale;
-            // Measure actual rendered width to compute scaleX
-            span.style.display = 'inline-block';
-            // We'll set a CSS scaleX after appending to measure
-        }
-        
-        // Double-click to edit existing text
-        span.addEventListener('dblclick', (e) => {
-            if (itemData.deleted) return;
-            e.stopPropagation();
-            e.preventDefault();
-            startEditingText(span, itemData, pageNum);
-        });
-        
-        // Single click also starts editing when text tool is active
-        span.addEventListener('click', (e) => {
-            if (state.activeTool === 'text') {
-                e.stopPropagation();
-                e.preventDefault();
-                startEditingText(span, itemData, pageNum);
-            } else if (state.activeTool === 'select') {
-                e.stopPropagation();
-                document.querySelectorAll('.edit-element.selected, .text-layer-item.selected').forEach(element => element.classList.remove('selected'));
-                span.classList.add('selected');
-            }
-        });
-        
-        let whiteoutEl = null;
-        
-        const createWhiteout = () => {
-            if (whiteoutEl) return;
-            whiteoutEl = document.createElement('div');
-            whiteoutEl.className = 'realtime-whiteout';
-            whiteoutEl.style.left = screenX + 'px';
-            whiteoutEl.style.top = (screenY - fontHeight * 0.1) + 'px';
-            whiteoutEl.style.height = (fontHeight * 1.2) + 'px';
-            
-            // Extract background color from canvas by sampling points around the text
-            try {
-                const ctx = state.rasterCanvas.getContext('2d', { willReadFrequently: true });
-                const actualWidth = span.getBoundingClientRect().width || (fontHeight * 3);
-                // Sample 4 points around the text box
-                const points = [
-                    { x: screenX - 4, y: screenY + fontHeight / 2 },
-                    { x: screenX + actualWidth + 4, y: screenY + fontHeight / 2 },
-                    { x: screenX + fontHeight / 2, y: screenY - 4 },
-                    { x: screenX + fontHeight / 2, y: screenY + fontHeight + 4 }
-                ];
-                
-                let foundBg = null;
-                for (const p of points) {
-                    const pxX = Math.max(0, Math.floor(p.x));
-                    const pxY = Math.max(0, Math.floor(p.y));
-                    if (pxX >= dom.pdfCanvas.width || pxY >= dom.pdfCanvas.height) continue;
-                    
-                    const pixel = ctx.getImageData(pxX, pxY, 1, 1).data;
-                    if (pixel[3] > 0) { // non-transparent
-                        foundBg = { r: pixel[0], g: pixel[1], b: pixel[2] };
-                        break;
-                    }
-                }
-                
-                if (foundBg) {
-                    whiteoutEl.style.background = `rgb(${foundBg.r}, ${foundBg.g}, ${foundBg.b})`;
-                    itemData.bgColor = foundBg;
-                }
-            } catch(e) { /* ignore */ }
-            
-            // width will be set after appending since we need actualWidth
-            dom.annotationLayer.appendChild(whiteoutEl);
-        };
-        
-        // Make span draggable so existing text can be repositioned
-        const makeSpanDraggable = () => {
-            let isDragging = false;
-            let startX, startY, origLeft, origTop, startPdfX, startPdfY;
-            
-            const onStart = (e) => {
-                if (span.classList.contains('editing') || itemData.deleted || state.activeTool === 'text') return;
-
-                document.querySelectorAll('.edit-element.selected, .text-layer-item.selected').forEach(element => element.classList.remove('selected'));
-                span.classList.add('selected');
-                
-                isDragging = true;
-                
-                const actualWidth = span.getBoundingClientRect().width || (fontHeight * 3);
-                
-                // Create whiteout dynamically when dragging starts if it doesn't exist
-                createWhiteout();
-                if (whiteoutEl && !whiteoutEl.style.width) {
-                    whiteoutEl.style.width = actualWidth + 'px';
-                }
-                itemData.color = itemData.color || sampleForegroundColor(screenX, screenY, actualWidth, fontHeight, itemData.bgColor);
-                span.style.setProperty('--moved-text-color', itemData.color);
-                
-                startX = e.touches ? e.touches[0].clientX : e.clientX;
-                startY = e.touches ? e.touches[0].clientY : e.clientY;
-                origLeft = parseFloat(span.style.left) || 0;
-                origTop = parseFloat(span.style.top) || 0;
-                startPdfX = itemData.pdfX;
-                startPdfY = itemData.pdfY;
-                
-                if (!e.touches) e.preventDefault();
-                
-                document.addEventListener('mousemove', onMove);
-                document.addEventListener('touchmove', onMove, { passive: false });
-                document.addEventListener('mouseup', onUp);
-                document.addEventListener('touchend', onUp);
-                document.addEventListener('touchcancel', onUp);
-            };
-            
-            const onMove = (ev) => {
-                if (!isDragging) return;
-                
-                // Make it visible immediately during drag
-                if (!span.classList.contains('modified')) {
-                    span.classList.add('modified');
-                }
-                
-                const currentX = ev.touches ? ev.touches[0].clientX : ev.clientX;
-                const currentY = ev.touches ? ev.touches[0].clientY : ev.clientY;
-                const dx = currentX - startX;
-                const dy = currentY - startY;
-                
-                span.style.left = (origLeft + dx) + 'px';
-                span.style.top = (origTop + dy) + 'px';
-                
-                itemData.pdfX = startPdfX + (dx / viewport.scale);
-                itemData.pdfY = startPdfY - (dy / viewport.scale);
-                
-                if (ev.touches) ev.preventDefault();
-            };
-            
-            const onUp = () => {
-                if (!isDragging) return;
-                isDragging = false;
-                
-                document.removeEventListener('mousemove', onMove);
-                document.removeEventListener('touchmove', onMove);
-                document.removeEventListener('mouseup', onUp);
-                document.removeEventListener('touchend', onUp);
-                document.removeEventListener('touchcancel', onUp);
-                
-                if (parseFloat(span.style.left) !== origLeft || parseFloat(span.style.top) !== origTop) {
-                    itemData.modified = true;
-                    span.classList.add('modified');
-                    if (!state.modifiedText[pageNum]) state.modifiedText[pageNum] = {};
-                    state.modifiedText[pageNum][itemData.index] = {
-                        originalText: itemData.originalText,
-                        newText: itemData.currentText,
-                        transform: itemData.transform,
-                        fontName: itemData.fontName,
-                        pdfX: itemData.pdfX,
-                        pdfY: itemData.pdfY,
-                        origPdfX: itemData.origPdfX,
-                        origPdfY: itemData.origPdfY,
-                        pdfFontSize: itemData.pdfFontSize,
-                        originalWidth: itemData.originalWidth,
-                        bgColor: itemData.bgColor,
-                        color: itemData.color,
-                    };
-                    saveHistory();
-                }
-            };
-            
-            span.addEventListener('mousedown', onStart);
-            span.addEventListener('touchstart', onStart, { passive: false });
-        };
-        
-        makeSpanDraggable();
-        
-        textLayerDiv.appendChild(span);
-        
-        // Adjust width scaling to match rendered PDF text
-        if (item.width && item.width > 0) {
-            const targetWidth = item.width * viewport.scale;
-            const actualWidth = span.getBoundingClientRect().width;
-            if (actualWidth > 0 && Math.abs(targetWidth - actualWidth) > 2) {
-                const scaleX = targetWidth / actualWidth;
-                span.style.transform = `scaleX(${scaleX})`;
-            }
-        }
-        
-        // If it was modified prior to rendering, create the whiteout immediately
-        if (itemData.modified) {
-            createWhiteout();
-            // Since it might be scaled, we use the original targetWidth for the whiteout if available
-            whiteoutEl.style.width = ((item.width ? item.width * viewport.scale : span.getBoundingClientRect().width) + 2) + 'px';
-        }
-    });
-}
-
-function sampleForegroundColor(x, y, width, height, background = { r: 255, g: 255, b: 255 }) {
-    try {
-        const canvas = state.rasterCanvas;
-        const sx = Math.max(0, Math.floor(x));
-        const sy = Math.max(0, Math.floor(y));
-        const sw = Math.max(1, Math.min(Math.ceil(width), canvas.width - sx));
-        const sh = Math.max(1, Math.min(Math.ceil(height * 1.15), canvas.height - sy));
-        const pixels = canvas.getContext('2d', { willReadFrequently: true }).getImageData(sx, sy, sw, sh).data;
-        const buckets = new Map();
-        for (let index = 0; index < pixels.length; index += 4) {
-            const color = { r: pixels[index], g: pixels[index + 1], b: pixels[index + 2] };
-            if (pixels[index + 3] < 180 || colorDistance(color, background) < 55) continue;
-            const quantized = [color.r, color.g, color.b].map(value => Math.round(value / 24) * 24);
-            const key = quantized.join(',');
-            buckets.set(key, (buckets.get(key) || 0) + 1);
-        }
-        const winner = [...buckets.entries()].sort((a, b) => b[1] - a[1])[0];
-        if (winner) return rgbToHex(...winner[0].split(',').map(Number));
-    } catch (error) {
-        console.warn('Could not sample original text color:', error);
-    }
-    return '#000000';
-}
-
-function deleteExistingText(itemData, pageNum) {
-    const displayWidth = Math.max(2, (itemData.originalWidth || itemData.fontSize * 3) * state.zoom * 1.5);
-    if (!itemData.bgColor) {
-        itemData.bgColor = sampleBackgroundColor(
-            itemData.screenX,
-            itemData.screenY,
-            displayWidth,
-            itemData.fontSize,
-        );
-    }
-
-    if (!state.modifiedText[pageNum]) state.modifiedText[pageNum] = {};
-    state.modifiedText[pageNum][itemData.index] = {
-        originalText: itemData.originalText,
-        newText: '',
-        deleted: true,
-        transform: itemData.transform,
-        fontName: itemData.fontName,
-        pdfX: itemData.pdfX,
-        pdfY: itemData.pdfY,
-        origPdfX: itemData.origPdfX,
-        origPdfY: itemData.origPdfY,
-        pdfFontSize: itemData.pdfFontSize,
-        originalWidth: itemData.originalWidth,
-        bgColor: itemData.bgColor,
-        color: itemData.color || '#000000',
-    };
-
-    saveHistory();
-    renderPage(pageNum).catch(error => console.warn('Could not refresh deleted text:', error));
-    showToast('Existing text deleted — the original area will be removed on download', 'success');
-}
-
-function sampleBackgroundColor(x, y, width, height) {
-    try {
-        const canvas = state.rasterCanvas;
-        const context = canvas.getContext('2d', { willReadFrequently: true });
-        const candidates = [
-            [x - 3, y + height / 2],
-            [x + width + 3, y + height / 2],
-            [x + width / 2, y - 3],
-            [x + width / 2, y + height + 3],
-        ];
-        const samples = candidates
-            .filter(([sampleX, sampleY]) => sampleX >= 0 && sampleY >= 0 && sampleX < canvas.width && sampleY < canvas.height)
-            .map(([sampleX, sampleY]) => context.getImageData(Math.floor(sampleX), Math.floor(sampleY), 1, 1).data)
-            .filter(pixel => pixel[3] > 0);
-        if (samples.length) {
-            const total = samples.reduce((result, pixel) => {
-                result.r += pixel[0]; result.g += pixel[1]; result.b += pixel[2];
-                return result;
-            }, { r: 0, g: 0, b: 0 });
-            return {
-                r: Math.round(total.r / samples.length),
-                g: Math.round(total.g / samples.length),
-                b: Math.round(total.b / samples.length),
-            };
-        }
-    } catch (error) {
-        console.warn('Could not sample text background:', error);
-    }
-    return { r: 255, g: 255, b: 255 };
-}
-
-function startEditingText(span, itemData, pageNum) {
-    // Finish any other items being edited
-    document.querySelectorAll('.text-layer-item.editing').forEach(el => {
-        if (el !== span) {
-            el.contentEditable = 'false';
-            el.classList.remove('editing');
-        }
-    });
-    
-    if (span.classList.contains('editing')) return; // Already editing
-    
-    // Make editable
-    span.classList.add('editing');
-    span.contentEditable = 'true';
-    // Remove scaleX transform while editing for natural typing
-    span.dataset.origTransform = span.style.transform;
-    span.style.transform = 'none';
-    span.focus();
-    
-    // Select all text for easy replacement
-    const range = document.createRange();
-    range.selectNodeContents(span);
-    const sel = window.getSelection();
-    sel.removeAllRanges();
-    sel.addRange(range);
-    
-    // Handle blur → finish editing
-    const onBlur = () => {
-        finishEditingText(span, itemData, pageNum);
-    };
-    span.addEventListener('blur', onBlur, { once: true });
-    
-    // Handle keyboard
-    const onKeyDown = (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            span.blur();
-        }
-        if (e.key === 'Escape') {
-            e.preventDefault();
-            span.textContent = itemData.originalText;
-            span.blur();
-        }
-        // Prevent page navigation while editing
-        if (e.key === 'ArrowLeft' || e.key === 'ArrowRight') {
-            e.stopPropagation();
-        }
-        // Prevent delete handler from removing elements
-        if (e.key === 'Delete' || e.key === 'Backspace') {
-            e.stopPropagation();
-        }
-    };
-    span.addEventListener('keydown', onKeyDown);
-    
-    // Cleanup keydown listener on blur
-    span.addEventListener('blur', () => {
-        span.removeEventListener('keydown', onKeyDown);
-    }, { once: true });
-}
-
-function finishEditingText(span, itemData, pageNum) {
-    span.contentEditable = 'false';
-    span.classList.remove('editing');
-    
-    if (span.dataset.origTransform) {
-        span.style.transform = span.dataset.origTransform;
-    }
-    
-    const newText = span.textContent.trim();
-
-    if (!newText) {
-        deleteExistingText(itemData, pageNum);
-        return;
-    }
-    
-    if (newText !== itemData.originalText) {
-        // Text was modified
-        itemData.currentText = newText;
-        itemData.modified = true;
-        if (!itemData.bgColor) {
-            const displayWidth = Math.max(2, (itemData.originalWidth || itemData.fontSize * 3) * state.zoom * 1.5);
-            itemData.bgColor = sampleBackgroundColor(itemData.screenX, itemData.screenY, displayWidth, itemData.fontSize);
-        }
-        span.classList.add('modified');
-        span.textContent = newText;
-        
-        // Store the modification for saving
-        if (!state.modifiedText[pageNum]) state.modifiedText[pageNum] = {};
-        state.modifiedText[pageNum][itemData.index] = {
-            originalText: itemData.originalText,
-            newText: newText,
-            transform: itemData.transform,
-            fontName: itemData.fontName,
-            pdfX: itemData.pdfX,
-            pdfY: itemData.pdfY,
-            origPdfX: itemData.origPdfX,
-            origPdfY: itemData.origPdfY,
-            pdfFontSize: itemData.pdfFontSize,
-            originalWidth: itemData.originalWidth,
-            bgColor: itemData.bgColor,
-            color: itemData.color || '#000000',
-        };
-        
-        saveHistory();
-        renderPage(pageNum).catch(error => console.warn('Could not refresh edited text:', error));
-        showToast('Text replaced — the original area will be removed on download', 'success');
-    } else {
-        // Reverted to the original text → remove modification
-        span.textContent = itemData.originalText;
-        itemData.currentText = itemData.originalText;
-        itemData.modified = false;
-        span.classList.remove('modified');
-        
-        if (state.modifiedText[pageNum]) {
-            delete state.modifiedText[pageNum][itemData.index];
-            if (Object.keys(state.modifiedText[pageNum]).length === 0) {
-                delete state.modifiedText[pageNum];
-            }
-        }
-    }
-    
-    // Restore scaleX transform
-    if (span.dataset.origTransform) {
-        // Recompute scale for new text
-        span.style.transform = 'none';
-        // For modified text, don't re-apply the old scale since content changed
-        if (!itemData.modified && span.dataset.origTransform !== 'none') {
-            span.style.transform = span.dataset.origTransform;
-        }
-    }
-}
-
-function mapPdfFont(fontName) {
-    if (!fontName) return 'Helvetica, Arial, sans-serif';
-    const lower = fontName.toLowerCase();
-    if (lower.includes('times') || (lower.includes('serif') && !lower.includes('sans'))) {
-        return 'Times New Roman, Times, serif';
-    }
-    if (lower.includes('courier') || lower.includes('mono')) {
-        return 'Courier New, Courier, monospace';
-    }
-    if (lower.includes('arial')) return 'Arial, Helvetica, sans-serif';
-    if (lower.includes('georgia')) return 'Georgia, serif';
-    if (lower.includes('verdana')) return 'Verdana, sans-serif';
-    return 'Helvetica, Arial, sans-serif';
-}
-
 // =============================================
 // Initialize App (deferred for ES module load)
 // =============================================

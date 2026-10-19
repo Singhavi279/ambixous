@@ -1,0 +1,6 @@
+{
+  "name": "pdfstudio",
+  "private": true,
+  "type": "module",
+  "description": "Browser PDF editor. The module type lets Node run the engine tests directly."
+}

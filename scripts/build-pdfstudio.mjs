@@ -1,6 +1,7 @@
 import fs from "node:fs"
 import path from "node:path"
 import { fileURLToPath } from "node:url"
+import { vendorFiles, vendorSource } from "./pdfstudio-vendor.mjs"
 
 const projectRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "..")
 const sourceDirectory = path.join(projectRoot, "pdfstudio")
@@ -9,7 +10,7 @@ const outputDirectory = path.join(projectRoot, "public", "pdfstudio")
 fs.rmSync(outputDirectory, { recursive: true, force: true })
 fs.mkdirSync(outputDirectory, { recursive: true })
 
-for (const entry of ["index.html", "css", "js"]) {
+for (const entry of ["index.html", "css", "js", "fonts"]) {
   fs.cpSync(path.join(sourceDirectory, entry), path.join(outputDirectory, entry), {
     recursive: true,
   })
@@ -27,7 +28,13 @@ indexHtml = replaceRequired(
   'src="js/app.js"',
   'src="/pdfstudio/js/app.js"',
 )
+indexHtml = indexHtml.replaceAll('src="vendor/', 'src="/pdfstudio/vendor/')
 fs.writeFileSync(indexPath, indexHtml)
+
+// Third-party libraries ship with the app instead of loading from a CDN.
+for (const name of Object.keys(vendorFiles)) {
+  fs.cpSync(vendorSource(name), path.join(outputDirectory, "vendor", name), { recursive: true })
+}
 
 console.log(`PDF Studio built in ${outputDirectory}`)
 

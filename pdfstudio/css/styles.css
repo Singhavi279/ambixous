@@ -1035,76 +1035,212 @@ button, [role="button"], input[type="checkbox"], input[type="radio"] {
     display: block;
 }
 
-/* Text Layer - Editable existing PDF text */
+/* Object layer — existing PDF text and images, editable in place.
+   Sits beneath the annotation layer so anything added on top stays on top. */
 .text-layer {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: 12;
+    z-index: 9;
     pointer-events: none;
     overflow: hidden;
 }
 
 .text-layer.interactive {
-    pointer-events: none; /* Layer itself is passthrough */
+    pointer-events: auto;
+    cursor: default;
 }
 
-.text-layer.interactive .text-layer-item {
-    pointer-events: auto;
+.text-layer.interactive.text-mode {
     cursor: text;
 }
 
-.text-layer-item {
+.pdf-cover {
     position: absolute;
-    color: transparent;
-    white-space: pre;
-    line-height: 1.0;
+    pointer-events: none;
+}
+
+.pdf-run {
+    position: absolute;
+    border-radius: 2px;
+    cursor: text;
+    touch-action: none;
     user-select: none;
-    pointer-events: auto;
-    cursor: grab;
-    border-radius: 2px;
-    transition: background 0.15s ease, box-shadow 0.15s ease;
-    padding: 1px 0;
-    transform-origin: left bottom;
+    -webkit-user-select: none;
 }
 
-.text-layer-item:active {
-    cursor: grabbing;
-}
-
-.text-layer.interactive .text-layer-item:hover {
-    background: rgba(180, 255, 0, 0.07);
-    box-shadow: 0 0 0 2px rgba(180, 255, 0, 0.15);
-}
-
-.text-layer-item.editing {
-    color: var(--text-primary) !important;
-    background: var(--surface) !important;
-    outline: 2px solid var(--primary);
-    outline-offset: 1px;
-    border-radius: 2px;
-    z-index: 20;
-    min-width: 20px;
-    padding: 2px 3px;
-    box-shadow: 0 2px 12px rgba(180, 255, 0, 0.15), 0 0 0 4px rgba(180, 255, 0, 0.06);
-    pointer-events: auto !important;
+.pdf-run-text {
+    position: absolute;
+    left: 0;
+    display: none;
+    white-space: pre;
+    line-height: 1;
+    outline: none;
     cursor: text;
     user-select: text;
-    white-space: pre-wrap;
+    -webkit-user-select: text;
 }
 
-.text-layer-item.modified {
-    color: var(--moved-text-color, #000000) !important;
-    background: transparent !important;
-    box-shadow: none;
+.text-layer.interactive .pdf-run:hover:not(.editing):not(.deleted) {
+    background: rgba(180, 255, 0, 0.1);
+    box-shadow: 0 0 0 1px rgba(180, 255, 0, 0.55);
 }
 
-.text-layer-item.modified:hover {
-    background: rgba(16, 185, 129, 0.14);
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.3);
+.pdf-run.selected:not(.editing) {
+    box-shadow: 0 0 0 2px var(--primary);
+    background: rgba(180, 255, 0, 0.1);
+    cursor: grab;
 }
+
+.pdf-run.dragging { cursor: grabbing; }
+
+.pdf-run.editing {
+    box-shadow: 0 0 0 2px var(--primary);
+    cursor: text;
+    z-index: 3;
+}
+
+.pdf-run.deleted { display: none; }
+
+.text-layer:not(.interactive) .pdf-run,
+.text-layer:not(.interactive) .pdf-object {
+    pointer-events: none;
+}
+
+.pdf-object {
+    position: absolute;
+    touch-action: none;
+    cursor: grab;
+}
+
+.text-layer.interactive .pdf-object:hover:not(.deleted) {
+    box-shadow: inset 0 0 0 2px rgba(180, 255, 0, 0.6);
+}
+
+.text-layer.interactive .pdf-vector:hover:not(.deleted):not(.selected) {
+    box-shadow: inset 0 0 0 1px rgba(180, 255, 0, 0.85);
+    background: rgba(180, 255, 0, 0.06);
+}
+
+.pdf-object.selected {
+    box-shadow: inset 0 0 0 2px var(--primary);
+    z-index: 2;
+}
+
+.pdf-object.deleted { display: none; }
+
+.pdf-image-preview {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+.pdf-handle {
+    position: absolute;
+    display: none;
+    width: 12px;
+    height: 12px;
+    background: var(--primary);
+    border: 2px solid #09090b;
+    border-radius: 50%;
+    z-index: 3;
+    touch-action: none;
+}
+
+.pdf-object.selected .pdf-handle { display: block; }
+.pdf-handle.nw { left: -6px; top: -6px; cursor: nwse-resize; }
+.pdf-handle.ne { right: -6px; top: -6px; cursor: nesw-resize; }
+.pdf-handle.sw { left: -6px; bottom: -6px; cursor: nesw-resize; }
+.pdf-handle.se { right: -6px; bottom: -6px; cursor: nwse-resize; }
+
+/* Floating formatting bar for the selected text or image */
+.object-toolbar {
+    position: absolute;
+    z-index: 40;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 6px;
+    background: #18181b;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45);
+    white-space: nowrap;
+}
+
+.object-toolbar[hidden], .object-toolbar [hidden] { display: none; }
+.ot-text-controls { display: flex; align-items: center; gap: 4px; }
+
+.object-toolbar select,
+.object-toolbar input[type="number"] {
+    height: 28px;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 12px;
+    padding: 0 6px;
+}
+
+.object-toolbar input[type="number"] { width: 52px; text-align: center; }
+.object-toolbar input[type="color"] {
+    width: 28px;
+    height: 28px;
+    padding: 2px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+}
+
+.ot-btn {
+    min-width: 28px;
+    height: 28px;
+    background: transparent;
+    color: var(--text-secondary);
+    border: 1px solid transparent;
+    border-radius: var(--radius-sm);
+    font: inherit;
+    font-size: 13px;
+    cursor: pointer;
+}
+
+.ot-btn:hover { background: var(--surface-hover); color: var(--text-primary); }
+.ot-btn.active { background: var(--primary-light); color: var(--primary); border-color: rgba(180, 255, 0, 0.35); }
+.ot-delete:hover { background: rgba(239, 68, 68, 0.18); color: var(--danger); }
+.ot-label { color: var(--text-secondary); font-size: 12px; padding: 0 6px; }
+
+/* Fonts used for edited text; the exported PDF embeds these same files. */
+@font-face { font-family: "PDFStudio Sans"; font-weight: 400; font-style: normal; src: url("../fonts/arimo-latin-ext-400-normal.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Sans"; font-weight: 400; font-style: normal; src: url("../fonts/arimo-latin-400-normal.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "PDFStudio Sans"; font-weight: 700; font-style: normal; src: url("../fonts/arimo-latin-ext-700-normal.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Sans"; font-weight: 700; font-style: normal; src: url("../fonts/arimo-latin-700-normal.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "PDFStudio Sans"; font-weight: 400; font-style: italic; src: url("../fonts/arimo-latin-ext-400-italic.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Sans"; font-weight: 400; font-style: italic; src: url("../fonts/arimo-latin-400-italic.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "PDFStudio Sans"; font-weight: 700; font-style: italic; src: url("../fonts/arimo-latin-ext-700-italic.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Sans"; font-weight: 700; font-style: italic; src: url("../fonts/arimo-latin-700-italic.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+@font-face { font-family: "PDFStudio Serif"; font-weight: 400; font-style: normal; src: url("../fonts/tinos-latin-ext-400-normal.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Serif"; font-weight: 400; font-style: normal; src: url("../fonts/tinos-latin-400-normal.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "PDFStudio Serif"; font-weight: 700; font-style: normal; src: url("../fonts/tinos-latin-ext-700-normal.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Serif"; font-weight: 700; font-style: normal; src: url("../fonts/tinos-latin-700-normal.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "PDFStudio Serif"; font-weight: 400; font-style: italic; src: url("../fonts/tinos-latin-ext-400-italic.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Serif"; font-weight: 400; font-style: italic; src: url("../fonts/tinos-latin-400-italic.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "PDFStudio Serif"; font-weight: 700; font-style: italic; src: url("../fonts/tinos-latin-ext-700-italic.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Serif"; font-weight: 700; font-style: italic; src: url("../fonts/tinos-latin-700-italic.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "PDFStudio Mono"; font-weight: 400; font-style: normal; src: url("../fonts/cousine-latin-ext-400-normal.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Mono"; font-weight: 400; font-style: normal; src: url("../fonts/cousine-latin-400-normal.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "PDFStudio Mono"; font-weight: 700; font-style: normal; src: url("../fonts/cousine-latin-ext-700-normal.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Mono"; font-weight: 700; font-style: normal; src: url("../fonts/cousine-latin-700-normal.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "PDFStudio Mono"; font-weight: 400; font-style: italic; src: url("../fonts/cousine-latin-ext-400-italic.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Mono"; font-weight: 400; font-style: italic; src: url("../fonts/cousine-latin-400-italic.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "PDFStudio Mono"; font-weight: 700; font-style: italic; src: url("../fonts/cousine-latin-ext-700-italic.ttf"); unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "PDFStudio Mono"; font-weight: 700; font-style: italic; src: url("../fonts/cousine-latin-700-italic.ttf"); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
 
 /* Edit mode hint banner */
 .text-edit-hint {
@@ -1139,6 +1275,10 @@ button, [role="button"], input[type="checkbox"], input[type="radio"] {
 .annotation-layer.active {
     pointer-events: auto;
     cursor: crosshair;
+}
+
+.annotation-layer.passthrough {
+    pointer-events: none;
 }
 
 .annotation-layer.select-mode {
@@ -1177,6 +1317,7 @@ button, [role="button"], input[type="checkbox"], input[type="radio"] {
     cursor: text;
     white-space: pre-wrap;
     word-break: break-word;
+    line-height: 1.2;
 }
 
 .edit-text:focus {
@@ -1189,7 +1330,7 @@ button, [role="button"], input[type="checkbox"], input[type="radio"] {
 }
 
 .edit-link {
-    color: var(--primary);
+    color: #1a56db;
     text-decoration: underline;
     cursor: pointer;
     padding: 2px 4px;
@@ -1349,10 +1490,11 @@ button, [role="button"], input[type="checkbox"], input[type="radio"] {
     border: 1px solid #aaa;
     padding: 4px 6px;
     background: #fefefe;
+    color: #111;
     font-size: 13px;
     border-radius: 3px;
-    min-width: 120px;
-    min-height: 28px;
+    width: 160px;
+    height: 28px;
 }
 
 .form-checkbox {
@@ -1792,12 +1934,6 @@ button, [role="button"], input[type="checkbox"], input[type="radio"] {
     filter: drop-shadow(0 0 3px rgba(180, 255, 0, 0.4));
 }
 
-.realtime-whiteout {
-    position: absolute;
-    background: white;
-    z-index: 11;
-    pointer-events: none;
-}
 
 /* =============================================
    Ambixous-branded landing page
@@ -1930,9 +2066,6 @@ button, [role="button"], input[type="checkbox"], input[type="radio"] {
 
 .logo-mini small { color: var(--text-muted); font-size: 9px; font-weight: 600; }
 
-/* Existing PDF text selection and destructive replacement. */
-.text-layer-item.selected:not(.editing) { outline: 2px solid var(--primary); outline-offset: 2px; background: rgba(180,255,0,.12); }
-.text-layer-item.deleted { opacity: 0; pointer-events: none; }
 
 /* Download-time NPS */
 .nps-modal-card { width: min(620px, calc(100vw - 28px)); }
@@ -1976,3 +2109,110 @@ button, [role="button"], input[type="checkbox"], input[type="radio"] {
     .footer-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 40px; }
     .footer-bottom { flex-direction: row; align-items: center; }
 }
+
+/* Keep every tool visible on laptop-width screens: labels give way to icons (tooltips remain). */
+@media (max-width: 1760px) {
+    .toolbar-center .tool-btn { padding: 7px 10px; }
+    .toolbar-center .tool-btn > span { display: none; }
+    .toolbar-center { padding: 0 4px; }
+}
+
+/* Landing: PDF tools grid */
+.tools-title { margin-top: 44px; }
+.tools-grid { max-width: 640px; margin-top: 0; }
+button.tool-card { font: inherit; cursor: pointer; text-align: center; }
+button.tool-card:hover, button.tool-card:focus-visible { border-color: rgba(180,255,0,.5); background: rgba(180,255,0,.07); transform: translateY(-1px); outline: none; }
+#open-tools { margin-right: 6px; }
+
+/* =============================================
+   Tools dialog
+   ============================================= */
+.tools-modal { width: min(1020px, 96vw); height: min(760px, 92vh); display: flex; flex-direction: column; overflow: hidden; }
+.tools-body { flex: 1; min-height: 0; display: grid; grid-template-columns: 210px 1fr; }
+.tools-rail { overflow-y: auto; padding: 14px 10px; border-right: 1px solid var(--border); background: rgba(255,255,255,.02); }
+.tools-group { margin: 14px 8px 6px; color: var(--text-muted); font-size: 11px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; }
+.tools-group:first-child { margin-top: 2px; }
+.tools-rail-btn { width: 100%; display: flex; align-items: center; gap: 10px; padding: 9px 10px; border-radius: var(--radius-md); background: transparent; color: var(--text-secondary); font-size: 13px; text-align: left; }
+.tools-rail-btn i { width: 16px; text-align: center; color: var(--text-muted); }
+.tools-rail-btn:hover { background: var(--surface-hover); color: var(--text-primary); }
+.tools-rail-btn.active { background: var(--primary-light); color: var(--primary); }
+.tools-rail-btn.active i { color: var(--primary); }
+.tools-panel { overflow-y: auto; padding: 22px 26px 28px; display: flex; flex-direction: column; gap: 14px; }
+.tools-intro h4 { font-size: 20px; margin-bottom: 4px; }
+.tools-intro p, .tools-hint { color: var(--text-secondary); font-size: 13px; line-height: 1.5; }
+.tools-hint { font-size: 12px; color: var(--text-muted); }
+.tools-input.over .tools-drop { border-color: var(--primary); background: var(--primary-light); }
+.tools-drop { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 26px; border: 1.5px dashed var(--border); border-radius: var(--radius-lg); color: var(--text-secondary); cursor: pointer; }
+.tools-drop i { font-size: 26px; color: var(--primary); }
+.tools-drop:hover, .tools-drop:focus-visible { border-color: var(--primary); outline: none; }
+.tools-file { display: flex; align-items: center; gap: 12px; padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(255,255,255,.03); }
+.tools-file > i { font-size: 22px; color: var(--primary); }
+.tools-file div { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tools-file strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.tools-file small, .tools-row small { color: var(--text-muted); font-size: 11px; }
+.tools-field { display: flex; flex-direction: column; gap: 6px; font-size: 12px; color: var(--text-secondary); }
+.tools-field > span { font-weight: 600; color: var(--text-primary); }
+.tools-field small { color: var(--text-muted); font-size: 11px; }
+.tools-field input[type="text"], .tools-field input[type="number"], .tools-field input[type="password"], .tools-field select, .tools-row input[type="password"] {
+    height: 38px; padding: 0 12px; background: var(--surface); color: var(--text-primary); border: 1px solid var(--border); border-radius: var(--radius-md); font: inherit; font-size: 13px; }
+.tools-field input:focus, .tools-field select:focus { outline: none; border-color: var(--primary); }
+.tools-field input[type="color"] { width: 100%; height: 38px; padding: 3px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-md); }
+.tools-field input[type="range"] { accent-color: var(--primary); height: 38px; }
+.tools-field input[type="file"] { font-size: 12px; color: var(--text-secondary); }
+.tools-grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 16px; }
+.tools-stack { display: flex; flex-direction: column; gap: 12px; }
+.tools-fieldset { border: 1px solid var(--border); border-radius: var(--radius-md); padding: 10px 14px 6px; }
+.tools-fieldset legend { padding: 0 6px; font-size: 12px; font-weight: 600; }
+.tools-check-row { display: flex; align-items: center; gap: 8px; margin: 4px 0; font-size: 13px; color: var(--text-secondary); }
+.tools-check-row input, .tools-check input { accent-color: var(--primary); width: 16px; height: 16px; }
+.tools-actions { display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; margin-top: 4px; }
+.tools-actions-start { justify-content: flex-start; }
+.tools-run:disabled { opacity: .6; cursor: progress; }
+.tools-status { padding: 10px 14px; border-radius: var(--radius-md); font-size: 13px; background: rgba(255,255,255,.05); color: var(--text-secondary); }
+.tools-status[hidden] { display: none; }
+.tools-status.error { background: rgba(239,68,68,.12); color: #fca5a5; border: 1px solid rgba(239,68,68,.35); }
+.tools-status.success { background: var(--primary-light); color: var(--primary); }
+.tools-list { display: flex; flex-direction: column; gap: 8px; }
+.tools-row { display: flex; align-items: center; gap: 10px; padding: 9px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(255,255,255,.03); }
+.tools-row.dragging { opacity: .45; }
+.tools-row-main { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.tools-row-main strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; }
+.tools-row-thumb { width: 38px; height: 38px; object-fit: cover; border-radius: 4px; background: #fff; }
+.tools-grip { color: var(--text-muted); cursor: grab; }
+.tools-empty { padding: 22px; text-align: center; color: var(--text-muted); font-size: 13px; border: 1px dashed var(--border); border-radius: var(--radius-md); }
+.tools-icon-btn { width: 30px; height: 30px; display: inline-flex; align-items: center; justify-content: center; border-radius: var(--radius-sm); background: transparent; color: var(--text-secondary); font-size: 12px; }
+.tools-icon-btn:hover { background: var(--surface-hover); color: var(--text-primary); }
+.tools-icon-btn.danger:hover { background: rgba(239,68,68,.16); color: var(--danger); }
+.tools-pages { display: grid; grid-template-columns: repeat(auto-fill, minmax(132px, 1fr)); gap: 12px; }
+.tools-page { border: 1px solid var(--border); border-radius: var(--radius-md); background: rgba(255,255,255,.03); overflow: hidden; }
+.tools-page.selected { border-color: var(--primary); box-shadow: 0 0 0 1px var(--primary); }
+.tools-page.dragging { opacity: .4; }
+.tools-page-thumb { height: 150px; display: flex; align-items: center; justify-content: center; padding: 8px; background: #1a1a1d; overflow: hidden; cursor: grab; }
+.tools-page-thumb img { max-width: 100%; max-height: 100%; background: #fff; transition: transform .15s; }
+.tools-page-bar { display: flex; align-items: center; gap: 2px; padding: 4px 6px; }
+.tools-check { display: inline-flex; align-items: center; gap: 5px; margin-right: auto; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+.tools-results { margin-top: 6px; padding: 16px; border: 1px solid rgba(180,255,0,.35); border-radius: var(--radius-lg); background: var(--primary-light); display: flex; flex-direction: column; gap: 10px; }
+.tools-results h4 { font-size: 14px; color: var(--primary); }
+.tools-result-row { display: flex; align-items: center; gap: 12px; font-size: 13px; }
+.tools-result-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tools-result-size { color: var(--text-muted); font-size: 12px; }
+@media (max-width: 760px) {
+    .tools-body { grid-template-columns: 1fr; grid-template-rows: auto 1fr; }
+    .tools-rail { display: flex; gap: 6px; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--border); padding: 8px; }
+    .tools-group { display: none; }
+    .tools-rail-btn { width: auto; white-space: nowrap; }
+    .tools-grid2 { grid-template-columns: 1fr; }
+}
+
+/* The dialog is dense, so its small controls override the 44px touch minimum (still above WCAG's 24px). */
+.tools-icon-btn { min-width: 32px; min-height: 32px; width: 32px; height: 32px; }
+.tools-check input, .tools-check-row input { min-width: 18px; min-height: 18px; width: 18px; height: 18px; flex: none; }
+.tools-check { min-height: 32px; }
+.tools-pages { grid-template-columns: repeat(auto-fill, minmax(172px, 1fr)); }
+.tools-page-bar { padding: 4px 4px 4px 8px; }
+.tools-panel [hidden], .tools-overlay [hidden] { display: none !important; }
+
+/* Whiteout / Redact switch in the properties bar */
+.prop-segment { display: inline-flex; gap: 4px; margin-right: 12px; }
+.prop-segment .prop-btn { width: auto; padding: 0 12px; gap: 6px; display: inline-flex; align-items: center; font-size: 12px; }
+.prop-segment.hidden { display: none; }
