@@ -30,11 +30,11 @@ export function Footer() {
               Where ambition finds speed and impact finds scale.
             </p>
             <div className="space-y-1">
-              <p className="text-slate-gray/70 text-xs leading-relaxed max-w-md">
+              <p className="text-slate-gray/80 text-xs leading-relaxed max-w-md">
                 Ambixous Innovations LLP, 1st Floor, A-23, Hardware Paints and Tools
                 Aggarwal Electrical and Dundahera Village; Lal Dora, Sec 20, 122016
               </p>
-              <p className="text-slate-gray/50 text-xs">
+              <p className="text-slate-gray/80 text-xs">
                 LLPIN: ACL-1668
               </p>
             </div>
@@ -42,7 +42,7 @@ export function Footer() {
             {/* Added Illustration */}
             <div className="relative w-full max-w-[280px] h-20 opacity-60 rounded-xl overflow-hidden mt-6">
                <Image 
-                 src="/bottom.png" 
+                 src="/bottom.webp" 
                  alt="Ambixous Community"
                  fill
                  className="object-cover"
@@ -99,19 +99,19 @@ export function Footer() {
 
         {/* Footer Bottom */}
         <div className="mt-12 pt-8 border-t border-white/[0.06] flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-slate-gray/60 text-xs">
+          <p className="text-slate-gray/80 text-xs">
             © {new Date().getFullYear()} Ambixous Innovations LLP. All rights reserved.
           </p>
           <nav className="flex items-center gap-6">
             <Link
               href="/privacy-policy"
-              className="text-slate-gray/60 text-xs hover:text-warm-white transition-colors duration-200"
+              className="text-slate-gray/80 text-xs hover:text-warm-white transition-colors duration-200"
             >
               Privacy Policy
             </Link>
             <Link
               href="/terms"
-              className="text-slate-gray/60 text-xs hover:text-warm-white transition-colors duration-200"
+              className="text-slate-gray/80 text-xs hover:text-warm-white transition-colors duration-200"
             >
               Terms &amp; Conditions
             </Link>

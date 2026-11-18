@@ -1,4 +1,5 @@
 import type { Metadata } from "next"
+import { AuthProvider } from "@/components/auth-provider"
 
 // Signed-in form for Cohort 01 fellows only: keep it out of search results.
 export const metadata: Metadata = {
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 }
 
 export default function GraduationAgreementLayout({ children }: { children: React.ReactNode }) {
-  return children
+  return <AuthProvider>{children}</AuthProvider>
 }

@@ -10,14 +10,14 @@ type Event = {
 }
 
 const journeyBadge = (journey: string) => {
-  if (!journey) return "bg-white/[0.04] text-white/40 border-white/[0.06]"
+  if (!journey) return "bg-white/[0.04] text-white/70 border-white/[0.06]"
   if (journey === "START")
     return "bg-[#B4FF00]/15 text-[#B4FF00] border-[#B4FF00]/30"
   if (journey === "GRADUATION")
     return "bg-amber-500/15 text-amber-300 border-amber-500/30"
   if (journey === "EXPLORE")
     return "bg-purple-500/15 text-purple-300 border-purple-500/30"
-  return "bg-white/[0.06] text-white/50 border-white/[0.08]"
+  return "bg-white/[0.06] text-white/70 border-white/[0.08]"
 }
 
 export default function CinematicTimeline({ events }: { events: Event[] }) {
@@ -96,7 +96,7 @@ export default function CinematicTimeline({ events }: { events: Event[] }) {
               }}
               className={`relative flex items-start gap-6 py-3 transition-all duration-500 sm:gap-0 ${
                 isRight ? "sm:flex-row-reverse" : "sm:flex-row"
-              } ${active ? "opacity-100" : "opacity-55"}`}
+              } ${active ? "opacity-100" : "opacity-80"}`}
             >
               {/* Content frame */}
               <div
@@ -127,7 +127,7 @@ export default function CinematicTimeline({ events }: { events: Event[] }) {
                   >
                     {event.agenda}
                   </p>
-                  <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-white/30">
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.25em] text-white/70">
                     {event.date}
                   </p>
                 </div>

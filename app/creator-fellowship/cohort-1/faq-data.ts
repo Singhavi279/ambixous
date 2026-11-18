@@ -13,7 +13,7 @@ export const faqData: FAQItem[] = [
   {
     question: "Who is Cohort 01 designed for?",
     answer:
-      "Cohort 01 brought together 12 fellows across 6 content niches — Lifestyle, Tech, Gaming, Marketing, MedTech, and Motivational. The fellowship targets early-stage creators who have a strong point of view and creative hunger, but lack the tools, frameworks, or network to convert their potential into lasting impact.",
+      "Cohort 01 brought together 12 fellows across 6 content niches — Lifestyle, Tech, Storytelling, Marketing, MedTech, and Motivational. The fellowship targets early-stage creators who have a strong point of view and creative hunger, but lack the tools, frameworks, or network to convert their potential into lasting impact.",
   },
   {
     question: "What is the format of the program — online or offline?",
@@ -28,7 +28,7 @@ export const faqData: FAQItem[] = [
   {
     question: "How are the cross-domain teams structured?",
     answer:
-      "Fellows are deliberately placed in cross-domain teams of 2–3 members. A Tech creator might work alongside a Lifestyle creator and a Gaming creator. The friction is intentional — the best creative ideas emerge from diverse perspectives solving the same brief.",
+      "Fellows are deliberately placed in cross-domain teams of 2–3 members. A Tech creator might work alongside a Lifestyle creator and a Storyteller. The friction is intentional — the best creative ideas emerge from diverse perspectives solving the same brief.",
   },
   {
     question: "What kinds of projects will fellows work on?",

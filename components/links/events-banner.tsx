@@ -37,7 +37,7 @@ export function EventsBanner() {
                         <div className="banner-3d-target rounded-xl sm:rounded-2xl overflow-hidden border border-white/[0.08]">
                             <div className="relative w-full aspect-[2/1] sm:aspect-[3/1] md:aspect-[4/1]">
                                 <Image
-                                    src="/bottom.png"
+                                    src="/bottom.webp"
                                     alt="Ambixous events collage — Build. Connect. Grow."
                                     fill
                                     className="object-cover"
@@ -53,7 +53,7 @@ export function EventsBanner() {
                         <div className="rounded-xl overflow-hidden" style={{ transform: "scaleY(-1)" }}>
                             <div className="relative w-full aspect-[4/1]">
                                 <Image
-                                    src="/bottom.png"
+                                    src="/bottom.webp"
                                     alt=""
                                     fill
                                     className="object-cover"

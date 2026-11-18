@@ -143,7 +143,7 @@ export function HeroSection() {
                 <it.icon size={18} aria-hidden="true" />
               </div>
               <div className="min-w-0 flex-1 pr-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-warm-white/45">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-warm-white/55">
                   {it.label}
                 </p>
                 <h2 className="mt-1 text-base font-semibold text-warm-white">{it.title}</h2>
@@ -152,7 +152,7 @@ export function HeroSection() {
               <ArrowRight
                 size={14}
                 aria-hidden="true"
-                className="absolute right-4 top-5 text-warm-white/30 transition-all group-hover:translate-x-0.5 group-hover:text-warm-white/70"
+                className="absolute right-4 top-5 text-warm-white/55 transition-all group-hover:translate-x-0.5 group-hover:text-warm-white/70"
               />
             </Link>
           ))}

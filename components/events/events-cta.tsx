@@ -33,9 +33,9 @@ export function EventsCTA() {
                 </div>
                 <Button
                   asChild
-                  className="w-full bg-ambixous-neon text-electric-ink hover:bg-ambixous-neon/90 font-bold py-3 rounded-xl shadow-lg hover:shadow-ambixous-neon/25 transition-all duration-200"
+                  className="min-h-11 w-full bg-ambixous-neon text-electric-ink hover:bg-ambixous-neon/90 font-bold py-3 rounded-xl shadow-lg hover:shadow-ambixous-neon/25 transition-all duration-200"
                 >
-                  <Link href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t" target="_blank">Join Now</Link>
+                  <Link href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t" target="_blank" rel="noopener noreferrer">Join Now</Link>
                 </Button>
               </div>
             </div>
@@ -54,8 +54,11 @@ export function EventsCTA() {
                     Stay updated with the latest events, workshops, and community insights.
                   </p>
                 </div>
-                <Button className="w-full bg-transparent text-signal-blue hover:bg-signal-blue hover:text-electric-ink font-bold py-3 rounded-xl border-2 border-signal-blue transition-all duration-200">
-                 <Link href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t" target="_blank">Subscribe Now</Link>
+                <Button
+                  asChild
+                  className="min-h-11 w-full bg-transparent text-signal-blue hover:bg-signal-blue hover:text-electric-ink font-bold py-3 rounded-xl border-2 border-signal-blue transition-all duration-200"
+                >
+                  <Link href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t" target="_blank" rel="noopener noreferrer">Subscribe Now</Link>
                 </Button>
               </div>
             </div>
@@ -74,7 +77,7 @@ export function EventsCTA() {
                 </div>
                 <Button
                   asChild
-                  className="w-full bg-transparent text-sun-coral hover:bg-sun-coral hover:text-electric-ink font-bold py-3 rounded-xl border-2 border-sun-coral transition-all duration-200"
+                  className="min-h-11 w-full bg-transparent text-sun-coral hover:bg-sun-coral hover:text-electric-ink font-bold py-3 rounded-xl border-2 border-sun-coral transition-all duration-200"
                 >
                   <Link href="/startups">Explore event services</Link>
                 </Button>

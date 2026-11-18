@@ -5,7 +5,6 @@ import Script from "next/script"
 import "./globals.css"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { AuthProvider } from "@/components/auth-provider"
 import { SiteLoader } from "@/components/site/site-loader"
 import { founders } from "@/lib/founders"
 import { JsonLd } from "@/components/seo/json-ld"
@@ -165,12 +164,16 @@ export default function RootLayout({
         <JsonLd data={[organizationJsonLd, websiteJsonLd]} />
       </head>
       <body className="bg-[#010409] text-[#F8F8F8] font-sora antialiased">
-        <AuthProvider>
-          <SiteLoader />
-          <Header />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-        </AuthProvider>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[1000] focus:rounded-full focus:bg-ambixous-neon focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-electric-ink focus:outline-none focus:ring-2 focus:ring-warm-white"
+        >
+          Skip to content
+        </a>
+        <SiteLoader />
+        <Header />
+        <main id="main-content" className="min-h-screen">{children}</main>
+        <Footer />
       </body>
     </html>
   )

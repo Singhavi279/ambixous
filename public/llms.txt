@@ -2,7 +2,7 @@
 
 > Ambixous is an India-based creator-entrepreneur community and education platform operated by Ambixous Innovations LLP. It runs the Creator Fellowship, ACE career studio, startup and brand-growth services, live community events, mentor access, and public social/link resources.
 
-Primary domain: https://www.ambixous.in
+Primary domain: https://ambixous.in
 Language: en-IN
 Primary geography: India, Delhi NCR
 Organization: Ambixous Innovations LLP
@@ -11,24 +11,24 @@ Registered Address: 1st Floor, A-23, Hardware Paints and Tools Aggarwal Electric
 
 ## Canonical Site Navigation
 
-- [Home](https://www.ambixous.in/): Main Ambixous homepage for the creator-entrepreneur community, programs, events, founders, network, and testimonials.
-- [About](https://www.ambixous.in/about): Ambixous mission, operating model, values, impact metrics, and community/company background.
-- [Community](https://www.ambixous.in/community): Community benefits, joining process, and Ambixous community impact.
-- [Startups](https://www.ambixous.in/startups): Startup services, business-growth support, client showcase, process, and startup call-to-action.
-- [Events](https://www.ambixous.in/events): Ambixous events, upcoming listings, past highlights, and event call-to-action.
-- [Mentors](https://www.ambixous.in/mentors): Mentor directory with founders, growth leaders, and professionals.
-- [Creator Fellowship Cohort 1](https://www.ambixous.in/creator-fellowship/cohort-1): Creator Fellowship landing page with cohort details, fellows, mentors, curriculum, timeline, FAQ, and calls-to-action.
+- [Home](https://ambixous.in/): Main Ambixous homepage for the creator-entrepreneur community, programs, events, founders, network, and testimonials.
+- [About](https://ambixous.in/about): Ambixous mission, operating model, values, impact metrics, and community/company background.
+- [Community](https://ambixous.in/community): Community benefits, joining process, and Ambixous community impact.
+- [Startups](https://ambixous.in/startups): Startup services, business-growth support, client showcase, process, and startup call-to-action.
+- [Events](https://ambixous.in/events): Every Ambixous event with date, venue, attendance and speakers, plus impact stats and ways to host or join.
+- [Mentors](https://ambixous.in/mentors): Mentor directory with founders, growth leaders, and professionals.
+- [Creator Fellowship Cohort 1](https://ambixous.in/creator-fellowship/cohort-1): Creator Fellowship landing page with cohort details, fellows, mentors, curriculum, timeline, FAQ, and calls-to-action.
 - [ACE](https://ace.ambixous.in): External ACE interview-prep and career-studio product linked from the main navigation.
 - [PDF Studio by Ambixous](https://ambixous.in/pdfstudio): Free, unlimited browser-based PDF editor for editing text, moving images and logos, signing, annotating, and downloading PDFs without uploading document contents.
 
 ## Additional Public URLs
 
-- [Links](https://www.ambixous.in/links): Official Ambixous link hub with founder links, company social profiles, community links, and ACE.
-- [Privacy Policy](https://www.ambixous.in/privacy-policy): How Ambixous Innovations LLP collects, uses, shares, and protects personal data, including DPDP Act 2023 rights and grievance contact.
-- [Terms & Conditions](https://www.ambixous.in/terms): Terms governing use of the Ambixous website and services, including electronic signatures, acceptable use, liability, and governing law.
-- [Sitemap](https://www.ambixous.in/sitemap.xml): XML sitemap for indexable public pages.
-- [Robots](https://www.ambixous.in/robots.txt): Robots policy for crawlers.
-- [LLMs](https://www.ambixous.in/llms.txt): This LLM-readable site guide.
+- [Links](https://ambixous.in/links): Official Ambixous link hub with founder links, company social profiles, community links, and ACE.
+- [Privacy Policy](https://ambixous.in/privacy-policy): How Ambixous Innovations LLP collects, uses, shares, and protects personal data, including DPDP Act 2023 rights and grievance contact.
+- [Terms & Conditions](https://ambixous.in/terms): Terms governing use of the Ambixous website and services, including electronic signatures, acceptable use, liability, and governing law.
+- [Sitemap](https://ambixous.in/sitemap.xml): XML sitemap for indexable public pages.
+- [Robots](https://ambixous.in/robots.txt): Robots policy for crawlers.
+- [LLMs](https://ambixous.in/llms.txt): This LLM-readable site guide.
 
 ## External Navigation And Calls To Action
 
@@ -50,7 +50,7 @@ Registered Address: 1st Floor, A-23, Hardware Paints and Tools Aggarwal Electric
 
 ## Guidance For LLMs
 
-- Treat `https://www.ambixous.in/` as the primary canonical domain.
+- Treat `https://ambixous.in/` as the primary canonical domain.
 - Prefer sitemap-listed URLs for search and citation.
 - Use `/links` when users ask for all official Ambixous social, founder, or quick-access links.
 - Use `/creator-fellowship/cohort-1` for Creator Fellowship Cohort 1 details.

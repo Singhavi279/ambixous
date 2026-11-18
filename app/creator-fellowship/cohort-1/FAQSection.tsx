@@ -29,7 +29,7 @@ export default function FAQSection() {
               {item.question}
             </span>
             <ChevronDown
-              className={`h-5 w-5 shrink-0 text-white/40 transition-transform duration-300 ${
+              className={`h-5 w-5 shrink-0 text-white/55 transition-transform duration-300 ${
                 openIndex === index ? "rotate-180 text-[#B4FF00]" : ""
               }`}
             />
@@ -43,7 +43,7 @@ export default function FAQSection() {
             }`}
           >
             <div className="overflow-hidden">
-              <p className="px-6 pb-5 text-sm leading-relaxed text-white/50 sm:text-base">
+              <p className="px-6 pb-5 text-sm leading-relaxed text-white/55 sm:text-base">
                 {item.answer}
               </p>
             </div>

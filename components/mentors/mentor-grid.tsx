@@ -19,7 +19,7 @@ export function MentorGrid({ mentors }: MentorGridProps) {
                     No mentors found
                 </h3>
                 <p className="text-slate-gray">
-                    Try selecting a different category
+                    Try a different name, company or category.
                 </p>
             </div>
         )

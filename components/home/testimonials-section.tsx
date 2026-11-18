@@ -99,7 +99,7 @@ export function TestimonialsSection() {
                     <Quote size={18} aria-hidden="true" />
                   </div>
                   <div
-                    className="text-xs font-bold uppercase tracking-[0.32em] text-slate-400"
+                    className="text-xs font-bold uppercase tracking-[0.32em] text-slate-600"
                     aria-hidden="true"
                   >
                     {t.initials}

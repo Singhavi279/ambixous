@@ -45,6 +45,8 @@ export function EventsListing() {
               {(["All", "Community", "Corporate"] as const).map((opt) => (
                 <Button
                   key={opt}
+                  type="button"
+                  aria-pressed={typeFilter === opt}
                   onClick={() => setTypeFilter(opt)}
                   className={
                     typeFilter === opt
@@ -60,15 +62,17 @@ export function EventsListing() {
               {(["All", "Offline", "Online"] as const).map((opt) => (
                 <button
                   key={opt}
+                  type="button"
+                  aria-pressed={modeFilter === opt}
                   onClick={() => setModeFilter(opt)}
                   className={
                     modeFilter === opt
-                      ? "inline-flex items-center gap-1.5 rounded-full bg-signal-blue/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-signal-blue border border-signal-blue/40"
-                      : "inline-flex items-center gap-1.5 rounded-full bg-transparent px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 border border-slate-300 hover:text-signal-blue hover:border-signal-blue/40 transition-colors"
+                      ? "inline-flex min-h-9 items-center gap-1.5 rounded-full bg-signal-blue/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-electric-ink border border-signal-blue"
+                      : "inline-flex min-h-9 items-center gap-1.5 rounded-full bg-transparent px-4 py-1.5 text-xs font-semibold uppercase tracking-wider text-slate-500 border border-slate-300 hover:text-signal-blue hover:border-signal-blue/40 transition-colors"
                   }
                 >
-                  {opt === "Offline" && <Building2 size={12} />}
-                  {opt === "Online" && <Globe size={12} />}
+                  {opt === "Offline" && <Building2 size={12} aria-hidden="true" />}
+                  {opt === "Online" && <Globe size={12} aria-hidden="true" />}
                   {opt}
                 </button>
               ))}
@@ -166,22 +170,20 @@ export function EventsListing() {
                   )}
 
                   {/* CTA */}
-                  <Link
-                    href={event.registrationUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full block"
+                  <Button
+                    asChild
+                    className="mt-[7px] min-h-11 w-full bg-signal-blue text-electric-ink hover:bg-signal-blue/90 font-bold py-3 rounded-xl shadow-lg hover:shadow-signal-blue/25 transition-all duration-200 group"
                   >
-                    <Button className="mt-[7px] w-full bg-signal-blue text-electric-ink hover:bg-signal-blue/90 font-bold py-3 rounded-xl shadow-lg hover:shadow-signal-blue/25 transition-all duration-200 group">
-                      <span className="flex items-center justify-center gap-2">
-                        View Event
-                        <ArrowRight
-                          size={20}
-                          className="group-hover:translate-x-1 transition-transform duration-200"
-                        />
-                      </span>
-                    </Button>
-                  </Link>
+                    <Link href={event.registrationUrl} target="_blank" rel="noopener noreferrer">
+                      View Event
+                      <span className="sr-only">: {event.title} (opens Commudle in a new tab)</span>
+                      <ArrowRight
+                        size={20}
+                        aria-hidden="true"
+                        className="group-hover:translate-x-1 transition-transform duration-200"
+                      />
+                    </Link>
+                  </Button>
                 </div>
               </div>
             ))}

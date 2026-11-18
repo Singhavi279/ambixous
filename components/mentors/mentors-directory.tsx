@@ -52,7 +52,8 @@ export function MentorsDirectory() {
         <div className="min-h-screen bg-electric-ink">
             <MentorsHero />
 
-            <section className="container-width section-padding py-12">
+            <section className="container-width section-padding py-12" aria-labelledby="mentor-directory-title">
+                <h2 id="mentor-directory-title" className="sr-only">Mentor directory</h2>
                 <MentorFilters
                     activeCategory={activeCategory}
                     onCategoryChange={setActiveCategory}
@@ -63,7 +64,7 @@ export function MentorsDirectory() {
                 />
 
                 {/* Results count */}
-                <div className="text-center mb-6">
+                <div className="text-center mb-6" aria-live="polite">
                     <span className="text-slate-gray text-sm">
                         Showing <span className="text-ambixous-neon font-semibold">{filteredAndSortedMentors.length}</span> mentor{filteredAndSortedMentors.length !== 1 ? 's' : ''}
                     </span>
