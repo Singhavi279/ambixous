@@ -1,0 +1,5 @@
+# Design and product documentation for contributors and AI tooling.
+# Kept in the repo, never uploaded to Vercel deployments.
+PRODUCT.md
+DESIGN.md
+.impeccable/
