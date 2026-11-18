@@ -6,21 +6,21 @@ export function JoinProcess() {
   const steps = [
     {
       number: "1",
-      title: "Fill this Google Form",
-      description: "Tell us about yourself and your interests",
-      icon: UserPlus,
-    },
-    {
-      number: "2",
       title: "Join our open WhatsApp group",
       description: "Get instant access to our community conversations",
       icon: MessageCircle,
     },
     {
-      number: "3",
+      number: "2",
       title: "Show up when you're ready",
       description: "Lurk, lead, or learn — it's your call",
       icon: Sparkles,
+    },
+    {
+      number: "3",
+      title: "Want to do more? Join the team",
+      description: "Apply for an internship or a volunteer role with Ambixous",
+      icon: UserPlus,
     },
   ]
 
@@ -65,32 +65,33 @@ export function JoinProcess() {
             })}
           </div>
 
-          {/* Google Form Embed */}
-          <div className="max-w-4xl mx-auto">
+          {/* Joining the community happens on WhatsApp */}
+          <div className="flex justify-center">
+            <Button
+              asChild
+              size="lg"
+              className="h-auto min-h-11 w-full whitespace-normal bg-ambixous-neon py-3 text-center font-semibold text-electric-ink transition-all duration-200 hover:bg-ambixous-neon/90 focus-visible:ring-2 focus-visible:ring-warm-white focus-visible:ring-offset-2 focus-visible:ring-offset-electric-ink sm:w-auto"
+            >
+              <a
+                href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <MessageCircle size={20} aria-hidden="true" />
+                Join the Community WhatsApp Group
+                <span className="sr-only">(opens WhatsApp in a new tab)</span>
+              </a>
+            </Button>
+          </div>
+
+          {/* Team application (internships and volunteering) */}
+          <div id="team-application" className="max-w-4xl mx-auto scroll-mt-24">
             <div className="bg-slate-900/50 p-8 rounded-2xl border border-slate-gray/20">
               <div className="text-center space-y-6">
-                <h3 className="text-2xl font-bold text-warm-white">Ready to Join?</h3>
-                <p className="text-slate-gray">Fill out our quick form and step into a network that could change your career.</p>
+                <h3 className="text-2xl font-bold text-warm-white">Join the Ambixous Team</h3>
+                <p className="text-slate-gray">Intern or volunteer with the core team and get hands-on event management, leadership and corporate exposure.</p>
 
                 <JoinForm />
-
-                <div className="pt-6">
-                  <Button
-                    asChild
-                    size="lg"
-                    className="bg-ambixous-neon text-electric-ink hover:bg-ambixous-neon/90 hover:scale-105 transition-all duration-200"
-                  >
-                    <a
-                      href="https://chat.whatsapp.com/KWSzQoOLZ4vJHJZ7KSSD7I?mode=ems_copy_t"
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-2"
-                    >
-                      <MessageCircle size={20} aria-hidden="true" />
-                      Join Community WhatsApp Group
-                    </a>
-                  </Button>
-                </div>
               </div>
             </div>
           </div>
