@@ -1,4 +1,3 @@
-import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -36,31 +35,20 @@ import Magnetic from "./Magnetic"
 import TiltCard from "./TiltCard"
 import CinematicTimeline from "./CinematicTimeline"
 import { Logo } from "@/components/logo"
+import { JsonLd } from "@/components/seo/json-ld"
+import { ORG_ID, WEBSITE_ID, absoluteUrl, breadcrumbJsonLd, pageMetadata } from "@/lib/site"
+import { faqData } from "./faq-data"
 
 /* ─────────────── METADATA ─────────────── */
 
-export const metadata: Metadata = {
-  title: "Creator Fellowship Cohort 01 | Ambixous",
+export const metadata = pageMetadata({
+  title: "Creator Fellowship Cohort 01",
   description:
-    "A 13-week, cohort-based fellowship turning India's creators into creator-entrepreneurs. 12 fellows, 6 live projects, real brand briefs, and jury evaluations. March 29 – July 19, 2026.",
-  openGraph: {
-    title: "Ambixous Creator Fellowship, Cohort 01",
-    description:
-      "Building India's Next Generation of Creator-Entrepreneurs. 13 weeks · 12 fellows · 6 live projects · Real brand briefs.",
-    url: "https://www.ambixous.in/creator-fellowship/cohort-1",
-    siteName: "Ambixous",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Ambixous Creator Fellowship, Cohort 01",
-    description:
-      "Building India's Next Generation of Creator-Entrepreneurs.",
-  },
-  alternates: {
-    canonical: "https://www.ambixous.in/creator-fellowship/cohort-1",
-  },
-}
+    "India's first Creator Fellowship: 13 weeks, 12 fellows, 12 mentors, 6 jury-evaluated projects and 3 real brand briefs. Cohort 01 ran Mar 29 – Jul 19, 2026.",
+  socialDescription:
+    "Building India's next generation of creator-entrepreneurs. 13 weeks · 12 fellows · 6 projects · 3 real brand briefs.",
+  path: "/creator-fellowship/cohort-1",
+})
 
 /* ─────────────── DATA ─────────────── */
 
@@ -325,9 +313,70 @@ const domainColor: Record<string, string> = {
 
 /* ─────────────── PAGE COMPONENT ─────────────── */
 
+/* ─────────────── STRUCTURED DATA ─────────────── */
+
+const pageUrl = absoluteUrl("/creator-fellowship/cohort-1")
+
+const structuredData = [
+  {
+    "@type": "Course",
+    "@id": `${pageUrl}#course`,
+    name: "Ambixous Creator Fellowship",
+    description:
+      "A 13-week, cohort-based fellowship that turns content creators into creator-entrepreneurs through mentorship sessions, live projects on real brand briefs, and independent jury evaluations.",
+    url: pageUrl,
+    provider: { "@id": ORG_ID },
+    inLanguage: "en-IN",
+    educationalLevel: "Beginner",
+    teaches: projects.map((project) => project.title),
+    syllabusSections: projects.map((project) => ({
+      "@type": "Syllabus",
+      name: `Project ${project.number}: ${project.title}`,
+      description: project.focus,
+    })),
+    educationalCredentialAwarded: "Ambixous Creator Fellow — Cohort 01",
+    hasCourseInstance: {
+      "@type": "CourseInstance",
+      name: "Cohort 01",
+      courseMode: "Blended",
+      startDate: "2026-03-29",
+      endDate: "2026-07-19",
+      courseSchedule: {
+        "@type": "Schedule",
+        repeatFrequency: "P1W",
+        startDate: "2026-03-29",
+        endDate: "2026-07-19",
+      },
+      location: { "@type": "Place", name: "Beri Farm, Manesar", address: "Manesar, Haryana, India" },
+      instructor: mentors.map((mentor) => ({
+        "@type": "Person",
+        name: mentor.name,
+        jobTitle: mentor.designation,
+        sameAs: [mentor.linkedin],
+      })),
+    },
+  },
+  {
+    "@type": "FAQPage",
+    "@id": `${pageUrl}#faq`,
+    url: pageUrl,
+    isPartOf: { "@id": WEBSITE_ID },
+    mainEntity: faqData.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  },
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Creator Fellowship Cohort 01", path: "/creator-fellowship/cohort-1" },
+  ]),
+]
+
 export default function CreatorFellowshipCohort1() {
   return (
     <>
+      <JsonLd data={structuredData} />
       <ScrollProgress />
       <AmbientCursor />
 
@@ -1305,12 +1354,9 @@ export default function CreatorFellowshipCohort1() {
           <div className="relative mx-auto max-w-4xl text-center">
             <ScrollReveal variant="blur">
               <div className="mx-auto mb-8 inline-flex items-center gap-3 rounded-full border border-[#B4FF00]/25 bg-[#B4FF00]/[0.06] px-4 py-1.5 backdrop-blur-md">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="pulse-ring absolute inline-flex h-full w-full rounded-full bg-[#B4FF00] opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#B4FF00]" />
-                </span>
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#B4FF00]" aria-hidden="true" />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#B4FF00]">
-                  Cohort 01 is live
+                  Cohort 01 · Graduated July 2026
                 </span>
               </div>
             </ScrollReveal>

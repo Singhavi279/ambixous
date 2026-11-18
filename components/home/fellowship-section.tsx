@@ -56,12 +56,9 @@ export function FellowshipSection() {
             {/* Left: content */}
             <div>
               <div className="inline-flex items-center gap-2.5 rounded-full border border-ambixous-neon/30 bg-ambixous-neon/[0.08] px-4 py-1.5 backdrop-blur-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ambixous-neon opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-ambixous-neon" />
-                </span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-ambixous-neon" aria-hidden="true" />
                 <span className="text-[10px] font-bold uppercase tracking-[0.32em] text-ambixous-neon">
-                  Live Now · Cohort 01
+                  Graduated · Cohort 01
                 </span>
               </div>
 
@@ -129,7 +126,7 @@ export function FellowshipSection() {
               </div>
 
               <p className="mt-5 text-xs uppercase tracking-[0.32em] text-warm-white/30">
-                Mar 29 to Jun 27, 2026 · Founder × Creator Demo Day
+                Mar 29 to Jul 19, 2026 · Founder × Creator MeetUp
               </p>
 
               {/* Mobile and tablet only: condensed cohort proof */}
@@ -218,7 +215,7 @@ export function FellowshipSection() {
                   <div className="mt-7 grid grid-cols-2 gap-3 text-center">
                     {[
                       { v: "6", l: "Niches" },
-                      { v: "11", l: "Mentors" },
+                      { v: "12", l: "Mentors" },
                     ].map((m) => (
                       <div
                         key={m.l}
@@ -252,7 +249,7 @@ export function FellowshipSection() {
                     Final Cut
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-warm-white">
-                    Demo Day · Jun 27
+                    Graduation · Jul 18–19
                   </p>
                 </div>
               </div>

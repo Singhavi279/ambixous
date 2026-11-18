@@ -76,7 +76,7 @@ export function EventsCTA() {
                   asChild
                   className="w-full bg-transparent text-sun-coral hover:bg-sun-coral hover:text-electric-ink font-bold py-3 rounded-xl border-2 border-sun-coral transition-all duration-200"
                 >
-                  <Link href="/startups">Learn More</Link>
+                  <Link href="/startups">Explore event services</Link>
                 </Button>
               </div>
             </div>

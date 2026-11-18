@@ -1,19 +1,14 @@
-import type { Metadata } from "next"
+import { pageMetadata } from "@/lib/site"
 import Link from "next/link"
 import { LegalPage, Section } from "@/components/legal/legal-page"
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
     title: "Privacy Policy",
     description:
         "How Ambixous Innovations LLP collects, uses, shares, and protects your personal data across the Ambixous website, Creator Fellowship, ACE, events, and certificate services.",
-    alternates: { canonical: "https://www.ambixous.in/privacy-policy" },
-    openGraph: {
-        title: "Privacy Policy | Ambixous",
-        description:
-            "How Ambixous collects, uses, and protects your personal data.",
-        url: "https://www.ambixous.in/privacy-policy",
-    },
-}
+    socialDescription: "How Ambixous collects, uses, and protects your personal data.",
+    path: "/privacy-policy",
+})
 
 const LAST_UPDATED = "4 October 2026"
 

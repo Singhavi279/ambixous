@@ -1,76 +1,50 @@
-"use client"
+import { MentorsDirectory } from "@/components/mentors/mentors-directory"
+import { JsonLd } from "@/components/seo/json-ld"
+import { mentors } from "@/lib/mentor-data"
+import { ORG_ID, WEBSITE_ID, absoluteUrl, breadcrumbJsonLd, pageMetadata } from "@/lib/site"
 
-import { useState, useMemo } from "react"
-import { MentorsHero } from "@/components/mentors/mentors-hero"
-import { MentorFilters, SortOption } from "@/components/mentors/mentor-filters"
-import { MentorGrid } from "@/components/mentors/mentor-grid"
-import { mentors, CategoryValue } from "@/lib/mentor-data"
+export const metadata = pageMetadata({
+  title: "Mentors: Founders and Industry Experts",
+  description: `Meet ${mentors.length} Ambixous mentors: founders, growth experts and professionals from Microsoft, Adobe, American Express, Deloitte, Paytm and Times Internet.`,
+  socialDescription: `${mentors.length} founders, growth experts and professionals mentoring the Ambixous community.`,
+  path: "/mentors",
+})
+
+const structuredData = [
+  {
+    "@type": "CollectionPage",
+    "@id": `${absoluteUrl("/mentors")}#page`,
+    url: absoluteUrl("/mentors"),
+    name: "Ambixous Mentors",
+    isPartOf: { "@id": WEBSITE_ID },
+    about: { "@id": ORG_ID },
+    mainEntity: {
+      "@type": "ItemList",
+      numberOfItems: mentors.length,
+      itemListElement: mentors.map((mentor, index) => ({
+        "@type": "ListItem",
+        position: index + 1,
+        item: {
+          "@type": "Person",
+          name: mentor.name,
+          ...(mentor.linkedin ? { sameAs: [mentor.linkedin] } : {}),
+          affiliation: { "@type": "Organization", name: mentor.company },
+          memberOf: { "@id": ORG_ID },
+        },
+      })),
+    },
+  },
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Mentors", path: "/mentors" },
+  ]),
+]
 
 export default function MentorsPage() {
-    const [activeCategory, setActiveCategory] = useState<CategoryValue>('all')
-    const [searchQuery, setSearchQuery] = useState('')
-    const [sortOption, setSortOption] = useState<SortOption>('name-asc')
-
-    const filteredAndSortedMentors = useMemo(() => {
-        let result = [...mentors]
-
-        // Filter by category
-        if (activeCategory !== 'all') {
-            result = result.filter((mentor) => mentor.category === activeCategory)
-        }
-
-        // Filter by search query
-        if (searchQuery.trim()) {
-            const query = searchQuery.toLowerCase().trim()
-            result = result.filter(
-                (mentor) =>
-                    mentor.name.toLowerCase().includes(query) ||
-                    mentor.company.toLowerCase().includes(query)
-            )
-        }
-
-        // Sort
-        result.sort((a, b) => {
-            switch (sortOption) {
-                case 'name-asc':
-                    return a.name.localeCompare(b.name)
-                case 'name-desc':
-                    return b.name.localeCompare(a.name)
-                case 'company-asc':
-                    return a.company.localeCompare(b.company)
-                case 'company-desc':
-                    return b.company.localeCompare(a.company)
-                default:
-                    return 0
-            }
-        })
-
-        return result
-    }, [activeCategory, searchQuery, sortOption])
-
-    return (
-        <div className="min-h-screen bg-electric-ink">
-            <MentorsHero />
-
-            <section className="container-width section-padding py-12">
-                <MentorFilters
-                    activeCategory={activeCategory}
-                    onCategoryChange={setActiveCategory}
-                    searchQuery={searchQuery}
-                    onSearchChange={setSearchQuery}
-                    sortOption={sortOption}
-                    onSortChange={setSortOption}
-                />
-
-                {/* Results count */}
-                <div className="text-center mb-6">
-                    <span className="text-slate-gray text-sm">
-                        Showing <span className="text-ambixous-neon font-semibold">{filteredAndSortedMentors.length}</span> mentor{filteredAndSortedMentors.length !== 1 ? 's' : ''}
-                    </span>
-                </div>
-
-                <MentorGrid mentors={filteredAndSortedMentors} />
-            </section>
-        </div>
-    )
+  return (
+    <>
+      <JsonLd data={structuredData} />
+      <MentorsDirectory />
+    </>
+  )
 }

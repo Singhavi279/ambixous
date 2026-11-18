@@ -1,18 +1,14 @@
-import type { Metadata } from "next"
+import { pageMetadata } from "@/lib/site"
 import Link from "next/link"
 import { LegalPage, Section } from "@/components/legal/legal-page"
 
-export const metadata: Metadata = {
+export const metadata = pageMetadata({
     title: "Terms & Conditions",
     description:
         "The terms governing your use of the Ambixous website and services, including the Creator Fellowship, ACE career studio, events, mentorship, and certificate and document services.",
-    alternates: { canonical: "https://www.ambixous.in/terms" },
-    openGraph: {
-        title: "Terms & Conditions | Ambixous",
-        description: "The terms governing your use of Ambixous services.",
-        url: "https://www.ambixous.in/terms",
-    },
-}
+    socialDescription: "The terms governing your use of Ambixous services.",
+    path: "/terms",
+})
 
 const LAST_UPDATED = "10 June 2026"
 

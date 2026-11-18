@@ -19,7 +19,6 @@ export function Header() {
     {
       name: "Fellowship",
       href: "/creator-fellowship/cohort-1",
-      live: true,
     },
     {
       name: "ACE",
