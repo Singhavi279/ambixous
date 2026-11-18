@@ -49,7 +49,7 @@ export function CommunityHero() {
                 size="lg"
                 className="bg-transparent text-ambixous-neon hover:bg-ambixous-neon hover:text-electric-ink font-bold px-8 py-4 rounded-xl border-2 border-ambixous-neon transition-all duration-200 hover:scale-105 group"
               >
-                <Link href="#join-process" className="flex items-center gap-2">
+                <Link href="#team-application" className="flex items-center gap-2">
                   <Heart size={20} className="group-hover:scale-110 transition-transform duration-200" />
                   Volunteer With Us
                 </Link>

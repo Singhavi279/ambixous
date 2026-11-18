@@ -30,7 +30,7 @@ The community builds the talent and the studio ships the work: client projects a
 
 ## Operating Context
 
-- Community members join through a Google Form and an open WhatsApp group; events are listed and registered on Commudle.
+- Community members join through the open WhatsApp group. A separate Google Form (opened on docs.google.com, never embedded, because it requires Google sign-in) is the application to join the Ambixous team for internships and volunteering. Events are listed and registered on Commudle.
 - Contact is by email (hi.ambixous@gmail.com), WhatsApp and LinkedIn; there is no in-site checkout, account system or CMS for visitors.
 - Events are real-world and online: bootcamps, panels, founder meetups, corporate forums. Cohort 01 of the Fellowship ran Mar 29 to Jul 19, 2026 and has graduated.
 - Certificates and PDF tools (`/certify`, `/pdfstudio`, `/invoxa`) are internal or utility surfaces behind the same domain.

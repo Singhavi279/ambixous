@@ -74,7 +74,7 @@ export function CommunityImpact() {
               variant="outline"
               className="bg-ambixous-neon text-electric-ink hover:border-ambixous-neon/90 hover:scale-105 transition-all duration-200"
             >
-              <Link href="#join-process" className="flex items-center gap-2">
+              <Link href="#team-application" className="flex items-center gap-2">
                 <Heart size={20} className="group-hover:scale-110 transition-transform duration-200" />
                 Volunteer With Us
               </Link>
