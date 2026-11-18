@@ -88,7 +88,7 @@ export function SiteLoader() {
 
       {/* Centered frame */}
       <div className="relative z-10 flex w-full max-w-[560px] flex-col items-center px-6 sm:px-10">
-        <div className="mb-7 flex items-center gap-2 text-[9px] uppercase tracking-[0.4em] text-white/35 sm:mb-10 sm:text-[10px] sm:tracking-[0.5em]">
+        <div className="mb-7 flex items-center gap-2 text-[9px] uppercase tracking-[0.4em] text-white/55 sm:mb-10 sm:text-[10px] sm:tracking-[0.5em]">
           <span className="h-px w-6 bg-white/20 sm:w-8" />
           Ambixous
           <span className="h-px w-6 bg-white/20 sm:w-8" />
@@ -96,7 +96,7 @@ export function SiteLoader() {
 
         <div className="loader-mark mb-9 flex select-none items-center justify-center sm:mb-12">
           <div className="w-[150px] sm:w-[200px] md:w-[240px]">
-            <Logo size="lg" href="" className="w-full h-auto" />
+            <Logo size="lg" href="" className="w-full h-auto" priority />
           </div>
         </div>
 
@@ -108,7 +108,7 @@ export function SiteLoader() {
           <div className="loader-shimmer absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-transparent via-white/40 to-transparent" />
         </div>
 
-        <div className="mt-3.5 flex w-full items-center justify-between text-[9px] uppercase tracking-[0.28em] text-white/30 sm:mt-4 sm:text-[10px] sm:tracking-[0.3em]">
+        <div className="mt-3.5 flex w-full items-center justify-between text-[9px] uppercase tracking-[0.28em] text-white/55 sm:mt-4 sm:text-[10px] sm:tracking-[0.3em]">
           <span>Building. Connecting. Growing.</span>
           <span className="tabular-nums text-white/60">
             {String(progress).padStart(3, "0")}

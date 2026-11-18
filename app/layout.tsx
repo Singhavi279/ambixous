@@ -5,9 +5,10 @@ import Script from "next/script"
 import "./globals.css"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
-import { AuthProvider } from "@/components/auth-provider"
 import { SiteLoader } from "@/components/site/site-loader"
 import { founders } from "@/lib/founders"
+import { JsonLd } from "@/components/seo/json-ld"
+import { OG_IMAGE, ORG_ID, SITE_URL, WEBSITE_ID, personId } from "@/lib/site"
 
 const sora = Sora({
   subsets: ["latin"],
@@ -21,7 +22,7 @@ const inter = Inter({
   display: "swap",
 })
 
-const siteUrl = "https://www.ambixous.in"
+const siteUrl = SITE_URL
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl),
@@ -68,23 +69,15 @@ export const metadata: Metadata = {
     description:
       "Empowering India's next generation of builders. Discover the Creator Fellowship, ACE career studio, and high-impact live community events.",
     locale: "en_IN",
-    images: [
-      {
-        url: "/hero.jpg",
-        width: 1200,
-        height: 630,
-        alt: "Ambixous Creator Community",
-      },
-    ],
+    images: [OG_IMAGE],
   },
   twitter: {
     card: "summary_large_image",
     title: "Ambixous | Creator-Entrepreneur Community",
     description:
       "Creator Fellowship, ACE career studio, and live community events for India's next generation of builders.",
-    images: ["/hero.jpg"],
+    images: [OG_IMAGE.url],
   },
-  alternates: { canonical: siteUrl },
   icons: {
     icon: "/favicon.png",
     apple: "/apple-icon.png",
@@ -99,19 +92,23 @@ export const metadata: Metadata = {
   },
 }
 
+// Site-wide entities. Pages reference these by @id instead of repeating them.
 const organizationJsonLd = {
-  "@context": "https://schema.org",
   "@type": "Organization",
+  "@id": ORG_ID,
   name: "Ambixous",
   legalName: "Ambixous Innovations LLP",
   url: siteUrl,
-  logo: `${siteUrl}/logo.jpg`,
+  logo: { "@type": "ImageObject", url: `${siteUrl}/logo.jpg`, width: 635, height: 160 },
+  image: `${siteUrl}${OG_IMAGE.url}`,
+  slogan: "Build. Connect. Grow. Together.",
   description:
-    "Creator-entrepreneur community and education platform in India. Operates the Creator Fellowship, ACE career studio, and a calendar of live events.",
+    "India's creator-entrepreneur community and growth studio. The community arm runs the Creator Fellowship, the free ACE career studio and live events for a 5,000+ member network; the business arm, Ambixous Innovations LLP, delivers brand, creator-marketing and hiring work for startups and corporates.",
   founder: founders.map((founder) => ({
     "@type": "Person",
+    "@id": personId(founder.name),
     name: founder.name,
-    url: founder.linkedin,
+    sameAs: [founder.linkedin],
   })),
   foundingLocation: { "@type": "Place", name: "India" },
   areaServed: "IN",
@@ -138,12 +135,12 @@ const organizationJsonLd = {
 }
 
 const websiteJsonLd = {
-  "@context": "https://schema.org",
   "@type": "WebSite",
+  "@id": WEBSITE_ID,
   name: "Ambixous",
   url: siteUrl,
   inLanguage: "en-IN",
-  publisher: { "@type": "Organization", name: "Ambixous" },
+  publisher: { "@id": ORG_ID },
 }
 
 export default function RootLayout({
@@ -154,10 +151,6 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${sora.variable} ${inter.variable}`}>
       <head>
-        {/* Certificate Fonts */}
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&family=Montserrat:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&display=swap" rel="stylesheet" />
         {/* Google Analytics */}
         <Script src="https://www.googletagmanager.com/gtag/js?id=G-X78W0PCES1" strategy="afterInteractive" />
         <Script id="google-analytics" strategy="afterInteractive">
@@ -168,26 +161,19 @@ export default function RootLayout({
             gtag('config', 'G-X78W0PCES1');
           `}
         </Script>
-        <Script
-          id="ld-organization"
-          type="application/ld+json"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
-        />
-        <Script
-          id="ld-website"
-          type="application/ld+json"
-          strategy="beforeInteractive"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
-        />
+        <JsonLd data={[organizationJsonLd, websiteJsonLd]} />
       </head>
       <body className="bg-[#010409] text-[#F8F8F8] font-sora antialiased">
-        <AuthProvider>
-          <SiteLoader />
-          <Header />
-          <main className="min-h-screen">{children}</main>
-          <Footer />
-        </AuthProvider>
+        <a
+          href="#main-content"
+          className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[1000] focus:rounded-full focus:bg-ambixous-neon focus:px-5 focus:py-2.5 focus:text-sm focus:font-semibold focus:text-electric-ink focus:outline-none focus:ring-2 focus:ring-warm-white"
+        >
+          Skip to content
+        </a>
+        <SiteLoader />
+        <Header />
+        <main id="main-content" className="min-h-screen">{children}</main>
+        <Footer />
       </body>
     </html>
   )

@@ -15,7 +15,7 @@ type ProductCard = {
 
 const products: ProductCard[] = [
   {
-    label: "Cohort 01 · Live",
+    label: "Cohort 01 · Graduated",
     title: "Creator Fellowship",
     meta: "13 weeks. 12 fellows. 6 real projects.",
     href: "/creator-fellowship/cohort-1",
@@ -68,15 +68,12 @@ export function HeroSection() {
         {/* Status pulse */}
         <Link
           href="/creator-fellowship/cohort-1"
-          aria-label="Creator Fellowship Cohort 01 is live"
+          aria-label="Creator Fellowship Cohort 01 has graduated. See the cohort"
           className="inline-flex items-center gap-2.5 rounded-full border border-ambixous-neon/30 bg-ambixous-neon/[0.08] px-3.5 py-1.5 backdrop-blur transition hover:border-ambixous-neon/60 hover:bg-ambixous-neon/[0.15] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ambixous-neon focus-visible:ring-offset-2 focus-visible:ring-offset-electric-ink"
         >
-          <span className="relative flex h-2 w-2" aria-hidden="true">
-            <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ambixous-neon opacity-75" />
-            <span className="relative inline-flex h-2 w-2 rounded-full bg-ambixous-neon" />
-          </span>
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-ambixous-neon" aria-hidden="true" />
           <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-ambixous-neon sm:text-xs">
-            Creator Fellowship Cohort 01 is live
+            Creator Fellowship Cohort 01 has graduated
           </span>
         </Link>
 
@@ -146,7 +143,7 @@ export function HeroSection() {
                 <it.icon size={18} aria-hidden="true" />
               </div>
               <div className="min-w-0 flex-1 pr-5">
-                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-warm-white/45">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.28em] text-warm-white/55">
                   {it.label}
                 </p>
                 <h2 className="mt-1 text-base font-semibold text-warm-white">{it.title}</h2>
@@ -155,7 +152,7 @@ export function HeroSection() {
               <ArrowRight
                 size={14}
                 aria-hidden="true"
-                className="absolute right-4 top-5 text-warm-white/30 transition-all group-hover:translate-x-0.5 group-hover:text-warm-white/70"
+                className="absolute right-4 top-5 text-warm-white/55 transition-all group-hover:translate-x-0.5 group-hover:text-warm-white/70"
               />
             </Link>
           ))}

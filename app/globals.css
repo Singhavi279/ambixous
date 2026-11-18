@@ -135,6 +135,39 @@
   background-clip: text;
 }
 
+/*
+ * Light surfaces. The brand accents (#B4FF00, #1FB6FF, #FF6978) are built for the
+ * dark Electric Ink canvas and fall to 1.2-2.8:1 as text on white or light-ash.
+ * Inside a light surface, accent *text* switches to its ink variant (AA 4.5:1+);
+ * accent backgrounds, borders and buttons are untouched. Dark panels nested in a
+ * light section opt back out with .bg-electric-ink.
+ */
+:where(.bg-white, .bg-light-ash) .text-ambixous-neon,
+:where(.bg-white, .bg-light-ash) .hover\:text-ambixous-neon:hover,
+:where(.bg-white, .bg-light-ash) .group:hover .group-hover\:text-ambixous-neon {
+  color: theme("colors.ambixous-neon-ink");
+}
+:where(.bg-white, .bg-light-ash) .text-signal-blue,
+:where(.bg-white, .bg-light-ash) .hover\:text-signal-blue:hover,
+:where(.bg-white, .bg-light-ash) .group:hover .group-hover\:text-signal-blue {
+  color: theme("colors.signal-blue-ink");
+}
+:where(.bg-white, .bg-light-ash) .text-sun-coral,
+:where(.bg-white, .bg-light-ash) .hover\:text-sun-coral:hover,
+:where(.bg-white, .bg-light-ash) .group:hover .group-hover\:text-sun-coral {
+  color: theme("colors.sun-coral-ink");
+}
+:where(.bg-white, .bg-light-ash) .text-gradient {
+  background-image: linear-gradient(135deg, theme("colors.ambixous-neon-ink") 0%, theme("colors.signal-blue-ink") 100%);
+}
+:where(.bg-white, .bg-light-ash) .text-slate-500,
+:where(.bg-white, .bg-light-ash) .text-slate-400 {
+  color: theme("colors.slate.600");
+}
+:where(.bg-white, .bg-light-ash) .bg-electric-ink .text-ambixous-neon { color: theme("colors.ambixous-neon"); }
+:where(.bg-white, .bg-light-ash) .bg-electric-ink .text-signal-blue { color: theme("colors.signal-blue"); }
+:where(.bg-white, .bg-light-ash) .bg-electric-ink .text-sun-coral { color: theme("colors.sun-coral"); }
+
 /* Removed @apply with custom colors that Tailwind couldn't resolve */
 /* Button styles - use inline classes in components instead */
 html {

@@ -106,7 +106,7 @@ export function AceSection() {
                   <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-ambixous-neon">
                     Live now
                   </p>
-                  <p className="mt-1 text-xs uppercase tracking-[0.28em] text-warm-white/40">
+                  <p className="mt-1 text-xs uppercase tracking-[0.28em] text-warm-white/55">
                     ace.ambixous.in
                   </p>
                 </div>
@@ -118,13 +118,13 @@ export function AceSection() {
               <div className="mt-7 grid grid-cols-2 gap-3">
                 <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
                   <p className="text-3xl font-bold text-warm-white sm:text-4xl">∞</p>
-                  <p className="mt-1 text-[10px] uppercase tracking-[0.28em] text-warm-white/45">
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.28em] text-warm-white/55">
                     Mock interviews
                   </p>
                 </div>
                 <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-4">
                   <p className="text-3xl font-bold text-warm-white sm:text-4xl">₹0</p>
-                  <p className="mt-1 text-[10px] uppercase tracking-[0.28em] text-warm-white/45">
+                  <p className="mt-1 text-[10px] uppercase tracking-[0.28em] text-warm-white/55">
                     Price, forever
                   </p>
                 </div>

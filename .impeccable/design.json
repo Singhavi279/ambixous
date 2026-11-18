@@ -1,0 +1,392 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-18T13:29:55+00:00",
+  "title": "Design System: Ambixous",
+  "extensions": {
+    "colorMeta": {
+      "electric-ink": {
+        "role": "neutral",
+        "displayName": "Electric Ink",
+        "canonical": "#010409",
+        "tonalRamp": [
+          "#11213B",
+          "#19396E",
+          "#1C4FA5",
+          "#1A65E2",
+          "#5289E3",
+          "#8AADE5",
+          "#BECFEC",
+          "#ECF1F8"
+        ]
+      },
+      "cohort-ink": {
+        "role": "neutral",
+        "displayName": "Cohort Ink",
+        "canonical": "#05070C",
+        "tonalRamp": [
+          "#1B2231",
+          "#2E3A59",
+          "#3D5184",
+          "#4A68B1",
+          "#768BC0",
+          "#A1AECF",
+          "#C9D0E1",
+          "#EFF1F5"
+        ]
+      },
+      "warm-white": {
+        "role": "neutral",
+        "displayName": "Warm White",
+        "canonical": "#F8F8F8",
+        "tonalRamp": [
+          "#262626",
+          "#434343",
+          "#616161",
+          "#7E7E7E",
+          "#9B9B9B",
+          "#B8B8B8",
+          "#D5D5D5",
+          "#F2F2F2"
+        ]
+      },
+      "slate-gray": {
+        "role": "neutral",
+        "displayName": "Slate Gray",
+        "canonical": "#B0B0B0",
+        "tonalRamp": [
+          "#262626",
+          "#434343",
+          "#616161",
+          "#7E7E7E",
+          "#9B9B9B",
+          "#B8B8B8",
+          "#D5D5D5",
+          "#F2F2F2"
+        ]
+      },
+      "light-ash": {
+        "role": "neutral",
+        "displayName": "Light Ash",
+        "canonical": "#F0F0F0",
+        "tonalRamp": [
+          "#262626",
+          "#434343",
+          "#616161",
+          "#7E7E7E",
+          "#9B9B9B",
+          "#B8B8B8",
+          "#D5D5D5",
+          "#F2F2F2"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "White",
+        "canonical": "#FFFFFF",
+        "tonalRamp": [
+          "#262626",
+          "#434343",
+          "#616161",
+          "#7E7E7E",
+          "#9B9B9B",
+          "#B8B8B8",
+          "#D5D5D5",
+          "#F2F2F2"
+        ]
+      },
+      "ambixous-neon": {
+        "role": "primary",
+        "displayName": "Ambixous Neon",
+        "canonical": "#B4FF00",
+        "tonalRamp": [
+          "#31400C",
+          "#59780E",
+          "#84B70B",
+          "#B1FB01",
+          "#C0F540",
+          "#CFF17F",
+          "#E1F2B8",
+          "#F5FAEB"
+        ]
+      },
+      "signal-blue": {
+        "role": "secondary",
+        "displayName": "Signal Blue",
+        "canonical": "#1FB6FF",
+        "tonalRamp": [
+          "#0C2F40",
+          "#0E5678",
+          "#0B7EB7",
+          "#01A9FB",
+          "#40BAF5",
+          "#7FCCF1",
+          "#B8DFF2",
+          "#EBF5FA"
+        ]
+      },
+      "sun-coral": {
+        "role": "tertiary",
+        "displayName": "Sun Coral",
+        "canonical": "#FF6978",
+        "tonalRamp": [
+          "#400C11",
+          "#780E19",
+          "#B70B1C",
+          "#FB011A",
+          "#F54052",
+          "#F17F8A",
+          "#F2B8BE",
+          "#FAEBEC"
+        ]
+      },
+      "ambixous-neon-ink": {
+        "role": "primary",
+        "displayName": "Neon Ink",
+        "canonical": "#547600",
+        "tonalRamp": [
+          "#31400C",
+          "#5A780E",
+          "#85B70B",
+          "#B3FB01",
+          "#C1F540",
+          "#D0F17F",
+          "#E1F2B8",
+          "#F5FAEB"
+        ]
+      },
+      "signal-blue-ink": {
+        "role": "secondary",
+        "displayName": "Blue Ink",
+        "canonical": "#00669A",
+        "tonalRamp": [
+          "#0C2F40",
+          "#0E5578",
+          "#0B7CB7",
+          "#01A6FB",
+          "#40B8F5",
+          "#7FCAF1",
+          "#B8DFF2",
+          "#EBF5FA"
+        ]
+      },
+      "sun-coral-ink": {
+        "role": "tertiary",
+        "displayName": "Coral Ink",
+        "canonical": "#C42B40",
+        "tonalRamp": [
+          "#37151A",
+          "#65212B",
+          "#982939",
+          "#CE2E44",
+          "#D56171",
+          "#DC949E",
+          "#E8C2C8",
+          "#F7EDEF"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "Hero headlines only; 800 weight, tight tracking."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Section titles."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Card and block headings."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Running text, 65 to 75ch."
+      },
+      "lead": {
+        "displayName": "Lead",
+        "purpose": "The sentence under a headline, slate-gray on dark."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Section labels and meta; uppercase, wide tracking, 12px minimum for informational labels."
+      }
+    },
+    "shadows": [
+      {
+        "name": "card-rest",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)",
+        "purpose": "White cards on light sections."
+      },
+      {
+        "name": "card-hover",
+        "value": "0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1)",
+        "purpose": "Lifted state on hover."
+      },
+      {
+        "name": "accent-glow",
+        "value": "0 0 20px rgba(180,255,0,0.15), 0 0 40px rgba(31,182,255,0.08)",
+        "purpose": "Hover glow on selected dark cards (.glass-card-glow)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "ease-reveal",
+        "value": "cubic-bezier(0.22, 1, 0.36, 1)",
+        "purpose": "Scroll reveals (0.9s); disabled under prefers-reduced-motion."
+      },
+      {
+        "name": "ease-card",
+        "value": "cubic-bezier(0.23, 1, 0.32, 1)",
+        "purpose": "Card hover and lift (0.35 to 0.6s)."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "md",
+        "value": "768px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      },
+      {
+        "name": "xl",
+        "value": "1280px"
+      },
+      {
+        "name": "2xl",
+        "value": "1400px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Neon call to action; the one lit control on a dark view.",
+      "html": "<button class=\"ds-btn-primary\">Join Community</button>",
+      "css": ".ds-btn-primary{font-family:Sora,sans-serif;background:#B4FF00;color:#010409;font-size:14px;font-weight:700;padding:8px 24px;height:40px;border:0;border-radius:10px;cursor:pointer;box-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);transition:background .2s,transform .2s,box-shadow .2s}.ds-btn-primary:hover{background:rgba(180,255,0,.9);transform:translateY(-2px);box-shadow:0 10px 25px -5px rgba(180,255,0,.25)}.ds-btn-primary:focus-visible{outline:2px solid #F8F8F8;outline-offset:2px}"
+    },
+    {
+      "name": "Outline Button",
+      "kind": "button",
+      "refersTo": "button-outline-pill",
+      "description": "Secondary action on a white card; fills on hover.",
+      "html": "<button class=\"ds-btn-outline\">Explore event services</button>",
+      "css": ".ds-btn-outline{font-family:Sora,sans-serif;background:transparent;color:#C42B40;font-size:14px;font-weight:700;padding:12px 24px;min-height:44px;border:2px solid #FF6978;border-radius:12px;cursor:pointer;transition:background .2s,color .2s}.ds-btn-outline:hover{background:#FF6978;color:#010409}.ds-btn-outline:focus-visible{outline:2px solid #010409;outline-offset:2px}"
+    },
+    {
+      "name": "Filter Pill",
+      "kind": "chip",
+      "refersTo": "chip-neon",
+      "description": "Event and mentor filters; the selected pill is solid neon.",
+      "html": "<div class=\"ds-pills\"><button class=\"ds-pill ds-pill-on\" aria-pressed=\"true\">Community</button><button class=\"ds-pill\" aria-pressed=\"false\">Corporate</button></div>",
+      "css": ".ds-pills{display:flex;gap:12px}.ds-pill{font-family:Sora,sans-serif;font-size:14px;font-weight:700;padding:10px 24px;min-height:44px;border-radius:12px;border:2px solid #CBD5E1;background:transparent;color:#475569;cursor:pointer;transition:all .2s}.ds-pill:hover{color:#547600;border-color:#B4FF00}.ds-pill-on{background:#B4FF00;color:#010409;border-color:#B4FF00;box-shadow:0 10px 15px -3px rgba(0,0,0,.1)}.ds-pill:focus-visible{outline:2px solid #010409;outline-offset:2px}"
+    },
+    {
+      "name": "Status Chip",
+      "kind": "chip",
+      "refersTo": "chip-neon",
+      "description": "Pale accent tint with matching ink text, for type and mode labels.",
+      "html": "<span class=\"ds-chip\">Community</span>",
+      "css": ".ds-chip{font-family:Sora,sans-serif;display:inline-flex;align-items:center;background:#F0FFCC;color:#547600;font-size:12px;font-weight:600;padding:2px 10px;border-radius:9999px;border:1px solid rgba(180,255,0,.3)}"
+    },
+    {
+      "name": "Light Card",
+      "kind": "card",
+      "refersTo": "card-light",
+      "description": "White proof card on a light-ash section; lifts on hover.",
+      "html": "<div class=\"ds-card-light\"><div class=\"ds-stat\">5,000+</div><div class=\"ds-card-title\">Community Members</div><p class=\"ds-card-text\">Active learners and builders</p></div>",
+      "css": ".ds-card-light{font-family:Sora,sans-serif;background:#fff;color:#010409;padding:32px;border-radius:16px;box-shadow:0 10px 15px -3px rgba(0,0,0,.1),0 4px 6px -4px rgba(0,0,0,.1);transition:transform .3s,box-shadow .3s}.ds-card-light:hover{transform:translateY(-4px);box-shadow:0 20px 25px -5px rgba(0,0,0,.1),0 8px 10px -6px rgba(0,0,0,.1)}.ds-stat{font-size:36px;font-weight:700;color:#547600;font-variant-numeric:tabular-nums}.ds-card-title{font-size:20px;font-weight:600;margin-top:8px}.ds-card-text{color:#475569;margin:8px 0 0;font-size:16px}"
+    },
+    {
+      "name": "Dark Glass Card",
+      "kind": "card",
+      "refersTo": "card-dark",
+      "description": "Translucent card on the ink canvas with a hairline border.",
+      "html": "<div class=\"ds-card-dark\"><h3>Creator Fellowship</h3><p>13 weeks. 12 fellows. 6 real projects.</p></div>",
+      "css": ".ds-card-dark{font-family:Sora,sans-serif;background:linear-gradient(180deg,rgba(255,255,255,.025),transparent);color:#F8F8F8;padding:24px;border-radius:16px;border:1px solid rgba(255,255,255,.06);transition:border-color .5s,transform .5s,box-shadow .35s}.ds-card-dark:hover{border-color:rgba(255,255,255,.14);transform:translateY(-4px);box-shadow:0 0 20px rgba(180,255,0,.15),0 0 40px rgba(31,182,255,.08)}.ds-card-dark h3{margin:0;font-size:20px;font-weight:600}.ds-card-dark p{margin:8px 0 0;color:rgba(248,248,248,.7);font-size:14px}"
+    },
+    {
+      "name": "Search Field",
+      "kind": "input",
+      "refersTo": "",
+      "description": "Pill input on dark with a visible neon focus ring.",
+      "html": "<input class=\"ds-input\" type=\"search\" aria-label=\"Search mentors by name or company\" placeholder=\"Search by name or company…\">",
+      "css": ".ds-input{font-family:Sora,sans-serif;width:280px;padding:12px 16px 12px 44px;border-radius:9999px;background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:#F8F8F8;font-size:16px;transition:border-color .3s,box-shadow .3s}.ds-input::placeholder{color:#B0B0B0}.ds-input:focus-visible{outline:none;border-color:#B4FF00;box-shadow:0 0 0 2px rgba(180,255,0,.6)}"
+    },
+    {
+      "name": "Header",
+      "kind": "nav",
+      "refersTo": "header",
+      "description": "Sticky ink bar: logo, text links that turn neon on hover, neon join button.",
+      "html": "<nav class=\"ds-nav\"><span class=\"ds-logo\">AMBIXOUS</span><a href=\"#\" class=\"ds-link\">About</a><a href=\"#\" class=\"ds-link\">Events</a><a href=\"#\" class=\"ds-link\">Mentors</a><button class=\"ds-nav-cta\">Join Community</button></nav>",
+      "css": ".ds-nav{font-family:Sora,sans-serif;display:flex;align-items:center;gap:32px;height:73px;padding:0 24px;background:rgba(1,4,9,.95);backdrop-filter:blur(4px);border-bottom:1px solid rgba(176,176,176,.2);color:#F8F8F8}.ds-logo{font-weight:800;letter-spacing:.02em;margin-right:auto}.ds-link{color:#F8F8F8;font-weight:500;text-decoration:none;transition:color .2s}.ds-link:hover{color:#B4FF00}.ds-link:focus-visible{outline:2px solid #B4FF00;outline-offset:4px;border-radius:4px}.ds-nav-cta{background:#B4FF00;color:#010409;font-weight:700;font-size:14px;padding:8px 24px;height:40px;border:0;border-radius:10px;cursor:pointer}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Night Studio",
+    "overview": "Ambixous looks like a creative studio working after hours: a near-black canvas (Electric Ink) with one light switched on, a neon lime that marks where to look and what to do next. Between dark stretches the page opens into pale light-ash sections, the daylight of the audience, where white cards carry the proof. The system is credible before it is playful: confident Sora type, hairline borders, real photographs of real people, and numbers that match the live site.\n\nIt serves two audiences equally: students and creators on phones, and brands deciding whether to hire the studio. So every screen has to read in a glance on a mid-range phone over mobile data, and look like a practitioner-grade company on a client's laptop.",
+    "keyCharacteristics": [
+      "Dark canvas by default, pale light-ash sections for proof and information.",
+      "One accent at a time: neon lime leads; blue and coral support.",
+      "Display type is huge, heavy and tightly tracked; everything else is calm.",
+      "Tactile controls: solid lime buttons that lift on hover, generous radii, real soft shadows on light cards.",
+      "Accent colours are for fills, borders and large text; small text on light surfaces uses the darker ink variants."
+    ],
+    "rules": [
+      {
+        "name": "The One Light Rule",
+        "body": "One accent leads any given view. Neon is the action and the focus; blue and coral support it. If everything glows, nothing is the call to action.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink-On-Light Rule",
+        "body": "The bright accents never carry small text on white or light-ash (they fall to 1.2 to 2.8:1). Use the matching ink token for text and keep the bright value for fills, borders and large display type.",
+        "section": "colors"
+      },
+      {
+        "name": "The Opacity Floor Rule",
+        "body": "Muted text on dark is warm-white at 55% or more, or slate-gray at 80% or more, so it stays above 4.5:1. Anything fainter is decorative and must be hidden from assistive tech.",
+        "section": "colors"
+      },
+      {
+        "name": "The Tight Top Rule",
+        "body": "Tracking tightens as size grows (-0.025em at display, -0.06em on oversized numerals) and opens as size shrinks (+0.32em on labels).",
+        "section": "typography"
+      },
+      {
+        "name": "The Numerals Rule",
+        "body": "Counters and stats use tabular figures so they do not shift while counting up.",
+        "section": "typography"
+      },
+      {
+        "name": "The Lift On Response Rule",
+        "body": "Surfaces are still at rest; elevation increases only as a response to hover, focus or selection.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "Do let one accent lead each view; neon marks the action and focus.",
+      "Do use Neon Ink, Blue Ink and Coral Ink for any accent-coloured text smaller than large display on white or light-ash.",
+      "Do keep muted text on dark at 55% warm-white or slate-gray at 80% or above.",
+      "Do keep every informational label legible on a phone (12px or larger) and every primary tap target at least 44px tall.",
+      "Do keep the real figure in the markup for any animated number, and honour prefers-reduced-motion.",
+      "Do keep numbers, dates and facts identical to the live site, and update the page's metadata and JSON-LD in the same change.",
+      "Do put the Ambixous logo on every page, in the header and footer."
+    ],
+    "donts": [
+      "Don't set bright Neon, Blue or Coral as small text on white or light-ash.",
+      "Don't nest a button inside a link (or the reverse); use one interactive element.",
+      "Don't nest cards inside cards.",
+      "Don't hide the focus ring; focus-visible styling is required on every interactive element.",
+      "Don't add decorative weight on mobile: unoptimised hero images, extra web fonts, or third-party embeds that load before they are asked for.",
+      "Don't invent proof: no placeholder logos, quotes, case studies or statistics."
+    ]
+  }
+}

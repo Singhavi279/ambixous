@@ -19,7 +19,6 @@ export function Header() {
     {
       name: "Fellowship",
       href: "/creator-fellowship/cohort-1",
-      live: true,
     },
     {
       name: "ACE",
@@ -40,7 +39,7 @@ export function Header() {
       <nav className="container-width section-padding py-4">
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <Logo size="sm" href="/" />
+          <Logo size="sm" href="/" priority />
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">

@@ -36,7 +36,7 @@ export function HeroSection() {
             <div className="relative z-10 flex flex-col items-center text-center px-4 max-w-2xl mx-auto space-y-8">
                 {/* Logo */}
                 <div className="animate-fade-in">
-                    <Logo size="md" href="/" />
+                    <Logo size="md" href="/" priority />
                 </div>
 
                 {/* Headline */}

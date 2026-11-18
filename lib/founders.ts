@@ -17,7 +17,7 @@ export const founders: Founder[] = [
     linkedin: "https://www.linkedin.com/in/ritigupta05/",
     email: "codework.riti@gmail.com",
     accent: "ambixous-neon",
-    photo: "/founders/riti.png",
+    photo: "/founders/riti.webp",
   },
   {
     name: "Avnish Singh",

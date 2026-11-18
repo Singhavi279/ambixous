@@ -31,6 +31,11 @@ const config = {
         "sun-coral": "#FF6978",
         "warm-white": "#F8F8F8",
         "slate-gray": "#B0B0B0",
+        // Text-only variants of the brand accents for light surfaces (white / light-ash).
+        // Same hue, darkened to clear WCAG AA 4.5:1 on #FFFFFF, #F0F0F0 and their pale accent tints.
+        "ambixous-neon-ink": "#547600",
+        "signal-blue-ink": "#00669A",
+        "sun-coral-ink": "#C42B40",
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",
         ring: "hsl(var(--ring))",

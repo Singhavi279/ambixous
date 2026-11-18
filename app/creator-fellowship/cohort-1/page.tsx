@@ -1,4 +1,3 @@
-import type { Metadata } from "next"
 import Image from "next/image"
 import Link from "next/link"
 import {
@@ -36,31 +35,20 @@ import Magnetic from "./Magnetic"
 import TiltCard from "./TiltCard"
 import CinematicTimeline from "./CinematicTimeline"
 import { Logo } from "@/components/logo"
+import { JsonLd } from "@/components/seo/json-ld"
+import { ORG_ID, WEBSITE_ID, absoluteUrl, breadcrumbJsonLd, pageMetadata } from "@/lib/site"
+import { faqData } from "./faq-data"
 
 /* ─────────────── METADATA ─────────────── */
 
-export const metadata: Metadata = {
-  title: "Creator Fellowship Cohort 01 | Ambixous",
+export const metadata = pageMetadata({
+  title: "Creator Fellowship Cohort 01",
   description:
-    "A 13-week, cohort-based fellowship turning India's creators into creator-entrepreneurs. 12 fellows, 6 live projects, real brand briefs, and jury evaluations. March 29 – July 19, 2026.",
-  openGraph: {
-    title: "Ambixous Creator Fellowship, Cohort 01",
-    description:
-      "Building India's Next Generation of Creator-Entrepreneurs. 13 weeks · 12 fellows · 6 live projects · Real brand briefs.",
-    url: "https://www.ambixous.in/creator-fellowship/cohort-1",
-    siteName: "Ambixous",
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "Ambixous Creator Fellowship, Cohort 01",
-    description:
-      "Building India's Next Generation of Creator-Entrepreneurs.",
-  },
-  alternates: {
-    canonical: "https://www.ambixous.in/creator-fellowship/cohort-1",
-  },
-}
+    "India's first Creator Fellowship: 13 weeks, 12 fellows, 12 mentors, 6 jury-evaluated projects and 3 real brand briefs. Cohort 01 ran Mar 29 – Jul 19, 2026.",
+  socialDescription:
+    "Building India's next generation of creator-entrepreneurs. 13 weeks · 12 fellows · 6 projects · 3 real brand briefs.",
+  path: "/creator-fellowship/cohort-1",
+})
 
 /* ─────────────── DATA ─────────────── */
 
@@ -68,82 +56,82 @@ const fellows = [
   {
     name: "Abhay Mishra",
     niche: "Storyteller",
-    image: "/creatorcohort/fellows/abhay.png",
+    image: "/creatorcohort/fellows/abhay.webp",
     linkedin: "https://www.linkedin.com/in/abhay-mishra-04a442315",
     youtube: "https://m.youtube.com/%40bravey2007",
   },
   {
     name: "Jiya Tomar",
     niche: "MedTech",
-    image: "/creatorcohort/fellows/jiya.png",
+    image: "/creatorcohort/fellows/jiya.webp",
     linkedin: "https://www.linkedin.com/in/jiya-tomar-538b21235",
     instagram: "https://www.instagram.com/techtea_withjiya",
   },
   {
     name: "Kavisha Mathur",
     niche: "Tech",
-    image: "/creatorcohort/fellows/kavisha.png",
+    image: "/creatorcohort/fellows/kavisha.webp",
     linkedin: "https://www.linkedin.com/in/kavisha-mathur/",
     instagram: "https://www.instagram.com/chao.tech_/",
   },
   {
     name: "Krishna N Mehta",
     niche: "Tech",
-    image: "/creatorcohort/fellows/krishnamehta.png",
+    image: "/creatorcohort/fellows/krishnamehta.webp",
     linkedin: "https://www.linkedin.com/in/krishna-n-mehta",
     instagram: "https://www.instagram.com/unscripted.tech/",
   },
   {
     name: "Krishna Sharma",
     niche: "Motivational",
-    image: "/creatorcohort/fellows/krishnasharma.png",
+    image: "/creatorcohort/fellows/krishnasharma.webp",
     linkedin: "https://www.linkedin.com/in/krishna-sharma-387781258",
     instagram: "https://www.instagram.com/eminencexk",
   },
   {
     name: "Lavanya Dua",
     niche: "Lifestyle",
-    image: "/creatorcohort/fellows/lavanya.png",
+    image: "/creatorcohort/fellows/lavanya.webp",
     linkedin: "https://www.linkedin.com/in/lavanyaduadesign/",
     instagram: "https://www.instagram.com/lavanya.duaa",
   },
   {
     name: "Prashasti Agarwal",
     niche: "Tech",
-    image: "/creatorcohort/fellows/prashashti.png",
+    image: "/creatorcohort/fellows/prashashti.webp",
     linkedin: "https://www.linkedin.com/in/agarwalprashasti",
   },
   {
     name: "Shrishti Vaish",
     niche: "Tech",
-    image: "/creatorcohort/fellows/shristi.png",
+    image: "/creatorcohort/fellows/shristi.webp",
     linkedin: "https://www.linkedin.com/in/shrishti-vaish",
     instagram: "https://www.instagram.com/datanshrish",
   },
   {
     name: "Siya Choudhary",
     niche: "Lifestyle",
-    image: "/creatorcohort/fellows/siya.png",
+    image: "/creatorcohort/fellows/siya.webp",
     linkedin: "https://www.linkedin.com/in/choudhary-siya/",
     instagram: "https://www.instagram.com/soyasauce_121",
   },
   {
     name: "Srujal Pawar",
     niche: "Marketing",
-    image: "/creatorcohort/fellows/srujal.png",
+    image: "/creatorcohort/fellows/srujal.webp",
     linkedin: "https://www.linkedin.com/in/srujalpawar/",
   },
   {
     name: "Surya Gupta",
     niche: "Tech",
-    image: "/creatorcohort/fellows/surya.png",
+    image: "/creatorcohort/fellows/surya.webp",
     linkedin: "https://www.linkedin.com/in/surya-gupta-ai",
     instagram: "https://www.instagram.com/suryaweb3",
   },
   {
     name: "Vedansh Chugh",
     niche: "Tech",
-    image: "/creatorcohort/fellows/vedansh.png",
+    image: "/creatorcohort/fellows/vedansh.webp",
     linkedin: "https://www.linkedin.com/in/vedanshchugh2003",
     instagram: "https://www.instagram.com/_its.vedansh",
   },
@@ -154,84 +142,84 @@ const mentors = [
     name: "Abhishek Dubey",
     designation: "Senior UX Consultant, IIT Delhi",
     domain: "Graphics",
-    image: "/creatorcohort/mentors/abhishek.png",
+    image: "/creatorcohort/mentors/abhishek.webp",
     linkedin: "https://www.linkedin.com/in/uxporte/",
   },
   {
     name: "Anand Gangadharan",
     designation: "Manager, Data Products, American Express",
     domain: "Fintech Product",
-    image: "/creatorcohort/mentors/anand.png",
+    image: "/creatorcohort/mentors/anand.webp",
     linkedin: "https://www.linkedin.com/in/anand-gangadharan/",
   },
   {
     name: "Aryendra Prakash Singh",
     designation: "Design @ Publicis Sapient | Co-Organiser @ GDG Noida",
     domain: "Health",
-    image: "/creatorcohort/mentors/aryendra.png",
+    image: "/creatorcohort/mentors/aryendra.webp",
     linkedin: "https://www.linkedin.com/in/hashtagaps/",
   },
   {
     name: "Ayushi Somani",
     designation: "Founder, WildGo Media · 50M+ LinkedIn Impressions",
     domain: "Personal Branding",
-    image: "/creatorcohort/mentors/ayushi.png",
+    image: "/creatorcohort/mentors/ayushi.webp",
     linkedin: "https://www.linkedin.com/in/ayushi-somani-%F0%9F%92%99-46a41811a/",
   },
   {
     name: "Mohina Chadha",
     designation: "Group Product Manager, Times Internet",
     domain: "Fintech Product",
-    image: "/creatorcohort/mentors/mohina.png",
+    image: "/creatorcohort/mentors/mohina.webp",
     linkedin: "https://www.linkedin.com/in/mohinachadha/",
   },
   {
     name: "Priyanka Goel",
     designation: "CoFounder & Chief Marketing Head, Go Grub",
     domain: "F&B Product",
-    image: "/creatorcohort/mentors/priyanka.png",
+    image: "/creatorcohort/mentors/priyanka.webp",
     linkedin: "https://www.linkedin.com/in/priyankagoel13/",
   },
   {
     name: "Sarvistha",
     designation: "Director of Product Design, Rebel Foods",
     domain: "F&B Product",
-    image: "/creatorcohort/mentors/sarvistha.png",
+    image: "/creatorcohort/mentors/sarvistha.webp",
     linkedin: "https://www.linkedin.com/in/sarvistha/",
   },
   {
     name: "Sayantan Dasgupta",
     designation: "Sr. Director Marketing, Think Power Solutions",
     domain: "Personal Branding",
-    image: "/creatorcohort/mentors/sayantan.png",
+    image: "/creatorcohort/mentors/sayantan.webp",
     linkedin: "https://www.linkedin.com/in/sayantandasguptaofficial/",
   },
   {
     name: "Snehlata Singh",
     designation: "LinkedIn Ghostwriter for Coaches & Early Founders",
     domain: "Personal Branding",
-    image: "/creatorcohort/mentors/snehlata.png",
+    image: "/creatorcohort/mentors/snehlata.webp",
     linkedin: "https://www.linkedin.com/in/snehlata-singh/",
   },
   {
     name: "Vanshita Singh",
     designation: "Product Designer 2 @Spinny | Co-Organiser, GDG Noida | WTM Ambassador",
     domain: "Health",
-    image: "/creatorcohort/mentors/vanshita.png",
+    image: "/creatorcohort/mentors/vanshita.webp",
     linkedin: "https://www.linkedin.com/in/vanshify/",
   },
   {
     name: "Varedh Nigam",
     designation: "Associate Director, UX Design, Nagarro",
     domain: "Graphics",
-    image: "/creatorcohort/mentors/varedh.png",
+    image: "/creatorcohort/mentors/varedh.webp",
     linkedin: "https://www.linkedin.com/in/varedhnigam/",
   },
   {
     name: "Yug Sarin",
     designation: "Principal Product Designer, MRSOOL · Ex-Airtel, Bytedance",
     domain: "Video",
-    image: "/creatorcohort/mentors/yug.png",
+    image: "/creatorcohort/mentors/yug.webp",
     linkedin: "https://www.linkedin.com/in/yugsarin/",
   },
 ]
@@ -308,7 +296,7 @@ const timeline = [
 const nicheColor: Record<string, string> = {
   Lifestyle: "bg-pink-500/15 text-pink-300 border border-pink-500/25",
   Tech: "bg-sky-500/15 text-sky-300 border border-sky-500/25",
-  Gaming: "bg-purple-500/15 text-purple-300 border border-purple-500/25",
+  Storyteller: "bg-purple-500/15 text-purple-300 border border-purple-500/25",
   Marketing: "bg-amber-500/15 text-amber-300 border border-amber-500/25",
   Motivational: "bg-emerald-500/15 text-emerald-300 border border-emerald-500/25",
   MedTech: "bg-teal-500/15 text-teal-300 border border-teal-500/25",
@@ -325,13 +313,74 @@ const domainColor: Record<string, string> = {
 
 /* ─────────────── PAGE COMPONENT ─────────────── */
 
+/* ─────────────── STRUCTURED DATA ─────────────── */
+
+const pageUrl = absoluteUrl("/creator-fellowship/cohort-1")
+
+const structuredData = [
+  {
+    "@type": "Course",
+    "@id": `${pageUrl}#course`,
+    name: "Ambixous Creator Fellowship",
+    description:
+      "A 13-week, cohort-based fellowship that turns content creators into creator-entrepreneurs through mentorship sessions, live projects on real brand briefs, and independent jury evaluations.",
+    url: pageUrl,
+    provider: { "@id": ORG_ID },
+    inLanguage: "en-IN",
+    educationalLevel: "Beginner",
+    teaches: projects.map((project) => project.title),
+    syllabusSections: projects.map((project) => ({
+      "@type": "Syllabus",
+      name: `Project ${project.number}: ${project.title}`,
+      description: project.focus,
+    })),
+    educationalCredentialAwarded: "Ambixous Creator Fellow — Cohort 01",
+    hasCourseInstance: {
+      "@type": "CourseInstance",
+      name: "Cohort 01",
+      courseMode: "Blended",
+      startDate: "2026-03-29",
+      endDate: "2026-07-19",
+      courseSchedule: {
+        "@type": "Schedule",
+        repeatFrequency: "P1W",
+        startDate: "2026-03-29",
+        endDate: "2026-07-19",
+      },
+      location: { "@type": "Place", name: "Beri Farm, Manesar", address: "Manesar, Haryana, India" },
+      instructor: mentors.map((mentor) => ({
+        "@type": "Person",
+        name: mentor.name,
+        jobTitle: mentor.designation,
+        sameAs: [mentor.linkedin],
+      })),
+    },
+  },
+  {
+    "@type": "FAQPage",
+    "@id": `${pageUrl}#faq`,
+    url: pageUrl,
+    isPartOf: { "@id": WEBSITE_ID },
+    mainEntity: faqData.map((item) => ({
+      "@type": "Question",
+      name: item.question,
+      acceptedAnswer: { "@type": "Answer", text: item.answer },
+    })),
+  },
+  breadcrumbJsonLd([
+    { name: "Home", path: "/" },
+    { name: "Creator Fellowship Cohort 01", path: "/creator-fellowship/cohort-1" },
+  ]),
+]
+
 export default function CreatorFellowshipCohort1() {
   return (
     <>
+      <JsonLd data={structuredData} />
       <ScrollProgress />
       <AmbientCursor />
 
-      <main className="relative overflow-hidden bg-[#05070C] text-white">
+      <div className="relative overflow-hidden bg-[#05070C] text-white">
         {/* ════════════════════════════════════════════════════════ */}
         {/* HERO — monumental opening frame                          */}
         {/* ════════════════════════════════════════════════════════ */}
@@ -378,7 +427,7 @@ export default function CreatorFellowshipCohort1() {
             </ScrollReveal>
 
             <ScrollReveal variant="blur" delay={120}>
-              <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.5em] text-white/40 sm:text-xs">
+              <p className="mt-8 text-[11px] font-semibold uppercase tracking-[0.5em] text-white/55 sm:text-xs">
                 Ambixous — Creator Studio Initiative
               </p>
             </ScrollReveal>
@@ -399,7 +448,7 @@ export default function CreatorFellowshipCohort1() {
             </ScrollReveal>
 
             <ScrollReveal variant="up" delay={400}>
-              <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.32em] text-white/35">
+              <p className="mt-4 text-[11px] font-medium uppercase tracking-[0.32em] text-white/55">
                 Mar 29 — Jul 19, 2026 · Ambixous Innovations LLP
               </p>
             </ScrollReveal>
@@ -443,7 +492,7 @@ export default function CreatorFellowshipCohort1() {
                     <div className="editorial-number text-4xl text-white sm:text-5xl">
                       {stat.value}
                     </div>
-                    <div className="mt-2 text-[10px] uppercase tracking-[0.32em] text-white/35">
+                    <div className="mt-2 text-[10px] uppercase tracking-[0.32em] text-white/55">
                       {stat.label}
                     </div>
                   </div>
@@ -469,7 +518,7 @@ export default function CreatorFellowshipCohort1() {
               <h2 className="font-editorial mb-4 text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                 Backed by
                 <br />
-                <span className="text-white/40">category leaders.</span>
+                <span className="text-white/55">category leaders.</span>
               </h2>
             </ScrollReveal>
 
@@ -508,7 +557,7 @@ export default function CreatorFellowshipCohort1() {
                   <div className="relative flex h-44 w-full max-w-[320px] shrink-0 items-center justify-center rounded-2xl border border-white/20 bg-gradient-to-b from-white/15 to-white/[0.06] p-4 shadow-2xl backdrop-blur-xl transition-all hover:scale-[1.02] hover:border-[#B4FF00]/40 hover:from-white/20 hover:to-white/10 sm:h-48 sm:max-w-[360px]">
                     <div className="relative h-full w-full">
                       <Image
-                        src="/nori.png"
+                        src="/nori.webp"
                         alt="NORI - Travel Experience Partner"
                         fill
                         className="object-contain p-2 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
@@ -540,7 +589,7 @@ export default function CreatorFellowshipCohort1() {
                   <div className="mt-8 flex h-40 w-full items-center justify-center rounded-2xl border border-white/20 bg-gradient-to-b from-white/15 to-white/[0.06] p-4 shadow-2xl backdrop-blur-xl transition-all hover:scale-[1.02] hover:border-[#1FB6FF]/40 hover:from-white/20 hover:to-white/10 sm:h-44">
                     <div className="relative h-full w-full">
                       <Image
-                        src="/partay.png"
+                        src="/partay.webp"
                         alt="Partay - Vibe Partner"
                         fill
                         className="object-contain p-2 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
@@ -569,7 +618,7 @@ export default function CreatorFellowshipCohort1() {
                   <div className="mt-8 flex h-40 w-full items-center justify-center rounded-2xl border border-white/20 bg-gradient-to-b from-white/15 to-white/[0.06] p-4 shadow-2xl backdrop-blur-xl transition-all hover:scale-[1.02] hover:border-amber-400/40 hover:from-white/20 hover:to-white/10 sm:h-44">
                     <div className="relative h-full w-full">
                       <Image
-                        src="/gkd.png"
+                        src="/gkd.webp"
                         alt="Gift Kya De - Gifting Partner"
                         fill
                         className="object-contain p-2 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.4)]"
@@ -597,12 +646,12 @@ export default function CreatorFellowshipCohort1() {
               <ScrollReveal variant="up" delay={120}>
                 <h2 className="font-editorial text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                   India has creators.{" "}
-                  <span className="text-white/30">It lacks creator-entrepreneurs.</span>
+                  <span className="text-white/55">It lacks creator-entrepreneurs.</span>
                 </h2>
               </ScrollReveal>
 
               <ScrollReveal variant="up" delay={240}>
-                <p className="max-w-md text-base leading-relaxed text-white/45 sm:text-lg">
+                <p className="max-w-md text-base leading-relaxed text-white/55 sm:text-lg">
                   India&apos;s digital creator economy is growing rapidly — yet most
                   creators <span className="font-medium text-white/80">plateau early</span>,
                   posting consistently without translating audience into a sustainable
@@ -642,12 +691,12 @@ export default function CreatorFellowshipCohort1() {
                           <div className="flex h-12 w-12 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.04] transition-all group-hover:border-[#B4FF00]/30 group-hover:bg-[#B4FF00]/[0.08]">
                             <item.icon className="h-5 w-5 text-white/40 transition-colors group-hover:text-[#B4FF00]" />
                           </div>
-                          <span className="text-[10px] font-bold uppercase tracking-[0.32em] text-white/15">
+                          <span aria-hidden="true" className="text-[10px] font-bold uppercase tracking-[0.32em] text-white/15">
                             0{i + 1}
                           </span>
                         </div>
                         <h3 className="mb-3 text-lg font-semibold text-white">{item.title}</h3>
-                        <p className="text-sm leading-relaxed text-white/45">{item.description}</p>
+                        <p className="text-sm leading-relaxed text-white/55">{item.description}</p>
                       </div>
                     </div>
                   </TiltCard>
@@ -674,11 +723,11 @@ export default function CreatorFellowshipCohort1() {
                 <h2 className="font-editorial text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                   Senior leaders.
                   <br />
-                  <span className="text-white/40">Real critique.</span>
+                  <span className="text-white/55">Real critique.</span>
                 </h2>
               </ScrollReveal>
               <ScrollReveal variant="up" delay={240}>
-                <p className="max-w-md text-base leading-relaxed text-white/45 sm:text-lg">
+                <p className="max-w-md text-base leading-relaxed text-white/55 sm:text-lg">
                   Professionals from American Express, Times Internet, Nagarro, IIT Delhi,
                   MRSOOL, Smartsheet, and more — guiding every project.
                 </p>
@@ -714,13 +763,13 @@ export default function CreatorFellowshipCohort1() {
                               href={mentor.linkedin}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-white/30 transition-all hover:border-[#0A66C2]/40 hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
+                              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-white/[0.08] bg-white/[0.03] text-white/55 transition-all hover:border-[#0A66C2]/40 hover:bg-[#0A66C2]/10 hover:text-[#0A66C2]"
                               aria-label={`${mentor.name} LinkedIn`}
                             >
                               <Linkedin className="h-3 w-3" />
                             </a>
                           </div>
-                          <p className="mb-3 text-xs leading-relaxed text-white/40 line-clamp-2">
+                          <p className="mb-3 text-xs leading-relaxed text-white/55 line-clamp-2">
                             {mentor.designation}
                           </p>
                           <span
@@ -761,8 +810,8 @@ export default function CreatorFellowshipCohort1() {
                 </h2>
               </ScrollReveal>
               <ScrollReveal variant="up" delay={240}>
-                <p className="max-w-md text-base leading-relaxed text-white/45 sm:text-lg">
-                  12 creators across six content niches — Lifestyle, Tech, Gaming,
+                <p className="max-w-md text-base leading-relaxed text-white/55 sm:text-lg">
+                  12 creators across six content niches — Lifestyle, Tech, Storytelling,
                   Marketing, MedTech, and Motivational — united by ambition.
                 </p>
               </ScrollReveal>
@@ -847,7 +896,7 @@ export default function CreatorFellowshipCohort1() {
                   </h2>
                 </ScrollReveal>
                 <ScrollReveal variant="up" delay={240}>
-                  <p className="max-w-md text-base leading-relaxed text-white/45 sm:text-lg">
+                  <p className="max-w-md text-base leading-relaxed text-white/55 sm:text-lg">
                     13 weeks. Six live projects. Mentorship from senior industry leaders.
                     Independent jury rounds that mirror the rigour of a top-tier business
                     school — applied entirely to the creator economy.
@@ -905,7 +954,7 @@ export default function CreatorFellowshipCohort1() {
                           <h3 className="mb-3 text-2xl font-semibold tracking-tight text-white sm:text-3xl">
                             {item.title}
                           </h3>
-                          <p className="max-w-xl text-sm leading-relaxed text-white/50 sm:text-base">
+                          <p className="max-w-xl text-sm leading-relaxed text-white/55 sm:text-base">
                             {item.description}
                           </p>
                         </div>
@@ -934,11 +983,11 @@ export default function CreatorFellowshipCohort1() {
                 <h2 className="font-editorial text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                   Six installations.
                   <br />
-                  <span className="text-white/40">One body of work.</span>
+                  <span className="text-white/55">One body of work.</span>
                 </h2>
               </ScrollReveal>
               <ScrollReveal variant="up" delay={240}>
-                <p className="max-w-md text-base leading-relaxed text-white/45 sm:text-lg">
+                <p className="max-w-md text-base leading-relaxed text-white/55 sm:text-lg">
                   Each project is a curated gallery installation — concept, execution,
                   critique. Skills compound from personal branding into product launches
                   on real briefs.
@@ -974,10 +1023,11 @@ export default function CreatorFellowshipCohort1() {
                             }}
                           >
                             <project.icon
-                              className="h-5 w-5 text-white/40 transition-colors group-hover:text-white/80"
+                              className="h-5 w-5 text-white/55 transition-colors group-hover:text-white/80"
                             />
                           </div>
                           <span
+                            aria-hidden="true"
                             className="editorial-number text-5xl opacity-20 transition-all group-hover:opacity-50 sm:text-6xl"
                             style={{ color: project.from }}
                           >
@@ -986,13 +1036,13 @@ export default function CreatorFellowshipCohort1() {
                         </div>
 
                         <div className="mt-auto">
-                          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-white/35">
+                          <p className="mb-3 text-[10px] font-semibold uppercase tracking-[0.32em] text-white/55">
                             Project {project.number}
                           </p>
                           <h3 className="mb-3 text-2xl font-semibold leading-tight tracking-tight text-white">
                             {project.title}
                           </h3>
-                          <p className="text-sm leading-relaxed text-white/50">{project.focus}</p>
+                          <p className="text-sm leading-relaxed text-white/55">{project.focus}</p>
                         </div>
                       </div>
                     </div>
@@ -1018,7 +1068,7 @@ export default function CreatorFellowshipCohort1() {
                       <h3 className="text-xl font-semibold text-white sm:text-2xl">
                         Founder × Creator MeetUp · July 18–19, 2026
                       </h3>
-                      <p className="mt-1 text-sm text-white/45">
+                      <p className="mt-1 text-sm text-white/55">
                         Creators Retreat at Beri Farm, Manesar — 24-hour chill vibe, live shoots & non-stop content creation.
                       </p>
                     </div>
@@ -1058,7 +1108,7 @@ export default function CreatorFellowshipCohort1() {
               </ScrollReveal>
 
               <ScrollReveal variant="up" delay={240}>
-                <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/45 sm:text-lg">
+                <p className="mx-auto mt-6 max-w-lg text-base leading-relaxed text-white/55 sm:text-lg">
                   Mentorship · Execution · Jury — looped across six projects, with two
                   cinematic bookends.
                 </p>
@@ -1085,7 +1135,7 @@ export default function CreatorFellowshipCohort1() {
               <h2 className="font-editorial mb-10 text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl lg:text-7xl">
                 What fellows
                 <br />
-                <span className="text-white/40">leave with.</span>
+                <span className="text-white/55">leave with.</span>
               </h2>
             </ScrollReveal>
 
@@ -1242,7 +1292,7 @@ export default function CreatorFellowshipCohort1() {
             </ScrollReveal>
 
             <ScrollReveal variant="up" delay={380}>
-              <div className="mx-auto mt-10 flex max-w-lg flex-wrap items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-white/50">
+              <div className="mx-auto mt-10 flex max-w-lg flex-wrap items-center justify-center gap-3 text-[10px] uppercase tracking-[0.32em] text-white/55">
                 {[
                   "24-Hour Chill Vibe",
                   "Non-Stop Content Creation",
@@ -1276,12 +1326,12 @@ export default function CreatorFellowshipCohort1() {
               <h2 className="font-editorial mb-4 mt-4 text-center text-4xl font-bold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
                 Everything,
                 <br />
-                <span className="text-white/40">on the record.</span>
+                <span className="text-white/55">on the record.</span>
               </h2>
             </ScrollReveal>
 
             <ScrollReveal variant="up" delay={240}>
-              <p className="mb-14 text-center text-base text-white/45 sm:text-lg">
+              <p className="mb-14 text-center text-base text-white/55 sm:text-lg">
                 The complete dossier for the Creator Fellowship.
               </p>
             </ScrollReveal>
@@ -1305,12 +1355,9 @@ export default function CreatorFellowshipCohort1() {
           <div className="relative mx-auto max-w-4xl text-center">
             <ScrollReveal variant="blur">
               <div className="mx-auto mb-8 inline-flex items-center gap-3 rounded-full border border-[#B4FF00]/25 bg-[#B4FF00]/[0.06] px-4 py-1.5 backdrop-blur-md">
-                <span className="relative flex h-1.5 w-1.5">
-                  <span className="pulse-ring absolute inline-flex h-full w-full rounded-full bg-[#B4FF00] opacity-75" />
-                  <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#B4FF00]" />
-                </span>
+                <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-[#B4FF00]" aria-hidden="true" />
                 <span className="text-[10px] font-semibold uppercase tracking-[0.32em] text-[#B4FF00]">
-                  Cohort 01 is live
+                  Cohort 01 · Graduated July 2026
                 </span>
               </div>
             </ScrollReveal>
@@ -1326,7 +1373,7 @@ export default function CreatorFellowshipCohort1() {
             </ScrollReveal>
 
             <ScrollReveal variant="up" delay={260}>
-              <p className="mx-auto mt-8 max-w-xl text-base leading-relaxed text-white/45 sm:text-lg">
+              <p className="mx-auto mt-8 max-w-xl text-base leading-relaxed text-white/55 sm:text-lg">
                 Applications for Cohort 02 will be announced soon.
                 <br className="hidden sm:block" />
                 Follow Ambixous to stay updated.
@@ -1364,27 +1411,27 @@ export default function CreatorFellowshipCohort1() {
           <div className="relative mx-auto mt-20 max-w-6xl border-t border-white/[0.05] pt-10">
             <div className="grid gap-8 sm:grid-cols-3 sm:items-center">
               <div>
-                <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/30">
+                <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-white/55">
                   Ambixous Innovations LLP
                 </p>
-                <p className="mt-2 text-xs text-white/30">
+                <p className="mt-2 text-xs text-white/55">
                   Building India&apos;s creator-entrepreneur category.
                 </p>
               </div>
               <div className="flex justify-center">
                 <Logo size="md" href="/" />
               </div>
-              <div className="text-left text-xs uppercase tracking-[0.32em] text-white/25 sm:text-right">
+              <div className="text-left text-xs uppercase tracking-[0.32em] text-white/55 sm:text-right">
                 Mar — Jul 2026
               </div>
             </div>
-            <div className="mt-8 flex flex-wrap items-center justify-between gap-4 text-[10px] uppercase tracking-[0.32em] text-white/20">
+            <div className="mt-8 flex flex-wrap items-center justify-between gap-4 text-[10px] uppercase tracking-[0.32em] text-white/55">
               <span>© 2026 Ambixous · All rights reserved</span>
               <span>ambixous.in</span>
             </div>
           </div>
         </section>
-      </main>
+      </div>
     </>
   )
 }
@@ -1441,7 +1488,7 @@ function SocialLink({
       target="_blank"
       rel="noopener noreferrer"
       aria-label={label}
-      className="group/social relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-white/[0.08] bg-white/[0.03] text-white/35 transition-all hover:scale-110 hover:text-white"
+      className="group/social relative flex h-8 w-8 items-center justify-center overflow-hidden rounded-lg border border-white/[0.08] bg-white/[0.03] text-white/55 transition-all hover:scale-110 hover:text-white"
     >
       <span
         className="pointer-events-none absolute inset-0 rounded-lg opacity-0 transition-opacity group-hover/social:opacity-100"

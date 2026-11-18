@@ -7,20 +7,20 @@ import { ArrowRight, Sparkles, Users, Calendar, Briefcase, Trophy } from "lucide
 
 const fellowRows: { name: string; image: string }[][] = [
   [
-    { name: "Abhay Mishra", image: "/creatorcohort/fellows/abhay.png" },
-    { name: "Jiya Tomar", image: "/creatorcohort/fellows/jiya.png" },
-    { name: "Kavisha Mathur", image: "/creatorcohort/fellows/kavisha.png" },
-    { name: "Krishna N Mehta", image: "/creatorcohort/fellows/krishnamehta.png" },
-    { name: "Krishna Sharma", image: "/creatorcohort/fellows/krishnasharma.png" },
-    { name: "Lavanya Dua", image: "/creatorcohort/fellows/lavanya.png" },
+    { name: "Abhay Mishra", image: "/creatorcohort/fellows/abhay.webp" },
+    { name: "Jiya Tomar", image: "/creatorcohort/fellows/jiya.webp" },
+    { name: "Kavisha Mathur", image: "/creatorcohort/fellows/kavisha.webp" },
+    { name: "Krishna N Mehta", image: "/creatorcohort/fellows/krishnamehta.webp" },
+    { name: "Krishna Sharma", image: "/creatorcohort/fellows/krishnasharma.webp" },
+    { name: "Lavanya Dua", image: "/creatorcohort/fellows/lavanya.webp" },
   ],
   [
-    { name: "Prashasti Agarwal", image: "/creatorcohort/fellows/prashashti.png" },
-    { name: "Shrishti Vaish", image: "/creatorcohort/fellows/shristi.png" },
-    { name: "Siya Choudhary", image: "/creatorcohort/fellows/siya.png" },
-    { name: "Srujal Pawar", image: "/creatorcohort/fellows/srujal.png" },
-    { name: "Surya Gupta", image: "/creatorcohort/fellows/surya.png" },
-    { name: "Vedansh Chugh", image: "/creatorcohort/fellows/vedansh.png" },
+    { name: "Prashasti Agarwal", image: "/creatorcohort/fellows/prashashti.webp" },
+    { name: "Shrishti Vaish", image: "/creatorcohort/fellows/shristi.webp" },
+    { name: "Siya Choudhary", image: "/creatorcohort/fellows/siya.webp" },
+    { name: "Srujal Pawar", image: "/creatorcohort/fellows/srujal.webp" },
+    { name: "Surya Gupta", image: "/creatorcohort/fellows/surya.webp" },
+    { name: "Vedansh Chugh", image: "/creatorcohort/fellows/vedansh.webp" },
   ],
 ]
 
@@ -56,16 +56,13 @@ export function FellowshipSection() {
             {/* Left: content */}
             <div>
               <div className="inline-flex items-center gap-2.5 rounded-full border border-ambixous-neon/30 bg-ambixous-neon/[0.08] px-4 py-1.5 backdrop-blur-sm">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-ambixous-neon opacity-75" />
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-ambixous-neon" />
-                </span>
+                <span className="relative inline-flex h-2 w-2 rounded-full bg-ambixous-neon" aria-hidden="true" />
                 <span className="text-[10px] font-bold uppercase tracking-[0.32em] text-ambixous-neon">
-                  Live Now · Cohort 01
+                  Graduated · Cohort 01
                 </span>
               </div>
 
-              <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.4em] text-warm-white/40">
+              <p className="mt-6 text-[11px] font-semibold uppercase tracking-[0.4em] text-warm-white/55">
                 A Flagship Ambixous Initiative
               </p>
 
@@ -99,7 +96,7 @@ export function FellowshipSection() {
                     <div className="text-2xl font-bold text-warm-white sm:text-3xl">
                       {s.value}
                     </div>
-                    <div className="mt-1 text-[10px] uppercase tracking-[0.28em] text-warm-white/35">
+                    <div className="mt-1 text-[10px] uppercase tracking-[0.28em] text-warm-white/55">
                       {s.label}
                     </div>
                   </div>
@@ -128,8 +125,8 @@ export function FellowshipSection() {
                 </Link>
               </div>
 
-              <p className="mt-5 text-xs uppercase tracking-[0.32em] text-warm-white/30">
-                Mar 29 to Jun 27, 2026 · Founder × Creator Demo Day
+              <p className="mt-5 text-xs uppercase tracking-[0.32em] text-warm-white/55">
+                Mar 29 to Jul 19, 2026 · Founder × Creator MeetUp
               </p>
 
               {/* Mobile and tablet only: condensed cohort proof */}
@@ -156,7 +153,7 @@ export function FellowshipSection() {
                 </div>
                 <div>
                   <p className="text-xs font-semibold text-warm-white">12 fellows · 6 niches</p>
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-warm-white/40">
+                  <p className="text-[10px] uppercase tracking-[0.28em] text-warm-white/55">
                     Cohort 01 · Class of 2026
                   </p>
                 </div>
@@ -176,7 +173,7 @@ export function FellowshipSection() {
                       <p className="text-[10px] font-bold uppercase tracking-[0.32em] text-ambixous-neon">
                         Cohort 01
                       </p>
-                      <p className="mt-1 text-xs uppercase tracking-[0.28em] text-warm-white/40">
+                      <p className="mt-1 text-xs uppercase tracking-[0.28em] text-warm-white/55">
                         Class of 2026
                       </p>
                     </div>
@@ -218,14 +215,14 @@ export function FellowshipSection() {
                   <div className="mt-7 grid grid-cols-2 gap-3 text-center">
                     {[
                       { v: "6", l: "Niches" },
-                      { v: "11", l: "Mentors" },
+                      { v: "12", l: "Mentors" },
                     ].map((m) => (
                       <div
                         key={m.l}
                         className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-4 py-3"
                       >
                         <div className="text-2xl font-bold text-warm-white">{m.v}</div>
-                        <div className="mt-1 text-[10px] uppercase tracking-[0.28em] text-warm-white/40">
+                        <div className="mt-1 text-[10px] uppercase tracking-[0.28em] text-warm-white/55">
                           {m.l}
                         </div>
                       </div>
@@ -233,7 +230,7 @@ export function FellowshipSection() {
                   </div>
 
                   <div className="mt-5 flex flex-wrap gap-1.5">
-                    {["Lifestyle", "Tech", "Gaming", "Marketing", "MedTech", "Motivational"].map(
+                    {["Lifestyle", "Tech", "Storytelling", "Marketing", "MedTech", "Motivational"].map(
                       (tag) => (
                         <span
                           key={tag}
@@ -252,7 +249,7 @@ export function FellowshipSection() {
                     Final Cut
                   </p>
                   <p className="mt-0.5 text-sm font-semibold text-warm-white">
-                    Demo Day · Jun 27
+                    Graduation · Jul 18–19
                   </p>
                 </div>
               </div>

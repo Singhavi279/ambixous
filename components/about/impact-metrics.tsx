@@ -1,15 +1,7 @@
-"use client"
-
-import { useEffect, useState } from "react"
 import { Users, Award, TrendingUp, Calendar, Building2, Heart } from "lucide-react"
+import { CountUp } from "@/components/motion/count-up"
 
 export function ImpactMetrics() {
-  const [isVisible, setIsVisible] = useState(false)
-
-  useEffect(() => {
-    setIsVisible(true)
-  }, [])
-
   const metrics = [
     {
       icon: Users,
@@ -61,38 +53,6 @@ export function ImpactMetrics() {
     },
   ]
 
-  const AnimatedNumber = ({ number, suffix }: { number: number; suffix: string }) => {
-    const [displayNumber, setDisplayNumber] = useState(0)
-
-    useEffect(() => {
-      if (isVisible) {
-        const duration = 2000
-        const steps = 60
-        const increment = number / steps
-        let current = 0
-
-        const timer = setInterval(() => {
-          current += increment
-          if (current >= number) {
-            setDisplayNumber(number)
-            clearInterval(timer)
-          } else {
-            setDisplayNumber(Math.floor(current))
-          }
-        }, duration / steps)
-
-        return () => clearInterval(timer)
-      }
-    }, [isVisible, number])
-
-    return (
-      <span>
-        {displayNumber.toLocaleString()}
-        {suffix}
-      </span>
-    )
-  }
-
   return (
     <section className="py-24 bg-light-ash text-electric-ink">
       <div className="container-width section-padding">
@@ -120,12 +80,12 @@ export function ImpactMetrics() {
                   <div className="space-y-4">
                     <div className="flex items-center gap-4">
                       <div className="p-3 bg-slate-100 rounded-xl group-hover:scale-110 transition-transform duration-300">
-                        <Icon className={metric.color} size={24} />
+                        <Icon className={metric.color} size={24} aria-hidden="true" />
                       </div>
                     </div>
                     <div className="space-y-2">
                       <div className={`text-4xl font-bold ${metric.color}`}>
-                        <AnimatedNumber number={metric.number} suffix={metric.suffix} />
+                        <CountUp value={metric.number} suffix={metric.suffix} />
                       </div>
                       <div className="text-xl font-semibold text-electric-ink">{metric.label}</div>
                       <div className="text-slate-600">{metric.description}</div>

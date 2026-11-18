@@ -63,7 +63,7 @@ export function NetworkSection() {
         {/* Header */}
         <div className="container-width section-padding">
           <div className="max-w-3xl">
-            <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-warm-white/40 sm:text-xs">
+            <p className="text-[10px] font-semibold uppercase tracking-[0.4em] text-warm-white/55 sm:text-xs">
               Our network
             </p>
             <h2
@@ -123,7 +123,7 @@ export function NetworkSection() {
                 >
                   {stat.value}
                 </p>
-                <p className="mt-2 text-[10px] uppercase tracking-[0.32em] text-warm-white/45 sm:text-xs">
+                <p className="mt-2 text-[10px] uppercase tracking-[0.32em] text-warm-white/55 sm:text-xs">
                   {stat.label}
                 </p>
               </div>

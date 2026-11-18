@@ -1,38 +1,16 @@
-import type { Metadata } from "next"
+import { pageMetadata } from "@/lib/site"
 import { HeroSection } from "@/components/links/hero-section"
 import { SharePageBar } from "@/components/links/share-page-bar"
 import { LinksGrid } from "@/components/links/links-grid"
 import { EventsBanner } from "@/components/links/events-banner"
 import { Toaster } from "sonner"
 
-export const metadata: Metadata = {
-    title: "Ambixous Links — Connect With Us",
+export const metadata = pageMetadata({
+    title: "Links: Connect With Us",
     description:
-        "All our links in one place. Follow Ambixous across LinkedIn, Instagram, YouTube, Twitter, and explore our flagship product ACE.",
-    openGraph: {
-        title: "Ambixous Links — Connect With Us",
-        description:
-            "All our links in one place. Follow Ambixous across LinkedIn, Instagram, YouTube, Twitter, and explore our flagship product ACE.",
-        url: "https://ambixous.in/links",
-        siteName: "Ambixous",
-        images: [
-            {
-                url: "/hero.jpg",
-                width: 1248,
-                height: 832,
-                alt: "Ambixous cofounders",
-            },
-        ],
-        type: "website",
-    },
-    twitter: {
-        card: "summary_large_image",
-        title: "Ambixous Links — Connect With Us",
-        description:
-            "All our links in one place. Follow Ambixous across LinkedIn, Instagram, YouTube, Twitter, and explore ACE.",
-        images: ["/hero.jpg"],
-    },
-}
+        "All Ambixous links in one place: LinkedIn, Instagram, YouTube, X, the WhatsApp community, events on Commudle, and ACE, our free interview prep studio.",
+    path: "/links",
+})
 
 export default function LinksPage() {
     return (
