@@ -60,6 +60,14 @@ const nextConfig = {
         ],
       },
       {
+        // Lets the worker at /pdfstudio/sw.js control /pdfstudio itself (no trailing slash), and never serves it stale.
+        source: "/pdfstudio/sw.js",
+        headers: [
+          { key: "Service-Worker-Allowed", value: "/pdfstudio" },
+          { key: "Cache-Control", value: "public, max-age=0, must-revalidate" },
+        ],
+      },
+      {
         source: "/pdfstudio/:path*",
         headers: [
           { key: "Cross-Origin-Opener-Policy", value: "same-origin" },
