@@ -107,9 +107,6 @@ async function arrangeFrom(PDFLib, source, plan) {
     return output.save();
 }
 
-export const extractPages = (PDFLib, bytes, indices, password) =>
-    arrangePages(PDFLib, bytes, indices.map(from => ({ from, rotate: 0 })), password);
-
 /** mode: 'ranges' (use `ranges`), 'every' (every `count` pages), 'each' (one file per page). */
 export async function splitPdf(PDFLib, bytes, { mode, ranges, count, baseName: rawName = 'document', password }) {
     const baseName = safeFileName(rawName);
