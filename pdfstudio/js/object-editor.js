@@ -44,7 +44,7 @@ function guessStyle(style) {
  * Groups PDF.js text items into editable lines: items on one baseline with
  * small gaps become a single run. Wide gaps (table columns) stay separate.
  */
-export function buildRuns(content) {
+function buildRuns(content) {
     const styles = content.styles || {};
     const raw = [];
     content.items.forEach((item, index) => {

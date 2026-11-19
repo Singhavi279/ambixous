@@ -167,6 +167,15 @@ async function init() {
     setupNps();
     setupToolsEntryPoints();
     selectTool('select');
+    registerOfflineSupport();
+}
+
+/** Caches the app so it opens and works without a connection after the first visit. */
+function registerOfflineSupport() {
+    if (!('serviceWorker' in navigator) || !window.isSecureContext) return;
+    const base = new URL('..', import.meta.url);                       // /pdfstudio/ in production, / in the dev server
+    const scope = base.pathname.replace(/\/$/, '') || '/';             // "/pdfstudio" so the slash-less URL is covered too
+    navigator.serviceWorker.register(new URL('sw.js', base), { scope }).catch(() => { /* the app works without it */ });
 }
 
 // =============================================

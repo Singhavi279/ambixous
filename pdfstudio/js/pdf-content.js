@@ -22,7 +22,7 @@ export const mul = (m, n) => [
     m[2] * n[0] + m[3] * n[2], m[2] * n[1] + m[3] * n[3],
     m[4] * n[0] + m[5] * n[2] + n[4], m[4] * n[1] + m[5] * n[3] + n[5],
 ];
-export const invert = m => {
+const invert = m => {
     const det = m[0] * m[3] - m[1] * m[2];
     if (!det || !Number.isFinite(det)) return null;
     return [
@@ -30,7 +30,7 @@ export const invert = m => {
         (m[2] * m[5] - m[3] * m[4]) / det, (m[1] * m[4] - m[0] * m[5]) / det,
     ];
 };
-export const applyMatrix = (m, x, y) => [x * m[0] + y * m[2] + m[4], x * m[1] + y * m[3] + m[5]];
+const applyMatrix = (m, x, y) => [x * m[0] + y * m[2] + m[4], x * m[1] + y * m[3] + m[5]];
 
 // ---------------------------------------------
 // Tokenizer
@@ -879,13 +879,6 @@ export function isChain(analysis, firstId, lastId) {
         if (!analysis.shows[i].chained || analysis.shows[i].prev !== analysis.shows[i - 1].id) return false;
     }
     return true;
-}
-
-/** The show drawn immediately after `showId`, if it continues the same pen position. */
-export function chainedSuccessor(analysis, showId) {
-    const index = analysis.shows.findIndex(show => show.id === showId);
-    const next = analysis.shows[index + 1];
-    return next && next.chained && next.prev === showId ? next : null;
 }
 
 /** Best-effort style lookup that does not require a safe match (used for font/colour hints). */

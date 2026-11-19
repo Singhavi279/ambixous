@@ -76,3 +76,15 @@ identifiers are never saved.
 
 Arimo, Tinos and Cousine (SIL Open Font License 1.1, see `fonts/LICENSE-*.txt`), PDF.js (Apache-2.0),
 pdf-lib and fontkit (MIT).
+
+## Offline
+`sw.js` caches the app shell (about 3 MB) on the first visit; fonts and CMaps are cached the first time a document needs them.
+The build writes the file list and a content version into the worker. It is network-first, so a deploy is picked up on the next online visit.
+On ambixous.in the worker is allowed to control `/pdfstudio` by the `Service-Worker-Allowed` header in `next.config.mjs`.
+
+## Testing on real PDFs
+`test/real-pdf.test.mjs` edits a line and deletes an image in your own PDFs, then checks that no pixel outside those two spots changed.
+Real documents usually hold personal data, so they are never committed: point the test at them locally.
+```bash
+PDFSTUDIO_REAL_PDFS="/path/a.pdf:/path/b.pdf" npm run test:pdfstudio
+```
